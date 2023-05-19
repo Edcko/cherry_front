@@ -7,7 +7,7 @@
       <v-container>
         <v-row>
           <v-col cols="12" sm="6" md="4">
-            <v-text-field label="Empleado" v-model="cita.id_empleado" required></v-text-field>
+            <v-text-field label="Terapeuta" v-model="cita.id_empleado" required></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <v-text-field label="Cliente" v-model="cita.id_cliente" required></v-text-field>
@@ -20,7 +20,7 @@
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <v-select
-              :items="['programado', 'cancelado', 'realizado']"
+              :items="['Programado','Realizado', 'Adeudo', 'Cita perdida' ,'Reagendado', 'Cancelado' ]"
               label="Estado"
               v-model="cita.estado"
               required
@@ -54,7 +54,7 @@ export default {
       id_cabina: "",
       id_sesion: "",
       fecha: "",
-      estado: "programado",
+      estado: "Programado",
     });
 
     const onSubmit = () => {

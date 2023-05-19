@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Agenda from '../views/Agenda.vue';
 import Services from '../views/Services.vue';
+import Empleado from '../views/Empleado.vue';
 
 const routes = [
     {
@@ -25,6 +26,12 @@ const routes = [
         name: "Agenda",
         component: Agenda
     },
+    {
+        path: "/empleados",
+        name: "Empleado",
+        component: Empleado,
+    },
+   
 ];
 
 const router = createRouter({

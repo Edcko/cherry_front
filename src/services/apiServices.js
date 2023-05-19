@@ -2,7 +2,7 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = 'http://localhost:3000/cherry/';
+const API_URL = 'http://ec2-18-119-13-4.us-east-2.compute.amazonaws.com:3000/cherry/';
 
 const getEmpleados = async () => {
   
@@ -13,7 +13,6 @@ const getEmpleados = async () => {
   
 };
 
-// Aquí puedes agregar otras solicitudes API
 const getCitas = async () => {
     const response = await axios.get(API_URL + 'citas',{
         headers: authHeader()
@@ -36,6 +35,7 @@ const updateCita = async (cita) => {
 };
 
 const deleteCita = async (id_cita) => {
+  console.log("Delete cita id:", id_cita);
   const response = await axios.delete(API_URL + 'cita/' + id_cita, {
     headers: authHeader(),
   });

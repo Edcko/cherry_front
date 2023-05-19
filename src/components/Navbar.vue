@@ -1,53 +1,49 @@
 <template>
   <v-navigation-drawer v-model="drawer" app>
     <v-list dense>
-      <v-list-item v-for="(item, index) in items" :key="index" router :to="item.link">
+      <v-list-item
+        v-for="(item, index) in items"
+        :key="index"
+        router
+        :to="item.link"
+      >
         <v-list-item-action>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-item-action>
-       
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
-       
+
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
 
   <transition name="fade">
-  <v-app-bar app
-  :elevation="6" rounded="" v-show="showNavbar">
-    <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar app :elevation="6" rounded="" v-show="showNavbar">
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
-    <v-toolbar-title>TANYA DE ICAZA</v-toolbar-title>
+      <v-toolbar-title>TANYA DE ICAZA</v-toolbar-title>
 
-    <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
 
-    
-    <v-btn text  to="/login">Iniciar Sesión</v-btn>
-    <v-btn text >Cerrar Sesión</v-btn>
-    <v-btn text  to="/agenda">Agenda</v-btn>
-    <v-btn text  to="/">Inicio</v-btn>
-
-    
-  </v-app-bar>
-</transition>
+      <v-btn text>Cerrar Sesión</v-btn>
+    </v-app-bar>
+  </transition>
 </template>
-
-
-
-
-
 
 <script>
 export default {
-  name: 'Navbar_Component',
+  name: "Navbar_Component",
 
   data: () => ({
     drawer: false,
     showNavbar: true,
     items: [
-      { title: 'Inicio', icon: 'mdi-home', link: '/' },
-      { title: 'Agenda', icon: 'mdi-calendar', link: '/agenda' },
-      { title: 'Iniciar Sesión', icon: 'mdi-login', link: '/login' },
+      { title: "Inicio", icon: "mdi-home", link: "/" },
+      { title: "Agenda", icon: "mdi-calendar", link: "/agenda" },
+      { title: "Iniciar Sesión", icon: "mdi-login", link: "/login" },
+      { title: "Clientes", icon: "mdi-account-group", link: "/clientes" },
+      { title: "Empleado", icon: "mdi-account", link: "/empleados" },
+      { title: "Sesiones", icon: "mdi-calendar-multiple", link: "/sesiones" },
+      { title: "Servicios", icon: "mdi-hammer-screwdriver", link: "/servicios"},
     ],
   }),
 
@@ -58,11 +54,11 @@ export default {
   },
 
   mounted() {
-    window.addEventListener('scroll', this.handleScroll);
+    window.addEventListener("scroll", this.handleScroll);
   },
 
   beforeUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener("scroll", this.handleScroll);
   },
 
   methods: {
@@ -76,7 +72,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .v-app-bar {
@@ -107,5 +102,4 @@ export default {
 .fade-leave-to {
   opacity: 0;
 }
-
 </style>
