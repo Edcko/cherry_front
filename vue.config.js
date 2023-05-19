@@ -3,13 +3,16 @@ module.exports = defineConfig({
   transpileDependencies: true,
 
   devServer: {
-    public: '0.0.0.0:8080',
-    disableHostCheck: true,
+    allowedHosts: [
+      'ec2-3-14-87-95.us-east-2.compute.amazonaws.com',
+      // Agrega cualquier otro host que necesites aquí
+    ],
   },
-  
+
   pluginOptions: {
     vuetify: {
 			// https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader
 		}
   }
 })
+
