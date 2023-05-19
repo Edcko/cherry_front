@@ -2,7 +2,7 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = 'http://ec2-18-119-13-4.us-east-2.compute.amazonaws.com:3000/cherry/';
+const API_URL = 'http://localhost:3000/cherry/';
 
 const getEmpleados = async () => {
   
