@@ -4,7 +4,7 @@ module.exports = defineConfig({
 
   devServer: {
     allowedHosts: [
-      'ec2-3-14-87-95.us-east-2.compute.amazonaws.com',
+      'ec2-52-15-121-38.us-east-2.compute.amazonaws.com',
       // Agrega cualquier otro host que necesites aquí
     ],
   },
