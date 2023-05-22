@@ -10,15 +10,29 @@ const getEmpleados = async () => {
       headers: authHeader(),
     });
     return response.data;
-  
 };
 
+const getClientes = async () => {
+
+  const response = await axios.get(API_URL + 'clientes', {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
 const getCitas = async () => {
-    const response = await axios.get(API_URL + 'citas',{
+    const response = await axios.get(API_URL + 'citas', {
         headers: authHeader()
     });
     return response.data;
 };
+
+const getSesiones = async () => {
+  const response = await axios.get(API_URL + 'sesiones', {
+    headers: authHeader()
+  });
+  return response.data;
+}
 
 const addCita = async (cita) => {
   const response = await axios.post(API_URL + 'cita/', cita, {
@@ -43,8 +57,10 @@ const deleteCita = async (id_cita) => {
 };
 
 export default {
+  getClientes,
   getEmpleados,
   getCitas,
+  getSesiones,
   addCita,
   updateCita,
   deleteCita,
