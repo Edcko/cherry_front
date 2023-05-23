@@ -34,6 +34,13 @@ const getSesiones = async () => {
   return response.data;
 }
 
+const addCliente = async (cliente) => {
+  const response = await axios.post(API_URL + 'cliente/', cliente, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
+
 const addCita = async (cita) => {
   const response = await axios.post(API_URL + 'cita/', cita, {
     headers: authHeader(),
@@ -61,6 +68,7 @@ export default {
   getEmpleados,
   getCitas,
   getSesiones,
+  addCliente,
   addCita,
   updateCita,
   deleteCita,
