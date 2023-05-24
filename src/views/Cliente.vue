@@ -42,11 +42,16 @@
   <script>
   import { ref, onMounted } from 'vue';
   import apiService from '@/services/apiServices';
+  import useClientes from '@/composables/useClientes';
   
   export default {
     name: 'Cliente_view',
     setup() {
       const clientes = ref([]);
+
+      const {
+        addCliente
+      } = useClientes();
   
       onMounted(async () => {
         try {
@@ -56,10 +61,7 @@
         }
       });
   
-      const createCliente = () => {
-        // Aquí puedes abrir un modal o navegar a otra vista para crear un nuevo cliente
-      };
-  
+     
       const editCliente = () => {
         // Aquí puedes abrir un modal con el formulario de edición del cliente, pasando el cliente actual como prop
       };
@@ -76,7 +78,7 @@
   
       return {
         clientes,
-        createCliente,
+        addCliente,
         editCliente,
         deleteCliente
       };
