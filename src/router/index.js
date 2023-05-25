@@ -4,6 +4,8 @@ import Login from '../views/Login.vue';
 import Agenda from '../views/Agenda.vue';
 import Services from '../views/Services.vue';
 import Empleado from '../views/Empleado.vue';
+import Cliente from '../views/Cliente.vue';
+import Sesion from '../views/Sesion.vue';
 
 const routes = [
     {
@@ -30,6 +32,16 @@ const routes = [
         path: "/empleados",
         name: "Empleado",
         component: Empleado,
+    },
+    {
+        path: "/clientes",
+        name: "Cliente",
+        component: Cliente,
+    },
+    {
+        path: "/sesiones",
+        name: "Sesion",
+        component: Sesion,
     },
    
 ];
