@@ -37,19 +37,34 @@
     </v-table>
   
     <v-btn color="green" @click="createCliente">Registrar Cliente</v-btn>
+
+    <cliente-dialog 
+      :openDialog="openDialog"
+      :closeDialog="closeDialog"
+      :addCliente="addCliente"
+    />
+
   </template>
   
   <script>
   import { ref, onMounted } from 'vue';
   import apiService from '@/services/apiServices';
   import useClientes from '@/composables/useClientes';
+  import ClienteDialog from '../components/ClienteDialog.vue';
   
   export default {
     name: 'Cliente_view',
+    components: {
+        ClienteDialog
+    },
     setup() {
       const clientes = ref([]);
 
       const {
+        dialog,
+        cliente,
+        openDialog,
+        closeDialog,
         addCliente
       } = useClientes();
   
@@ -78,6 +93,10 @@
   
       return {
         clientes,
+        dialog,
+        cliente,
+        openDialog,
+        closeDialog,
         addCliente,
         editCliente,
         deleteCliente
