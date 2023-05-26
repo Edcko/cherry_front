@@ -8,14 +8,15 @@ export default function useClientes(){
         nombre_cliente: "",
         apellido_paterno: "",
         apellido_materno: "",
+        tipo_cliente: "",
         email: "",
         telefono_cliente: "",
         fecha_nacimiento: "",
         sexo: "",
-        direccion: "",
+        id_spa: "",
       });
 
-    const dialog = ref(false);
+      const dialog = ref(false);
     
     const app = getCurrentInstance();
 
@@ -27,11 +28,12 @@ export default function useClientes(){
         dialog.value = false;
       };    
 
-    const addCliente = async (newCliente) => {
+    const createCliente = async (newCliente) => {
        try{
-        await apiServices.addCliente(newCliente);
+        const newClient = await apiServices.addCliente(newCliente);
         closeDialog();
         app.appContext.config.globalProperties.$showAlert("El cliente se registro correctamente.", "success");
+        return newClient; 
        }catch(error){
         console.error(error);
         app.appContext.config.globalProperties.$showAlert("Hubo un error al registar al cliente", "error");
@@ -39,5 +41,6 @@ export default function useClientes(){
 
     }
 
-    return{dialog,cliente,openDialog, closeDialog, addCliente};
+    return{dialog, cliente, openDialog, closeDialog, createCliente};
 }
+

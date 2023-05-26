@@ -1,8 +1,12 @@
 <template>
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent width="1024">
-      <template v-slot:activator="{// eslint-disable-next-line  
-      props }">
+      <template
+        v-slot:activator="{
+          // eslint-disable-next-line
+          props,
+        }"
+      >
         <v-btn color="primary" dark @click="openDialog">
           Registrar Cliente
         </v-btn>
@@ -49,32 +53,18 @@
                   required
                 ></v-text-field>
               </v-col>
+
+
               <v-col cols="12" sm="6">
-                <v-menu
-                  ref="menu"
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="cliente.fecha_nacimiento"
-                      label="Fecha de Nacimiento"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-text-field
-                    label="Fecha de nacimiento"
-                    v-model="cliente.fecha_nacimiento"
-                    type="datetime-local"
-                  ></v-text-field>
-                </v-menu>
-              </v-col>
-              <v-col cols="12" sm="6">
+  <v-text-field 
+    label="Fecha de nacimiento" 
+    v-model="cliente.fecha_nacimiento" 
+    type="date" 
+    required>
+  </v-text-field>
+</v-col>
+
+<v-col cols="12" sm="6">
                 <v-select
                   :items="['M', 'F']"
                   label="Sexo"
@@ -82,6 +72,15 @@
                   required
                 ></v-select>
               </v-col>
+
+    <v-col cols="12" sm="6">
+      <v-text-field
+        label="ID Spa"
+        v-model="cliente.id_spa"
+        required
+      ></v-text-field>
+    </v-col>
+
             </v-row>
           </v-container>
           <small>*indicates required field</small>
@@ -91,7 +90,7 @@
           <v-btn color="blue-darken-1" variant="text" @click="closeDialog">
             Close
           </v-btn>
-          <v-btn color="blue-darken-1" variant="text" @click="saveCliente">
+          <v-btn color="blue-darken-1" variant="text" @click="createCliente(cliente)">
             Save
           </v-btn>
         </v-card-actions>
@@ -102,21 +101,21 @@
 
 <script>
 import useClientes from "@/composables/useClientes";
+import { ref } from "vue";
 
 export default {
   setup() {
-
-    
-    const { dialog, cliente, openDialog, closeDialog, addCliente } =
+    const menu = ref(false);
+    const { dialog, cliente, openDialog, closeDialog, createCliente } =
       useClientes();
     return {
       dialog,
       cliente,
       openDialog,
       closeDialog,
-      addCliente,
+      createCliente,
+      menu
     };
   },
-
 };
 </script>

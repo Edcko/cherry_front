@@ -36,7 +36,7 @@
       </tbody>
     </v-table>
   
-    <v-btn color="green" @click="createCliente">Registrar Cliente</v-btn>
+    <v-btn color="green" @click="openDialog">Registrar Cliente</v-btn>
 
     <cliente-dialog 
       :openDialog="openDialog"
@@ -65,16 +65,23 @@
         cliente,
         openDialog,
         closeDialog,
-        addCliente
+        createCliente,
       } = useClientes();
   
-      onMounted(async () => {
+      const fetchClientes = async () => {
         try {
           clientes.value = await apiService.getClientes();
         } catch (error) {
           console.error(error);
         }
-      });
+      }
+
+      onMounted(fetchClientes);
+  
+       const addCliente = async (newCliente) => {
+        const createdClient = await createCliente(newCliente);
+        if(createdClient) clientes.value.push(createdClient);
+      };
   
      
       const editCliente = () => {
@@ -99,7 +106,7 @@
         closeDialog,
         addCliente,
         editCliente,
-        deleteCliente
+        deleteCliente,
       };
   
     },
