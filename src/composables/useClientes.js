@@ -4,20 +4,8 @@ import { getCurrentInstance } from 'vue';
 
 export default function useClientes(){
 
-    const cliente = ref({
-        nombre_cliente: "",
-        apellido_paterno: "",
-        apellido_materno: "",
-        tipo_cliente: "",
-        email: "",
-        telefono_cliente: "",
-        fecha_nacimiento: "",
-        sexo: "",
-        id_spa: "",
-      });
-
-      const dialog = ref(false);
-    
+    const clientes = ref([]);
+    const dialog = ref(false);
     const app = getCurrentInstance();
 
     const openDialog = () => {
@@ -28,19 +16,18 @@ export default function useClientes(){
         dialog.value = false;
       };    
 
-    const createCliente = async (newCliente) => {
-       try{
-        const newClient = await apiServices.addCliente(newCliente);
-        closeDialog();
-        app.appContext.config.globalProperties.$showAlert("El cliente se registro correctamente.", "success");
-        return newClient; 
-       }catch(error){
-        console.error(error);
-        app.appContext.config.globalProperties.$showAlert("Hubo un error al registar al cliente", "error");
-       }
+      const addCliente = async (newCliente) => {
+        newCliente.created_at = new Date().toISOString();
+        try {
+          const addedCliente = await apiServices.addCliente(newCliente);
+          app.appContext.config.globalProperties.$showAlert("El cliente se dio de alta correctamente.", "success");
+          clientes.value.push(addedCliente);
+        } catch (error) {
+          console.error(error);
+          app.appContext.config.globalProperties.$showAlert("Hubo un error al crear la cliente.", "error");
+        }
+      };
 
-    }
-
-    return{dialog, cliente, openDialog, closeDialog, createCliente};
+    return{dialog, clientes, openDialog, closeDialog, addCliente};
 }
 

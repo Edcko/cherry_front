@@ -36,79 +36,58 @@
       </tbody>
     </v-table>
   
-    <v-btn color="green" @click="openDialog">Registrar Cliente</v-btn>
-
-    <cliente-dialog 
-      :openDialog="openDialog"
-      :closeDialog="closeDialog"
-      :addCliente="addCliente"
-    />
-
+    <v-row justify="center">
+      <v-dialog v-model="showDialog" persistent width="1024">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            color="white"
+            elevation="8"
+            rounded
+            :large="true"
+            class="mx-auto"
+            v-bind="props"
+          >
+            Crear Cliente
+          </v-btn>
+        </template>
+        <cliente-dialog
+          :showDialog="showDialog"
+          @close="showDialog = false"
+          @addCliente="addCliente"
+        />
+      </v-dialog>
+    </v-row>
   </template>
   
   <script>
-  import { ref, onMounted } from 'vue';
-  import apiService from '@/services/apiServices';
-  import useClientes from '@/composables/useClientes';
-  import ClienteDialog from '../components/ClienteDialog.vue';
+  import { onMounted, ref } from "vue";
+  import apiService from "@/services/apiServices";
+  import ClienteDialog from "@/components/ClienteDialog.vue";
+  import useClientes from "@/composables/useClientes";
   
   export default {
-    name: 'Cliente_view',
+    name: "ClientesComponent",
     components: {
-        ClienteDialog
+      ClienteDialog
     },
     setup() {
-      const clientes = ref([]);
-
-      const {
-        dialog,
-        cliente,
-        openDialog,
-        closeDialog,
-        createCliente,
-      } = useClientes();
+      const showDialog = ref(false);
+      const { clientes, addCliente } = useClientes();
   
-      const fetchClientes = async () => {
+      onMounted(async () => {
         try {
           clientes.value = await apiService.getClientes();
         } catch (error) {
           console.error(error);
+          // Agrega aquí el manejo de errores, como mostrar una alerta
         }
-      }
-
-      onMounted(fetchClientes);
-  
-       const addCliente = async (newCliente) => {
-        const createdClient = await createCliente(newCliente);
-        if(createdClient) clientes.value.push(createdClient);
-      };
-  
-     
-      const editCliente = () => {
-        // Aquí puedes abrir un modal con el formulario de edición del cliente, pasando el cliente actual como prop
-      };
-  
-      const deleteCliente = async (id_cliente) => {
-        // Aquí puedes agregar una confirmación antes de borrar el cliente
-        try {
-          await apiService.deleteCliente(id_cliente);
-          clientes.value = clientes.value.filter(cliente => cliente.id_cliente !== id_cliente);
-        } catch (error) {
-          console.error(error);
-        }
-      };
+      });
   
       return {
         clientes,
-        dialog,
-        cliente,
-        openDialog,
-        closeDialog,
         addCliente,
-        editCliente,
-        deleteCliente,
+        showDialog
       };
-  
     },
   };
   </script>
