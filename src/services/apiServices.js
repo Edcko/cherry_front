@@ -4,6 +4,8 @@ import authHeader from './authHeader';
 
 const API_URL = 'http://ec2-3-145-132-49.us-east-2.compute.amazonaws.com:3000/cherry/';
 
+//------------ Get -----------//
+
 const getEmpleados = async () => {
   
     const response = await axios.get(API_URL + 'empleados', {
@@ -34,6 +36,8 @@ const getSesiones = async () => {
   return response.data;
 }
 
+//------------ Add -----------//
+
 const addCliente = async (cliente) => {
   const response = await axios.post(API_URL + 'cliente/', cliente, {
     headers: authHeader(),
@@ -48,12 +52,31 @@ const addCita = async (cita) => {
   return response.data;
 };
 
+//------------ Update -----------//
+
+const updateCliente = async (cliente) => {
+
+  const response = await axios.put(API_URL + 'cliente/' + cliente.id_cliente, cliente, {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
 const updateCita = async (cita) => {
   const response = await axios.put(API_URL + 'cita/' + cita.id_cita, cita, {
     headers: authHeader(),
   });
   return response.data;
 };
+
+//------------ Delete -----------//
+
+const deleteCliente = async (id_cliente) => {
+  const response = await axios.delete(API_URL + 'cliente/' + id_cliente,{
+    headers: authHeader(),
+  });
+  return response.data;
+}
 
 const deleteCita = async (id_cita) => {
   console.log("Delete cita id:", id_cita);
@@ -70,7 +93,9 @@ export default {
   getSesiones,
   addCliente,
   addCita,
+  updateCliente,
   updateCita,
+  deleteCliente,
   deleteCita,
   // Exporta las otras solicitudes API aquí
 };

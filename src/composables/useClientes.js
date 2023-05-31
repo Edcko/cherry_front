@@ -28,6 +28,31 @@ export default function useClientes(){
         }
       };
 
-    return{dialog, clientes, openDialog, closeDialog, addCliente};
+      const updateCliente = async (cliente) => {
+        try{
+            await apiServices.updateCliente(cliente);
+            clientes.value = await apiServices.getClientes();
+            //app.appContext.config.globalProperties.$showAlert("La ")
+        }catch(error){
+          console.error(error);
+        }
+      };
+
+      const deleteCliente = async (cliente) => {
+        try {
+            await apiServices.deleteCliente(cliente.id_cliente);
+            app.appContext.config.globalProperties.$showAlert("El cliente se eliminó correctamente.", "success");
+        }catch (error){
+            console.error("Error deleting cliente", error); 
+        }
+
+        try{
+            clientes.value = await apiServices.getClientes();
+        }catch (error){
+            console.error("Error getting clientes", error);
+        }
+      };
+
+    return{dialog, clientes, openDialog, closeDialog, addCliente, updateCliente, deleteCliente};
 }
 

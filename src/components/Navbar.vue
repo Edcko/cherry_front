@@ -43,7 +43,7 @@ export default {
       { title: "Clientes", icon: "mdi-account-group", link: "/clientes" },
       { title: "Empleado", icon: "mdi-account", link: "/empleados" },
       { title: "Sesiones", icon: "mdi-calendar-multiple", link: "/sesiones" },
-      { title: "Servicios", icon: "mdi-hammer-screwdriver", link: "/servicios"},
+      { title: "Servicios", icon: "mdi-delete", link: "/servicios"},
     ],
   }),
 
