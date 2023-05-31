@@ -1,19 +1,5 @@
-<style scope>
-
-.title-text {
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-</style>
-
 <template>
-  <v-col
-    cols="12"
-    md="6"
-    lg="12"
-    class="mt-5"
-  >
+  <v-col cols="12" md="6" lg="12" class="mt-5">
     <v-card class="mb-3">
       <v-card-title class="headline">
         Número de cita: {{ cita.id_cita }}
@@ -42,6 +28,20 @@
         @closeDialog="showEditDialog = false"
       />
     </v-card>
+
+    <v-dialog v-model="confirmDeleteDialog" max-width="400px">
+      <v-card>
+        <v-card-title class="text-h5">Confirmar Eliminación</v-card-title>
+        <v-card-text>
+          ¿Está seguro de eliminar la cita {{ citaToDelete.id_cita }}?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="confirmDeleteDialog = false">Cancelar</v-btn>
+          <v-btn color="red darken-1" text @click="deleteCita">Eliminar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-col>
 </template>
 
@@ -58,24 +58,27 @@ export default {
     CitaEditDialog,
   },
   props: ["cita"],
-  // eslint-disable-next-line no-unused-vars
   setup(props, {emit}) {
-    
     const showEditDialog = ref(false);
     const currentCita = ref({});
+    const confirmDeleteDialog = ref(false);
+    const citaToDelete = ref(null);
 
     const {    
       changeEstado,
     } = useCitas();
 
     const handleDeleteCita = (cita) => {
-  if (confirm(`¿Está seguro de eliminar la cita ${cita.id_cita}?`)) {
-    emit("deleteCita", cita);
-  }
-};
+      citaToDelete.value = cita;
+      confirmDeleteDialog.value = true;
+    };
 
+    const deleteCita = () => {
+      emit("deleteCita", citaToDelete.value);
+      confirmDeleteDialog.value = false;
+    };
 
-const editCita = (cita) => {
+    const editCita = (cita) => {
       currentCita.value = cita;
       showEditDialog.value = true;
     };
@@ -83,7 +86,6 @@ const editCita = (cita) => {
     const updateCitaFromForm = (cita) => {
       emit('updateCita', cita);
     };
-
 
     return {
       formatDate,
@@ -93,11 +95,12 @@ const editCita = (cita) => {
       updateCitaFromForm,
       changeEstado,
       handleDeleteCita,
+      confirmDeleteDialog,
+      citaToDelete,
+      deleteCita,
     };
   },
-
   methods: {
-
     getColorForEstado(estado) {
       const colors = {
       'adeudo': '#a62520', // Rojo
@@ -106,11 +109,16 @@ const editCita = (cita) => {
       'programado': '#9754af', // Morado
       'realizado': '#77dd77' // Verde pastel
     };
-
-      const color = colors[estado.toLowerCase()] || '#9e9e9e'; // Gris por defecto
-      return chroma(color).hex();
+    const color = colors[estado.toLowerCase()] || '#9e9e9e'; // Gris por defecto
+    return chroma(color).hex();
     },
   },
 };
 </script>
 
+<style scope>
+.title-text {
+  font-size: 1rem;
+  font-weight: bold;
+}
+</style>
