@@ -1,8 +1,5 @@
 <template>
-  <v-table
-    fixed-header
-    height="500px"
-  >
+  <v-table fixed-header height="500px">
     <thead>
       <tr>
         <th class="text-left">ID Cliente</th>
@@ -13,7 +10,6 @@
         <th class="text-left">Teléfono</th>
         <th class="text-left">Fecha de Nacimiento</th>
         <th class="text-left">Sexo</th>
-        <th class="text-left">Dirección</th>
         <th class="text-left">Acciones</th>
       </tr>
     </thead>
@@ -27,17 +23,14 @@
         <td>{{ cliente.telefono_cliente }}</td>
         <td>{{ new Date(cliente.fecha_nacimiento).toLocaleDateString() }}</td>
         <td>{{ cliente.sexo }}</td>
-        <td>{{ cliente.direccion }}</td>
         <td>
-          
           <v-btn color="white" @click="editCliente(cliente)">
             <edit-icon></edit-icon>
           </v-btn>
-          
+
           <v-btn color="error" @click="openDeleteDialog(cliente)">
             <delete-icon></delete-icon>
           </v-btn>
-
         </td>
       </tr>
     </tbody>
@@ -48,11 +41,14 @@
     <v-card>
       <v-card-title class="headline">Confirmación de eliminación</v-card-title>
       <v-card-text>
-        ¿Estás seguro de que deseas eliminar el cliente con ID {{ clientToDelete.id_cliente }}?
+        ¿Estás seguro de que deseas eliminar el cliente con ID
+        {{ clientToDelete.id_cliente }}?
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="deleteDialog = false">No</v-btn>
+        <v-btn color="blue darken-1" text @click="deleteDialog = false"
+          >No</v-btn
+        >
         <v-btn color="red darken-1" text @click="confirmDelete">Sí</v-btn>
       </v-card-actions>
     </v-card>
@@ -71,9 +67,7 @@
           class="mx-auto"
           v-bind="props"
         >
-        <v-icon
-        icon="mdi-checkbox-marked-circle"
-      ></v-icon>
+          <v-icon icon="mdi-checkbox-marked-circle"></v-icon>
           Dar de alta cliente
         </v-btn>
       </template>
@@ -133,12 +127,11 @@ export default {
       addCliente,
       showDialog,
       deleteDialog, // retorna deleteDialog
-      clientToDelete // retorna clientToDelete
+      clientToDelete, // retorna clientToDelete
     };
   },
 };
 </script>
-
 
 <style scoped>
 table {
@@ -160,5 +153,4 @@ tr:hover {
 .button-spacing {
   padding-top: 30px;
 }
-
 </style>

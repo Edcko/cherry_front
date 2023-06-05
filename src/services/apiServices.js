@@ -52,6 +52,13 @@ const addCita = async (cita) => {
   return response.data;
 };
 
+const addEmpleado = async (empleado) => {
+  const response =  await axios.post(API_URL + 'empleado/', empleado, {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
 //------------ Update -----------//
 
 const updateCliente = async (cliente) => {
@@ -68,6 +75,13 @@ const updateCita = async (cita) => {
   });
   return response.data;
 };
+
+const updateEmpleado = async (empleado) => {
+  const response = await axios.put(API_URL + 'empleado/' + empleado.id_empleado, empleado,{
+    headers: authHeader(),
+});
+  return response.data;
+}
 
 //------------ Delete -----------//
 
@@ -86,16 +100,27 @@ const deleteCita = async (id_cita) => {
   return response.data;
 };
 
+const deleteEmpleado = async (id_empleado) => {
+  console.log("Delete empleado id:", id_empleado);
+  const response = await axios.delete(API_URL + 'empleado/' + id_empleado, {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
 export default {
   getClientes,
   getEmpleados,
   getCitas,
   getSesiones,
   addCliente,
+  addEmpleado,
   addCita,
   updateCliente,
+  updateEmpleado,
   updateCita,
   deleteCliente,
+  deleteEmpleado,
   deleteCita,
   // Exporta las otras solicitudes API aquí
 };
