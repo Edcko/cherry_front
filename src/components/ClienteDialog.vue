@@ -82,7 +82,6 @@
         </v-col>
       </v-row>
     </v-container>
-    <small>* indica campo requerido</small>
   </v-card-text>
   <v-card-actions>
     <v-spacer></v-spacer>
