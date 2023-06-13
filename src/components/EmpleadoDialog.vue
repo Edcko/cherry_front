@@ -73,16 +73,25 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="12">
-              <v-text-field
-                label="Fecha de contratacion"
-                v-model="empleado.fecha_contratacion"
-                :rules="[rules.required]"
-                type="date"
-                required
-              ></v-text-field>
-            </v-col>
-          </v-row>
+    <v-col cols="12" sm="6">
+      <v-text-field
+        label="Fecha de contratación"
+        v-model="empleado.fecha_contratacion"
+        :rules="[rules.required]"
+        type="date"
+        required
+      ></v-text-field>
+    </v-col>
+    <v-col cols="12" sm="6">
+      <v-text-field
+        label="Contraseña"
+        v-model="empleado.password_empleado"
+        :rules="[rules.required]"
+        type="password"
+        required
+      ></v-text-field>
+    </v-col>
+  </v-row>
         </v-container>
       </v-card-text>
       <v-card-actions>

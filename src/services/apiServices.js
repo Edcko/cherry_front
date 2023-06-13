@@ -2,7 +2,7 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = 'http://localhost:3000/cherry/';
+const API_URL = 'http://198.199.68.78:3000/cherry/';
 
 //------------ Get -----------//
 
@@ -53,7 +53,7 @@ const addCita = async (cita) => {
 };
 
 const addEmpleado = async (empleado) => {
-  const response =  await axios.post(API_URL + 'empleado/', empleado, {
+  const response = await axios.post(API_URL + 'empleado/', empleado, {
     headers: authHeader(),
   });
   return response.data;

@@ -76,7 +76,7 @@
       <empleado-dialog
         :showDialog="showDialog"
         @close="showDialog = false"
-        @addCliente="addCliente"
+        @addEmpleado="addEmpleado"
       />
     </v-dialog>
   </v-row>
