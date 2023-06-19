@@ -112,6 +112,7 @@ export default {
 
     const openDeleteDialog = (cliente) => {
       clientToDelete.value = cliente;
+      console.log(clientToDelete.value);
       deleteDialog.value = true;
     };
 
