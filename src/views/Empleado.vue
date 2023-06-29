@@ -44,17 +44,22 @@
 
   <!-- Dialogo de confirmacion para eliminar -->
 
-  <v-dialog v-model="deleteDialog" persistent>
-    <v-card>
-      <v-card-title>
-        ¿Estás seguro de que deseas eliminar a este empleado?
-      </v-card-title>
-      <v-card-actions>
-        <v-btn color="error" @click="confirmDelete"> Eliminar </v-btn>
-        <v-btn text @click="deleteDialog = false"> Cancelar </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <v-dialog v-model="deleteDialog" max-width="500px">
+  <v-card>
+    <v-card-title class="headline">Confirmación de eliminación</v-card-title>
+    <v-card-text>
+      ¿Estás seguro de que deseas eliminar al empleado con ID <span v-if="empleadoToDelete">{{ empleadoToDelete.id_empleado }}</span>?
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="blue darken-1" text @click="deleteDialog = false"
+        >No</v-btn
+      >
+      <v-btn color="red darken-1" text @click="confirmDelete">Sí</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
 
   <div class="button-spacing"></div>
 
@@ -84,7 +89,7 @@
 
 <script>
 import { onMounted, ref } from 'vue';
-import apiService from '@/services/apiServices';
+//import apiService from '@/services/apiServices';
 import EditIcon from '@/components/icons/EditIcon.vue';
 import DeleteIcon from '@/components/icons/DeleteIcon.vue';
 import EmpleadoDialog from '@/components/EmpleadoDialog.vue';
@@ -98,27 +103,23 @@ export default {
     EmpleadoDialog,
   },
   setup() {
-    const empleados = ref([]);
     const showDialog =  ref(false);
     const deleteDialog = ref(false);
     const empleadoToDelete = ref(null);
-    const { addEmpleado, deleteEmpleado } = useEmpleados();
+    const {empleados, addEmpleado, deleteEmpleado, fetchEmpleados } = useEmpleados();
 
-    onMounted(async () => {
-      try {
-        empleados.value = await apiService.getEmpleados();
-      } catch (error) {
-        console.error(error);
-      }
-    });
+   onMounted(fetchEmpleados);
 
     const openDeleteDialog = (empleado) => {
       empleadoToDelete.value = empleado;
+      console.log(empleadoToDelete.value); // debug logging
       deleteDialog.value = true;
     };
 
     const confirmDelete = () => {
+      console.log(empleadoToDelete); // debug logging
       deleteEmpleado(empleadoToDelete.value);
+      empleadoToDelete.value = null; // o empleadoToDelete.value = {};
       deleteDialog.value = false;
     };
 
@@ -129,6 +130,7 @@ export default {
       deleteDialog,
       openDeleteDialog,
       confirmDelete,
+      empleadoToDelete,
     };
   },
 };

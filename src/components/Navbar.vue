@@ -2,8 +2,8 @@
   <v-navigation-drawer v-model="drawer" app>
     <v-list dense>
       <v-list-item
-        v-for="(item, index) in items"
-        :key="index"
+        v-for="item in items"
+        :key="item.title"
         router
         :to="item.link"
       >
@@ -20,86 +20,100 @@
     <v-app-bar app :elevation="6" rounded="" v-show="showNavbar">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
-      <v-toolbar-title>TANYA DE ICAZA</v-toolbar-title>
+      <v-spacer></v-spacer>
+
+      <v-img
+        src="../assets/logo_1.png"
+        max-height="250"
+        max-width="250"
+        contain
+        ></v-img>
 
       <v-spacer></v-spacer>
 
-      <v-btn text>Cerrar Sesión</v-btn>
+      
+
+      <v-btn v-if="isLogged" text @click="logout">Cerrar Sesión</v-btn>
     </v-app-bar>
   </transition>
 </template>
 
 <script>
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
 export default {
   name: "Navbar_Component",
 
-  data: () => ({
-    drawer: false,
-    showNavbar: true,
-    items: [
-      { title: "Inicio", icon: "mdi-home", link: "/" },
-      { title: "Agenda", icon: "mdi-calendar", link: "/agenda" },
-      { title: "Iniciar Sesión", icon: "mdi-login", link: "/login" },
-      { title: "Clientes", icon: "mdi-account-group", link: "/clientes" },
-      { title: "Empleado", icon: "mdi-account", link: "/empleados" },
-      { title: "Sesiones", icon: "mdi-calendar-multiple", link: "/sesiones" },
-      { title: "Servicios", icon: "mdi-spa", link: "/servicios"},
-    ],
-  }),
+  props: ['user'],
 
-  watch: {
-    group() {
-      this.drawer = false;
-    },
-  },
+  setup() {
+    const drawer = ref(false);
+    const showNavbar = ref(true);
+    
+    const store = useStore(); // utilizar useStore para acceder al store de Vuex
+    const router = useRouter();
+    const isLogged = computed(() => store.getters.isLoggedIn); // utilizar computed para acceder a una propiedad del store de Vuex
+    console.log('isLogged:', isLogged.value);
 
-  mounted() {
-    window.addEventListener("scroll", this.handleScroll);
-  },
-
-  beforeUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
-  },
-
-  methods: {
-    handleScroll() {
-      if (window.scrollY > 100) {
-        this.showNavbar = false;
+    const items = computed(() => {
+      if (isLogged.value) {
+        return [
+          { title: "Inicio", icon: "mdi-home", link: "/" },
+          { title: "Agenda", icon: "mdi-calendar", link: "/agenda" },
+          { title: "Clientes", icon: "mdi-account-group", link: "/clientes" },
+          { title: "Empleado", icon: "mdi-account", link: "/empleados" },
+          { title: "Sesiones", icon: "mdi-calendar-multiple", link: "/sesiones" },
+          { title: "Servicios", icon: "mdi-spa", link: "/servicios"},
+        ];
       } else {
-        this.showNavbar = true;
+        return [
+        { title: "Inicio", icon: "mdi-home", link: "/" },
+        { title: "Iniciar Sesión", icon: "mdi-login", link: "/login" },
+          
+        ];
       }
-    },
+    });
+
+    const username = ref('');
+    const password = ref('');
+
+    const login = async () => {
+      try{
+        await store.dispatch('login', {email: username.value, password: password.value});
+      }catch(error){
+        console.log('Hubo un error durante el inicio de sesion', error);
+      }
+    };
+
+    const logout = async () => {
+      try{
+        await store.dispatch('logout');
+        router.push('/login');
+      }catch(error){
+        console.log('Hubo un error durante el cierre de sesion', error);
+      }
+    };
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 100) {
+        showNavbar.value = false;
+      } else {
+        showNavbar.value = true;
+      }
+    });
+
+    return {
+      drawer,
+      showNavbar,
+      items,
+      isLogged,
+      username,
+      password,
+      login,
+      logout,
+    };
   },
 };
 </script>
-
-<style scoped>
-.v-app-bar {
-  background-color: transparent;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.nav-logo {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.nav-btn {
-  margin-left: 1rem;
-  transition: all 0.3s ease;
-}
-
-.nav-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

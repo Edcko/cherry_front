@@ -2,7 +2,7 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = 'http://198.199.68.78:3000/cherry/';
+const API_URL = 'http://localhost:3000/cherry/';
 
 //------------ Get -----------//
 
