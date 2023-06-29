@@ -1,4 +1,3 @@
-// src/services/auth.js
 import axios from 'axios';
 
 const API_URL = 'http://localhost:3000/cherry/auth/';
@@ -9,6 +8,7 @@ const login = async (email, password_empleado) => {
     password_empleado,
   });
   if (response.data.token) {
+    console.log('Inicio de sesion exitoso', response.data);
     localStorage.setItem('user', JSON.stringify(response.data));
   }
   return response.data;
@@ -16,6 +16,7 @@ const login = async (email, password_empleado) => {
 
 const logout = () => {
   localStorage.removeItem('user');
+  console.log('Cierre de sesion exitoso');
 };
 
 export default {
