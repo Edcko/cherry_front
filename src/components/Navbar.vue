@@ -64,8 +64,8 @@ export default {
           { title: "Agenda", icon: "mdi-calendar", link: "/agenda" },
           { title: "Clientes", icon: "mdi-account-group", link: "/clientes" },
           { title: "Empleado", icon: "mdi-account", link: "/empleados" },
-          { title: "Sesiones", icon: "mdi-calendar-multiple", link: "/sesiones" },
-          { title: "Servicios", icon: "mdi-spa", link: "/servicios"},
+//         { title: "Sesiones", icon: "mdi-calendar-multiple", link: "/sesiones" },
+//          { title: "Servicios", icon: "mdi-spa", link: "/servicios"},
         ];
       } else {
         return [
