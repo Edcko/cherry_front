@@ -1,6 +1,7 @@
 <template>
   <div>
-    <v-calendar
+    <v-calendar :rows="2"
+      ref="calendar"
       expanded
       :attributes="calendarAttributes"
       @dayclick="onDayClick"
@@ -11,13 +12,14 @@
 
 <script>
 import useCitas from "@/composables/useCitas.js";
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 
 export default {
   name: "CitaCalendar",
   props: ["citas"],
   setup(props) {
 
+    const calendar = ref(null);
     const disabledDates = ref([]);
 
     const { getSundays } = useCitas();
@@ -80,7 +82,14 @@ export default {
       }).length;
     };
 
+    onMounted(async () => {
+      if(calendar.value){
+        await calendar.value.move(new Date())
+      }
+    });
+
     return {
+      calendar,
       calendarAttributes,
       onDayClick,
       disabledDates,

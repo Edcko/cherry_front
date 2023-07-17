@@ -7,12 +7,14 @@
       <router-view/>
     </v-main>
 
+    
+
+
     <global-alert
         :show="showGlobalAlert"
         :message="globalAlertMessage"
         :type="globalAlertType"
       />
-    <test-component></test-component>
   </v-app>
 </template>
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://198.199.68.78:3000/cherry/auth/';
+const API_URL = 'http://localhost:3000/cherry/auth/';
 
 const login = async (email, password_empleado) => {
   const response = await axios.post(API_URL + 'login', {

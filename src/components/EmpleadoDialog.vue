@@ -1,7 +1,7 @@
 <template>
     <v-card>
       <v-card-title>
-        <span class="text-h5">Datos del Empleado</span>
+        <span class="text-h5">Dar de alta empleado</span>
       </v-card-title>
       <v-card-text>
         <v-container>
@@ -63,13 +63,15 @@
               ></v-select>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-text-field 
-                label="Fecha de nacimiento" 
-                v-model="empleado.fecha_nacimiento" 
-                :rules="[rules.required]"
-                type="date" 
-                required>
-              </v-text-field>
+
+              <v-text-field
+        label="Contraseña"
+        v-model="empleado.password_empleado"
+        :rules="[rules.required]"
+        type="password"
+        required
+      ></v-text-field>
+
             </v-col>
           </v-row>
           <v-row>
@@ -83,13 +85,15 @@
       ></v-text-field>
     </v-col>
     <v-col cols="12" sm="6">
-      <v-text-field
-        label="Contraseña"
-        v-model="empleado.password_empleado"
-        :rules="[rules.required]"
-        type="password"
-        required
-      ></v-text-field>
+      
+      <v-text-field 
+                label="Fecha de nacimiento" 
+                v-model="empleado.fecha_nacimiento" 
+                :rules="[rules.required]"
+                type="date" 
+                required>
+              </v-text-field>
+
     </v-col>
   </v-row>
         </v-container>

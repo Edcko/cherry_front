@@ -18,7 +18,7 @@
               class="mx-auto"
               v-bind="props"
             >
-              Crear Cita
+              Agendar Cita
             </v-btn>
           </template>
           <cita-dialog
@@ -38,20 +38,21 @@
     />
 
     <v-row>
-      <v-col cols="12" md="4" v-for="cabinaId in 3" :key="'cabina-' + cabinaId">
-        <v-divider :key="'divider-' + cabinaId"></v-divider>
-        <h3 class="text-center">Cabina {{ cabinaId }}</h3>
-        <cita-card
-          class="custom-card"
-          v-for="cita in getCitasByCabina(cabinaId)"
-          :key="cita.id_cita"
-          :cita="cita"
-          @updateCita="updateCita"
-          @deleteCita="handleDeleteCita"
-          @updateEstado="updateCita"
-        />
-      </v-col>
-    </v-row>
+  <v-col cols="12" md="3" v-for="numeroCabina in 4" :key="'cabina-' + numeroCabina">
+    <v-divider :key="'divider-' + numeroCabina"></v-divider>
+    <h3 class="text-center">Cabina {{ numeroCabina }}</h3>
+    <cita-card
+      class="custom-card"
+      v-for="cita in getCitasByCabina(numeroCabina)"
+      :key="cita.id_cita"
+      :cita="cita"
+      @updateCita="updateCita"
+      @deleteCita="handleDeleteCita"
+      @updateEstado="updateCita"
+    />
+  </v-col>
+</v-row>
+
   </div>
 </template>
 

@@ -2,7 +2,7 @@
   <v-table fixed-header height="500px">
     <thead>
       <tr>
-        <th class="text-left">ID</th>
+<!--        <th class="text-left">ID</th> -->
         <th class="text-left">Nombre</th>
         <th class="text-left">Apellido Paterno</th>
         <th class="text-left">Apellido Materno</th>
@@ -17,7 +17,7 @@
     </thead>
     <tbody>
       <tr v-for="empleado in empleados" :key="empleado.id_empleado">
-        <td>{{ empleado.id_empleado }}</td>
+<!--        <td>{{ empleado.id_empleado }}</td> -->
         <td>{{ empleado.nombre_empleado }}</td>
         <td>{{ empleado.apellido_paterno }}</td>
         <td>{{ empleado.apellido_materno }}</td>
@@ -30,9 +30,11 @@
           {{ new Date(empleado.fecha_contratacion).toLocaleDateString() }}
         </td>
         <td>
-          <v-btn color="white" @click="editEmpleado(empleado)">
+<!--          <v-btn color="white" @click="editEmpleado(empleado)">
             <edit-icon></edit-icon>
           </v-btn>
+
+          -->
 
           <v-btn color="error" @click="openDeleteDialog(empleado)">
             <delete-icon></delete-icon>
@@ -90,7 +92,7 @@
 <script>
 import { onMounted, ref } from 'vue';
 //import apiService from '@/services/apiServices';
-import EditIcon from '@/components/icons/EditIcon.vue';
+//import EditIcon from '@/components/icons/EditIcon.vue';
 import DeleteIcon from '@/components/icons/DeleteIcon.vue';
 import EmpleadoDialog from '@/components/EmpleadoDialog.vue';
 import useEmpleados from '@/composables/useEmpleados';
@@ -98,7 +100,7 @@ import useEmpleados from '@/composables/useEmpleados';
 export default {
   name: 'Empleado_view',
   components: {
-    EditIcon,
+ // EditIcon,
     DeleteIcon,
     EmpleadoDialog,
   },

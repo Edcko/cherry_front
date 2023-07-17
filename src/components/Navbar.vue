@@ -22,12 +22,14 @@
 
       <v-spacer></v-spacer>
 
+      <!--  
       <v-img
         src="../assets/logo_1.png"
         max-height="250"
         max-width="250"
         contain
         ></v-img>
+        -->
 
       <v-spacer></v-spacer>
 
@@ -64,8 +66,8 @@ export default {
           { title: "Agenda", icon: "mdi-calendar", link: "/agenda" },
           { title: "Clientes", icon: "mdi-account-group", link: "/clientes" },
           { title: "Empleado", icon: "mdi-account", link: "/empleados" },
-//         { title: "Sesiones", icon: "mdi-calendar-multiple", link: "/sesiones" },
-//          { title: "Servicios", icon: "mdi-spa", link: "/servicios"},
+          { title: "Cabinas", icon: "mdi-calendar-multiple", link: "/cabinas" },
+          { title: "Paquetes", icon: "mdi-spa", link: "/Paquetes"},
         ];
       } else {
         return [

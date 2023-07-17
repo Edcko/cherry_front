@@ -2,7 +2,7 @@
   <v-table fixed-header height="500px">
     <thead>
       <tr>
-        <th class="text-left">ID Cliente</th>
+      <!--  <th class="text-left">ID Cliente</th> -->
         <th class="text-left">Nombre</th>
         <th class="text-left">Apellido Paterno</th>
         <th class="text-left">Apellido Materno</th>
@@ -15,7 +15,7 @@
     </thead>
     <tbody>
       <tr v-for="cliente in clientes" :key="cliente.id_cliente">
-        <td>{{ cliente.id_cliente }}</td>
+<!--        <td>{{ cliente.id_cliente }}</td> -->
         <td>{{ cliente.nombre_cliente }}</td>
         <td>{{ cliente.apellido_paterno }}</td>
         <td>{{ cliente.apellido_materno }}</td>
@@ -24,9 +24,13 @@
         <td>{{ new Date(cliente.fecha_nacimiento).toLocaleDateString() }}</td>
         <td>{{ cliente.sexo }}</td>
         <td>
+       
+       <!--
           <v-btn color="white" @click="editCliente(cliente)">
             <edit-icon></edit-icon>
           </v-btn>
+
+          -->
 
           <v-btn color="error" @click="openDeleteDialog(cliente)">
             <delete-icon></delete-icon>
@@ -86,14 +90,14 @@ import apiService from "@/services/apiServices";
 import ClienteDialog from "@/components/ClienteDialog.vue";
 import useClientes from "@/composables/useClientes";
 import DeleteIcon from "@/components/icons/DeleteIcon.vue";
-import EditIcon from "@/components/icons/EditIcon.vue";
+//import EditIcon from "@/components/icons/EditIcon.vue";
 
 export default {
   name: "ClientesComponent",
   components: {
     ClienteDialog,
     DeleteIcon,
-    EditIcon,
+  //EditIcon,
   },
   setup() {
     const showDialog = ref(false);

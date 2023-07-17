@@ -27,7 +27,7 @@
           <v-card-actions class="d-flex justify-center">
             <v-btn
               color="primary"
-              :to="{ name: 'Services' }"
+              :to="{ name: 'Paquete' }"
               class="white--text more-info-button"
               >Más información</v-btn
             >
@@ -54,6 +54,37 @@
       </v-col>
     </v-row>
   </v-container>
+
+  <v-footer color="white" class="mt-7">
+      <v-row justify="center">
+        <v-col class="text-center" cols="12">
+          <div class="white--text mb-4">Hecho con ♥ por <a class="white--text" href="http://gpocherry.com">TANYA DE ICAZA</a></div>
+        </v-col>
+
+        <v-col cols="12" md="4" class="mb-5">
+          <h4 class="white--text mb-2">Sobre nosotros</h4>
+          <p class="white--text">  información sobre empresa, equipo, misión, etc.</p>
+        </v-col>
+
+        <v-col cols="12" md="4" class="mb-5">
+          <h4 class="white--text mb-2">Contáctanos</h4>
+          <p class="white--text">Dirección empresa<br>Teléfono: +1 234 567 8910<br>Email: info@tuwebsite.com</p>
+        </v-col>
+
+        <v-col cols="12" md="4" class="mb-5">
+          <h4 class="white--text mb-2">Síguenos</h4>
+          <v-btn text icon color="white" href="#"><v-icon>mdi-facebook</v-icon></v-btn>
+          <v-btn text icon color="white" href="#"><v-icon>mdi-twitter</v-icon></v-btn>
+          <v-btn text icon color="white" href="#"><v-icon>mdi-instagram</v-icon></v-btn>
+          <v-btn text icon color="white" href="#"><v-icon>mdi-linkedin</v-icon></v-btn>
+        </v-col>
+
+        <v-col class="text-center" cols="12">
+          <div class="white--text">&copy;{{ new Date().getFullYear() }} - Gpo Cherry</div>
+        </v-col>
+      </v-row>
+    </v-footer>
+
 </template>
 
 <script>
@@ -64,33 +95,33 @@ export default {
   data() {
     return {
       items: [
-        { src: require("../assets/img/slider1.jpg"), alt: "image 1" },
-        { src: require("../assets/img/slider2.jpg"), alt: "image 2" },
-        { src: require("../assets/img/slider3.jpg"), alt: "image 3" },
+        { src: require("../assets/img/slider1.png"), alt: "image 1" },
+        { src: require("../assets/img/slider2.png"), alt: "image 2" },
+        { src: require("../assets/img/slider3.png"), alt: "image 3" },
       ],
       services: [
         {
           title: "Aparatología",
           description:
             "Con nuestros tratamientos de aparatología podrás eliminar la grasa localizada y reducir la celulitis.",
-          image: require("../assets/img/service1.jpg"),
+          image: require("../assets/img/service1.png"),
         },
         {
           title: "Facial",
           description:
             "Contamos con tratamientos faciales para todo tipo de piel, desde hidratación hasta anti-envejecimiento.",
-          image: require("../assets/img/service2.jpg"),
+          image: require("../assets/img/service2.png"),
         },
         {
           title: "Masajes",
           description:
-            "Relájate y deja que nuestros expertos te brinden un masaje relajante o terapéutico.",
-image: require("../assets/img/service3.jpg"),
+            "Relájate y deja que nuestros expertos te brinden un masaje relajante o terapéutico con el fin de hacerte pasar el mejor rato.",
+image: require("../assets/img/service3.png"),
 },
 ],
 testimonials: [
 {
-text: "Excelente servicio, me encantó el masaje relajante. Definitivamente volveré.",
+text: "Excelente servicio, me encantó el masaje relajante y trambien la aparatologia. Definitivamente volveré.",
 author: "María Pérez",
 },
 {

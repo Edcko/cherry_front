@@ -2,31 +2,35 @@
   <v-col cols="12" md="6" lg="12" class="mt-5">
     <v-card class="mb-3">
       <v-card-title class="headline">
-        Número de cita: {{ cita.id_cita }}
+        Fecha: {{ formatDate(cita.fecha) }}
         <div class="title-text">
-          <strong>Cliente: </strong> {{ cita.id_cliente }} - {{ cita.Cliente.nombre_cliente }} {{ cita.Cliente.apellido_paterno }} {{ cita.Cliente.apellido_materno }}
+          <strong>Cliente: </strong> {{ cita.Cliente.nombre_cliente }} {{ cita.Cliente.apellido_paterno }} {{ cita.Cliente.apellido_materno }}
         </div>
       </v-card-title>
-      <v-card-subtitle>{{ formatDate(cita.fecha) }}</v-card-subtitle>
+    <!--  <v-card-subtitle> {{ formatDate(cita.fecha) }}</v-card-subtitle> -->
       <v-card-text>
-        <p><strong>Empleado:</strong> {{ cita.id_empleado }} - {{ cita.Empleado.nombre_empleado }}  {{ cita.Empleado.apellido_paterno }} {{ cita.Empleado.apellido_materno }}</p>
-        <p><strong>Cabina:</strong> {{ cita.id_cabina }} - {{ cita.Cabina.estado_cabina }}</p>
-        <p><strong>Sesión:</strong> {{ cita.id_sesion }} - {{ cita.Sesion.descripcion }}</p>
+        <p><strong>Agendo:</strong> {{ cita.Empleado.nombre_empleado }}  {{ cita.Empleado.apellido_paterno }} {{ cita.Empleado.apellido_materno }}</p>
+        <p><strong>Cabina:</strong> {{ cita.Cabina.turno }} - {{ cita.Cabina.estado_cabina }}  </p>
+        <p><strong>Terapeuta:</strong> {{ cita.Cabina.Empleado.nombre_empleado }} {{ cita.Cabina.Empleado.apellido_paterno }} {{ cita.Cabina.Empleado.apellido_materno }}</p>
+        <p><strong>Paquete:</strong> {{ cita.Paquete.nombre_paquete }}</p>
+    <!--<p><strong>Sesión:</strong> {{ cita.Sesion.descripcion }}</p> -->
         <p :style="{ backgroundColor: getColorForEstado(cita.estado), color: 'white', padding: '5px', borderRadius: '5px' }"><strong>Estado:</strong> {{ cita.estado }}</p>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" @click="editCita(cita)">Editar</v-btn>
-        <v-btn color="error" @click="handleDeleteCita(cita)">Eliminar</v-btn>
+<!--       <v-btn color="primary" @click="editCita(cita)">Editar</v-btn> -->
+    <!--  <v-btn color="error" @click="handleDeleteCita(cita)">Eliminar</v-btn> -->
         <v-btn color="success" @click="changeEstado(cita)">
           Cambiar Estado
         </v-btn>
       </v-card-actions>
+ 
       <cita-edit-dialog
         v-model="showEditDialog"
         :cita="currentCita"
         @update="updateCitaFromForm"
         @closeDialog="showEditDialog = false"
       />
+      
     </v-card>
 
     <v-dialog v-model="confirmDeleteDialog" max-width="400px">

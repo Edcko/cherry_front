@@ -10,8 +10,8 @@ export default function useCitas() {
   const addCita = async (newCita) => {
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
-    if (citaHelper.countCitasForDate(date, citas) >= 38) {
-      app.appContext.config.globalProperties.$showAlert("Ya se han programado 38 citas para este día.", "error");
+    if (citaHelper.countCitasForDate(date, citas) >= 50) {
+      app.appContext.config.globalProperties.$showAlert("Ya se han programado 50 citas para este día.", "error");
       return;
     }
     try {
@@ -28,8 +28,10 @@ export default function useCitas() {
     try {
       await apiService.updateCita(cita);
       citas.value = await apiService.getCitas();
+      app.appContext.config.globalProperties.$showAlert("La cita se actualizo correctamente.", "success");
     } catch (error) {
       console.error(error);
+      app.appContext.config.globalProperties.$showAlert("La actualizacion de cita salio mal.", "error");
     }
   };
 
@@ -39,12 +41,14 @@ export default function useCitas() {
       app.appContext.config.globalProperties.$showAlert("La cita se eliminó correctamente.", "success");
     } catch (error) {
       console.error("Error deleting cita:", error);
+      app.appContext.config.globalProperties.$showAlert("Algo salio mal al eliminar la cita.", "error");
     }
     
     try {
       citas.value = await apiService.getCitas();
     } catch (error) {
       console.error("Error getting citas:", error);
+      
     }
   };
   

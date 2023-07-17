@@ -1,7 +1,7 @@
 <template>
 <v-card>
   <v-card-title>
-    <span class="text-h5">Datos del cliente</span>
+    <span class="text-h5">Dar de alta cliente</span>
   </v-card-title>
   <v-card-text>
     <v-container>
@@ -30,11 +30,16 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field
+          <v-select
+            :items="[
+              'Nuevo',
+              'Normal',
+              'VIP'
+            ]"
             label="Tipo cliente"
             v-model="cliente.tipo_cliente"
             :rules="[rules.required]"
-          ></v-text-field>
+          ></v-select>
         </v-col>
       </v-row>
       <v-row>
@@ -74,11 +79,12 @@
       </v-row>
       <v-row>
         <v-col cols="12">
-          <v-text-field
-            label="Id spa"
+          <v-autocomplete
+            label="Spa"
             v-model="cliente.id_spa"
+            :items="spaOptions"
             :rules="[rules.required]"
-          ></v-text-field>
+          ></v-autocomplete>
         </v-col>
       </v-row>
     </v-container>
@@ -93,8 +99,9 @@
   </template>
   
   <script>
-  import { ref } from "vue";
-  
+  import { ref, onMounted, computed } from "vue";
+  import apiService from "@/services/apiServices"
+
   export default {
     props: ["showDialog"],
     setup(props, { emit }) {
@@ -108,6 +115,20 @@
         fecha_nacimiento: "",
         sexo: "",
         id_spa: "",
+      });
+
+      const spas = ref([]);
+
+      onMounted(async () => {
+        spas.value = await apiService.getSpas();
+        console.log("Spas:", spas.value);
+      });
+
+      const spaOptions = computed(() => {
+        return spas.value.map(
+        (spa) =>
+          `${spa.nombre_spa} ${spa.ciudad}`
+        );
       });
   
       const generos = ['M', 'F', 'O'];
@@ -125,11 +146,20 @@
       };
   
       const onSubmit = () => {
+
+        const spaSeleccionado = spas.value.find(spa => `${spa.nombre_spa} ${spa.ciudad}` === cliente.value.id_spa);
+        console.log("Spa seleccionado:", spaSeleccionado);
+
+        cliente.value.id_spa = spaSeleccionado
+        ? spaSeleccionado.id_spa
+        : "";
+
         emit("addCliente", cliente.value);
         emit("close");
       };
       return {
         cliente,
+        spaOptions,
         onSubmit,
         generos,
         rules

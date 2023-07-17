@@ -9,6 +9,8 @@
           <v-text-field v-model="citaClone.id_cliente" label="ID Cliente" required></v-text-field>
           <v-text-field v-model="citaClone.id_sesion" label="ID Sesión" required></v-text-field>
 
+          <!--  
+
           <v-select
             :items="['Programado', 'Realizado', 'Adeudo', 'Cita perdida','Reagendado', 'Cancelado']"
             label="Estado"
@@ -16,12 +18,15 @@
             required
           ></v-select>
 
-          <v-text-field
+            <v-text-field
             label="Fecha y hora"
             v-model="citaClone.fecha"
             type="datetime-local"
             required
           ></v-text-field>
+          
+         -->
+
         </v-form>
       </v-card-text>
       <v-card-actions>

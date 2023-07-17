@@ -42,7 +42,7 @@ export default function useClientes() {
         "success"
       );
     } catch (error) {
-      console.error("Error deleting cliente", error);
+      app.appContext.config.globalProperties.$showAlert("Error al eliminar cliente", 'error');
     }
 
     try {

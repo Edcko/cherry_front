@@ -13,7 +13,7 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
   
       if (search.value) {
         result = result.filter((cita) =>
-          cita.id_cita.toString().includes(search.value.toString())
+          cita.Cabina.numero_cabina.toString().includes(search.value.toString())
         );
       }
   
@@ -27,7 +27,8 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
   
       if (clientIdFilter.value) {
         result = result.filter((cita) =>
-          cita.id_cliente.toString().includes(clientIdFilter.value.toString())
+        `${cita.Cliente.nombre_cliente} ${cita.Cliente.apellido_paterno} ${cita.Cliente.apellido_materno}`.toLowerCase().includes(clientIdFilter.value.toLowerCase())
+
         );
       }
   
@@ -40,9 +41,10 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
   );
 
 
-const getCitasByCabina = (cabinaId) => {
-  return filteredCitas.value.filter(cita => cita.id_cabina === cabinaId);
-};
+  const getCitasByCabina = (numeroCabina) => {
+    return filteredCitas.value.filter(cita => cita.Cabina.numero_cabina === numeroCabina);
+  };
+  
 
 return { filteredCitas, getCitasByCabina };
 
@@ -58,7 +60,7 @@ const sortCitas = (citas, sortBy) => {
     if (sortBy === 'id_cita') {
       return a.id_cita - b.id_cita;
     } else if (sortBy === 'fecha') {
-      return new Date(a.fecha) - new Date(b.fecha);
+      return new Date(b.fecha) - new Date(a.fecha);
     }
     return 0;
   });
