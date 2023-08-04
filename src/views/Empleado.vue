@@ -6,7 +6,7 @@
         <th class="text-left">Nombre</th>
         <th class="text-left">Apellido Paterno</th>
         <th class="text-left">Apellido Materno</th>
-        <th class="text-left">Tipo</th>
+        <th class="text-left">Puesto del empleado</th>
         <th class="text-left">Email</th>
         <th class="text-left">Teléfono</th>
         <th class="text-left">Fecha de Nacimiento</th>
@@ -24,11 +24,9 @@
         <td>{{ empleado.tipo_empleado }}</td>
         <td>{{ empleado.email }}</td>
         <td>{{ empleado.telefono_empleado }}</td>
-        <td>{{ new Date(empleado.fecha_nacimiento).toLocaleDateString() }}</td>
+        <td>{{ helperServices.empleadoHelper.formatearFecha(empleado.fecha_nacimiento) }}</td>
         <td>{{ empleado.sexo }}</td>
-        <td>
-          {{ new Date(empleado.fecha_contratacion).toLocaleDateString() }}
-        </td>
+        <td>{{ helperServices.empleadoHelper.formatearFecha(empleado.fecha_contratacion) }}</td>
         <td>
 <!--          <v-btn color="white" @click="editEmpleado(empleado)">
             <edit-icon></edit-icon>
@@ -96,6 +94,7 @@ import { onMounted, ref } from 'vue';
 import DeleteIcon from '@/components/icons/DeleteIcon.vue';
 import EmpleadoDialog from '@/components/EmpleadoDialog.vue';
 import useEmpleados from '@/composables/useEmpleados';
+import helperServices from '@/services/helperServices.js';
 
 export default {
   name: 'Empleado_view',
@@ -133,6 +132,7 @@ export default {
       openDeleteDialog,
       confirmDelete,
       empleadoToDelete,
+      helperServices
     };
   },
 };

@@ -9,7 +9,7 @@
         <th class="text-left">Email</th>
         <th class="text-left">Teléfono</th>
         <th class="text-left">Fecha de Nacimiento</th>
-        <th class="text-left">Sexo</th>
+        <th class="text-left">Genero</th>
         <th class="text-left">Acciones</th>
       </tr>
     </thead>
@@ -21,7 +21,7 @@
         <td>{{ cliente.apellido_materno }}</td>
         <td>{{ cliente.email }}</td>
         <td>{{ cliente.telefono_cliente }}</td>
-        <td>{{ new Date(cliente.fecha_nacimiento).toLocaleDateString() }}</td>
+        <td>{{ helperServices.clienteHelper.formatearFecha(cliente.fecha_nacimiento) }}</td>
         <td>{{ cliente.sexo }}</td>
         <td>
        
@@ -89,6 +89,7 @@ import { onMounted, ref } from "vue";
 import apiService from "@/services/apiServices";
 import ClienteDialog from "@/components/ClienteDialog.vue";
 import useClientes from "@/composables/useClientes";
+import helperServices from "@/services/helperServices.js";
 import DeleteIcon from "@/components/icons/DeleteIcon.vue";
 //import EditIcon from "@/components/icons/EditIcon.vue";
 
@@ -133,6 +134,7 @@ export default {
       showDialog,
       deleteDialog, // retorna deleteDialog
       clientToDelete, // retorna clientToDelete
+      helperServices, // Retornamos la función para poder usarla en el template
     };
   },
 };

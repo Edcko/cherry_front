@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router';
 import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
+import Perfil from '../views/Perfil.vue';
 import Agenda from '../views/Agenda.vue';
 import Cabina from '../views/Cabina.vue';
 import Paquete from '../views/Paquete.vue';
@@ -24,6 +25,13 @@ const routes = [
         name: "Login",
         component: Login,
     },
+
+    {
+        path: "/perfil",
+        name: "Perfil",
+        component: Perfil,
+    },
+
     {
         path: "/paquetes",
         name: "Paquete",
@@ -37,17 +45,23 @@ const routes = [
         },
     },
     {
-        path: "/agenda",
-        name: "Agenda",
+        path: '/agenda',
+        name: 'Agenda',
         component: Agenda,
         beforeEnter: (to, from, next) => {
-            if(!isLoggedIn.value) {
-                next({name: 'NotFound'}); // si el usuario no esta logueado
+          if (!isLoggedIn.value) {
+            next({ name: 'NotFound' });
+          } else {
+            const tipoEmpleado = store.getters.tipoEmpleado;  // Obten el valor del getter aquí
+            const permittedRoles = ['Administrador','Gerente','Recepcionista', 'Terapeuta'];
+            if (permittedRoles.includes(tipoEmpleado)) {
+              next();
             } else {
-                next(); // permite el acceso a la ruta
+              next({ name: 'NotFound' });
             }
+          }
         },
-    },
+      },
     {
         path: "/empleados",
         name: "Empleado",

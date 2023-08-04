@@ -16,9 +16,8 @@
             <v-col cols="12" sm="6" md="4">
               <v-select
                 :items="[
-                  'mañana',
-                  'tarde',
-                  'noche'
+                  'Matutino',
+                  'Vespertino',
                 ]"
                 label="Turno"
                 v-model="cabina.turno"

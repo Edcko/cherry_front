@@ -88,53 +88,60 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 
 export default {
   name:'Home_view',
 
-  data() {
+  setup() {
+    const items = ref([
+      { src: require("../assets/img/slider1.png"), alt: "image 1" },
+      { src: require("../assets/img/slider2.png"), alt: "image 2" },
+      { src: require("../assets/img/slider3.png"), alt: "image 3" },
+    ]);
+
+    const services = ref([
+      {
+        title: "Aparatología",
+        description:
+          "Con nuestros tratamientos de aparatología podrás eliminar la grasa localizada y reducir la celulitis.",
+        image: require("../assets/img/service1.png"),
+      },
+      {
+        title: "Facial",
+        description:
+          "Contamos con tratamientos faciales para todo tipo de piel, desde hidratación hasta anti-envejecimiento.",
+        image: require("../assets/img/service2.png"),
+      },
+      {
+        title: "Masajes",
+        description:
+          "Relájate y deja que nuestros expertos te brinden un masaje relajante o terapéutico con el fin de hacerte pasar el mejor rato.",
+        image: require("../assets/img/service3.png"),
+      },
+    ]);
+
+    const testimonials = ref([
+      {
+        text: "Excelente servicio, me encantó el masaje relajante y trambien la aparatologia. Definitivamente volveré.",
+        author: "María Pérez",
+      },
+      {
+        text: "Increíble experiencia, el tratamiento facial me dejó la piel suave y radiante. Lo recomiendo totalmente.",
+        author: "Juan González",
+      },
+      {
+        text: "Me gustó mucho la atención recibida, los masajes terapéuticos me ayudaron a aliviar el dolor de espalda. Volveré pronto.",
+        author: "Lucía Rodríguez",
+      },
+    ]);
+
     return {
-      items: [
-        { src: require("../assets/img/slider1.png"), alt: "image 1" },
-        { src: require("../assets/img/slider2.png"), alt: "image 2" },
-        { src: require("../assets/img/slider3.png"), alt: "image 3" },
-      ],
-      services: [
-        {
-          title: "Aparatología",
-          description:
-            "Con nuestros tratamientos de aparatología podrás eliminar la grasa localizada y reducir la celulitis.",
-          image: require("../assets/img/service1.png"),
-        },
-        {
-          title: "Facial",
-          description:
-            "Contamos con tratamientos faciales para todo tipo de piel, desde hidratación hasta anti-envejecimiento.",
-          image: require("../assets/img/service2.png"),
-        },
-        {
-          title: "Masajes",
-          description:
-            "Relájate y deja que nuestros expertos te brinden un masaje relajante o terapéutico con el fin de hacerte pasar el mejor rato.",
-image: require("../assets/img/service3.png"),
-},
-],
-testimonials: [
-{
-text: "Excelente servicio, me encantó el masaje relajante y trambien la aparatologia. Definitivamente volveré.",
-author: "María Pérez",
-},
-{
-text: "Increíble experiencia, el tratamiento facial me dejó la piel suave y radiante. Lo recomiendo totalmente.",
-author: "Juan González",
-},
-{
-text: "Me gustó mucho la atención recibida, los masajes terapéuticos me ayudaron a aliviar el dolor de espalda. Volveré pronto.",
-author: "Lucía Rodríguez",
-},
-],
-};
-},
+      items,
+      services,
+      testimonials,
+    };
+  }
 };
 </script>
 

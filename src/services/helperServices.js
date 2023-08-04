@@ -9,5 +9,46 @@ const citaHelper = {
 
 };
 
+const clienteHelper = {
 
-export default citaHelper
+  formatearFecha: (fechaNacimiento) => {
+    let fecha = new Date(`${fechaNacimiento}T00:00`);
+    let dia = String(fecha.getDate()).padStart(2, '0');
+    let mes = String(fecha.getMonth() + 1).padStart(2, '0'); 
+    let ano = fecha.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+
+},
+
+};
+
+const empleadoHelper = {
+
+  formatearFecha: (fechaNacimiento) => {
+    let fecha = new Date(`${fechaNacimiento}T00:00`);
+    let dia = String(fecha.getDate()).padStart(2, '0');
+    let mes = String(fecha.getMonth() + 1).padStart(2, '0'); 
+    let ano = fecha.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  },
+};
+
+const paqueteHelper = {
+  
+  formatearFecha: (fechaNacimiento) => {
+    let fecha = new Date(`${fechaNacimiento}T00:00`);
+    let dia = String(fecha.getDate()).padStart(2, '0');
+    let mes = String(fecha.getMonth() + 1).padStart(2, '0'); 
+    let ano = fecha.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  },
+
+}
+
+
+export default{
+  citaHelper,
+  clienteHelper,
+  empleadoHelper,
+  paqueteHelper,
+};

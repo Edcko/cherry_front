@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import apiService from "@/services/apiServices";
-import citaHelper from "@/services/helperServices";
+import helperServices from "@/services/helperServices.js";
 import { getCurrentInstance } from 'vue';
 
 export default function useCitas() {
@@ -8,10 +8,11 @@ export default function useCitas() {
   const app = getCurrentInstance();
 
   const addCita = async (newCita) => {
+    console.log("Nueva cita:", newCita);
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
-    if (citaHelper.countCitasForDate(date, citas) >= 50) {
-      app.appContext.config.globalProperties.$showAlert("Ya se han programado 50 citas para este día.", "error");
+    if (helperServices.citaHelper.countCitasForDate(date, citas) >= 50) {
+     app.appContext.config.globalProperties.$showAlert("Ya se han programado 50 citas para este día.", "error");
       return;
     }
     try {
@@ -63,7 +64,12 @@ export default function useCitas() {
   
 
   const changeEstado = async (cita) => {
-    const estados = ["Programado", "Realizado", "Adeudo", "Cita perdida", "Reagendo", "Cancelado"];
+    const estados = ['Cita programada',
+    'Cita realizada',
+    'Cita perdida',
+    'Cita cancelada',
+    'Reagendo cita',
+    'Adeudo',];
     const currentIndex = estados.indexOf(cita.estado);
     const newEstado = estados[(currentIndex + 1) % estados.length];
     cita.estado = newEstado;

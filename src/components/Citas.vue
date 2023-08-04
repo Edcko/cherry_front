@@ -1,4 +1,5 @@
 <template>
+    <v-container v-if="user" fluid>
   <div>
     <cita-calendar
       :citas="citas"
@@ -11,11 +12,10 @@
         <v-dialog v-model="showDialog" persistent width="1024">
           <template v-slot:activator="{ props }">
             <v-btn
-              color="white"
+              class="custom-button"
               elevation="8"
               rounded
               :large="true"
-              class="mx-auto"
               v-bind="props"
             >
               Agendar Cita
@@ -40,9 +40,9 @@
     <v-row>
   <v-col cols="12" md="3" v-for="numeroCabina in 4" :key="'cabina-' + numeroCabina">
     <v-divider :key="'divider-' + numeroCabina"></v-divider>
-    <h3 class="text-center">Cabina {{ numeroCabina }}</h3>
+    <h3 class="text-center mt-4">Cabina {{ numeroCabina }}</h3>
     <cita-card
-      class="custom-card"
+      class="custom-card mt-2"
       v-for="cita in getCitasByCabina(numeroCabina)"
       :key="cita.id_cita"
       :cita="cita"
@@ -53,7 +53,20 @@
   </v-col>
 </v-row>
 
+
   </div>
+</v-container>
+
+<v-container v-else fluid class="fill-height">
+      <v-row align="center" justify="center">
+        <v-progress-circular
+          indeterminate
+          color="teal"
+          size="70"
+        ></v-progress-circular>
+      </v-row>
+    </v-container>
+
 </template>
 
 <script>
@@ -63,6 +76,7 @@ import CitaDialog from "@/components/CitaDialog.vue";
 import CitaFilter from "./CitaFilter.vue";
 import CitaCalendar from "./CitaCalendar.vue";
 import useCitas from "@/composables/useCitas";
+import useUser from "@/composables/useUser";
 import { formatDate } from "@/utils/dateUtils";
 import useCitasFilter from "@/composables/useCitasFilter";
 import CitaCard from "./CitaCard.vue";
@@ -102,9 +116,12 @@ export default {
       clientIdFilter
     );
 
+    const {user, loadUser} = useUser();
+
     onMounted(async () => {
       try {
         citas.value = await apiService.getCitas();
+        await loadUser();
       } catch (error) {
         console.error(error);
         this.$showAlert(
@@ -181,6 +198,7 @@ export default {
       countCitasForDateColor,
       handleDeleteCita,
       getCitasByCabina,
+      user,
     };
   },
 };
@@ -202,4 +220,14 @@ td {
 th {
   background-color: #f2f2f2;
 }
+
+.custom-button {
+    background-color: white;
+    color: teal;
+}
+
+
+
+
+
 </style>

@@ -1,6 +1,12 @@
 import axios from 'axios';
+import authHeader from './authHeader';
 
 const API_URL = 'http://198.199.68.78:3000/cherry/auth/';
+
+// Crear una nueva instancia de Axios
+  const api = axios.create({
+    baseURL: API_URL,
+  });
 
 const login = async (email, password_empleado) => {
   const response = await axios.post(API_URL + 'login', {
@@ -14,6 +20,14 @@ const login = async (email, password_empleado) => {
   return response.data;
 };
 
+const getUsuario = async () => {
+  const response = await api.get(API_URL + 'usuario', {
+    headers: authHeader()
+  });
+  return response.data
+}
+
+
 const logout = () => {
   localStorage.removeItem('user');
   console.log('Cierre de sesion exitoso');
@@ -22,4 +36,5 @@ const logout = () => {
 export default {
   login,
   logout,
-};
+  getUsuario,
+};  

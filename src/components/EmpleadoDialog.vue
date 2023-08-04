@@ -31,7 +31,7 @@
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field
-                label="Tipo Empleado"
+                label="Puesto del empleado"
                 v-model="empleado.tipo_empleado"
                 :rules="[rules.required]"
               ></v-text-field>

@@ -29,6 +29,18 @@
             :rules="[rules.required]"
           ></v-text-field>
         </v-col>
+
+        
+        <v-col cols="12" sm="6">
+          <v-autocomplete
+            label="Spa"
+            v-model="cliente.id_spa"
+            :items="spaOptions"
+            :rules="[rules.required]"
+          ></v-autocomplete>
+        </v-col>
+      
+        <!--
         <v-col cols="12" sm="6">
           <v-select
             :items="[
@@ -41,6 +53,8 @@
             :rules="[rules.required]"
           ></v-select>
         </v-col>
+
+        -->
       </v-row>
       <v-row>
         <v-col cols="12" sm="6">
@@ -77,16 +91,7 @@
           </v-text-field>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col cols="12">
-          <v-autocomplete
-            label="Spa"
-            v-model="cliente.id_spa"
-            :items="spaOptions"
-            :rules="[rules.required]"
-          ></v-autocomplete>
-        </v-col>
-      </v-row>
+  
     </v-container>
   </v-card-text>
   <v-card-actions>
@@ -109,7 +114,7 @@
         nombre_cliente: "",
         apellido_paterno: "",
         apellido_materno: "",
-        tipo_cliente: "",
+        tipo_cliente: "Normal",
         email: "",
         telefono_cliente: "",
         fecha_nacimiento: "",
