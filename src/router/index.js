@@ -75,7 +75,7 @@ const routes = [
         path: "/clientes",
         name: "Cliente",
         component: Cliente,
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción']),
     },
     {
         path: "/sesiones",
