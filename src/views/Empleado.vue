@@ -1,96 +1,72 @@
 <template>
-  <v-table fixed-header height="500px">
-    <thead>
-      <tr>
-<!--        <th class="text-left">ID</th> -->
-        <th class="text-left">Nombre</th>
-        <th class="text-left">Apellido Paterno</th>
-        <th class="text-left">Apellido Materno</th>
-        <th class="text-left">Puesto del empleado</th>
-        <th class="text-left">Email</th>
-        <th class="text-left">Teléfono</th>
-        <th class="text-left">Fecha de Nacimiento</th>
-        <th class="text-left">Sexo</th>
-        <th class="text-left">Fecha de Contratación</th>
-        <th class="text-left">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="empleado in empleados" :key="empleado.id_empleado">
-<!--        <td>{{ empleado.id_empleado }}</td> -->
-        <td>{{ empleado.nombre_empleado }}</td>
-        <td>{{ empleado.apellido_paterno }}</td>
-        <td>{{ empleado.apellido_materno }}</td>
-        <td>{{ empleado.tipo_empleado }}</td>
-        <td>{{ empleado.email }}</td>
-        <td>{{ empleado.telefono_empleado }}</td>
-        <td>{{ helperServices.empleadoHelper.formatearFecha(empleado.fecha_nacimiento) }}</td>
-        <td>{{ empleado.sexo }}</td>
-        <td>{{ helperServices.empleadoHelper.formatearFecha(empleado.fecha_contratacion) }}</td>
-        <td>
-<!--          <v-btn color="white" @click="editEmpleado(empleado)">
-            <edit-icon></edit-icon>
-          </v-btn>
+  <div class="employee-container">
+    <v-row>
+      <v-col v-for="empleado in empleados" :key="empleado.id_empleado" cols="12" md="4">
+        <v-card class="mx-auto mb-4" max-width="344" variant="outlined">
+          <v-card-item>
+            <div>
+              <div class="text-h6 mb-1">
+                {{ empleado.nombre_empleado }} {{ empleado.apellido_paterno }} {{ empleado.apellido_materno }}
+              </div>
+              <div class="text-caption">
+                Puesto: {{ empleado.tipo_empleado }}
+              </div>
+              <div class="text-caption">
+                Email: {{ empleado.email }} | Tel: {{ empleado.telefono_empleado }}
+              </div>
+              <div class="text-caption">
+                Nacimiento: {{ helperServices.empleadoHelper.formatearFecha(empleado.fecha_nacimiento) }}
+              </div>
+              <div class="text-caption">
+                Contratación: {{ helperServices.empleadoHelper.formatearFecha(empleado.fecha_contratacion) }}
+              </div>
+              <div class="text-caption">
+                Genero: {{ empleado.sexo }}
+              </div>
+            </div>
+          </v-card-item>
+          <v-card-actions>
+            <v-btn color="error" @click="openDeleteDialog(empleado)">
+              <delete-icon></delete-icon> Eliminar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
 
-          -->
-
-          <v-btn color="error" @click="openDeleteDialog(empleado)">
-            <delete-icon></delete-icon>
-          </v-btn>
-        </td>
-      </tr>
-    </tbody>
-  </v-table>
-
-  <!-- Dialogo de confirmacion para eliminar -->
-
-  <v-dialog v-model="deleteDialog" max-width="500px">
-  <v-card>
-    <v-card-title class="headline">Confirmación de eliminación</v-card-title>
-    <v-card-text>
-      ¿Estás seguro de que deseas eliminar al empleado con ID <span v-if="empleadoToDelete">{{ empleadoToDelete.id_empleado }}</span>?
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn color="blue darken-1" text @click="deleteDialog = false"
-        >No</v-btn
-      >
-      <v-btn color="red darken-1" text @click="confirmDelete">Sí</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
-
-
-  <div class="button-spacing"></div>
-
-  <v-row justify="center">
-    <v-dialog v-model="showDialog" persistent width="1024">
-      <template v-slot:activator="{ props }">
-        <v-btn
-          color="white"
-          elevation="8"
-          rounded
-          :large="true"
-          class="mx-auto"
-          v-bind="props"
-        >
-          <v-icon icon="mdi-checkbox-marked-circle"></v-icon>
-          Dar de alta empleado
-        </v-btn>
-      </template>
-      <empleado-dialog
-        :showDialog="showDialog"
-        @close="showDialog = false"
-        @addEmpleado="addEmpleado"
-      />
+    <v-dialog v-model="deleteDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="headline">Confirmación de eliminación</v-card-title>
+        <v-card-text>
+          ¿Estás seguro de que deseas eliminar al empleado con ID <span v-if="empleadoToDelete">{{ empleadoToDelete.id_empleado }}</span>?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="deleteDialog = false">No</v-btn>
+          <v-btn color="red darken-1" text @click="confirmDelete">Sí</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
-  </v-row>
+
+  </div>
+
+  <div class="button-spacing">
+      <v-row justify="center">
+        <v-dialog v-model="showDialog" persistent width="1024">
+          <template v-slot:activator="{ props }">
+            <v-btn  elevation="8" rounded :large="true" class="custom-button" v-bind="props">
+              Dar de alta empleado
+            </v-btn>
+          </template>
+          <empleado-dialog :showDialog="showDialog" @close="showDialog = false" @addEmpleado="addEmpleado" />
+        </v-dialog>
+      </v-row>
+    </div>
+
 </template>
 
 <script>
 import { onMounted, ref } from 'vue';
-//import apiService from '@/services/apiServices';
-//import EditIcon from '@/components/icons/EditIcon.vue';
 import DeleteIcon from '@/components/icons/DeleteIcon.vue';
 import EmpleadoDialog from '@/components/EmpleadoDialog.vue';
 import useEmpleados from '@/composables/useEmpleados';
@@ -99,7 +75,6 @@ import helperServices from '@/services/helperServices.js';
 export default {
   name: 'Empleado_view',
   components: {
- // EditIcon,
     DeleteIcon,
     EmpleadoDialog,
   },
@@ -109,7 +84,7 @@ export default {
     const empleadoToDelete = ref(null);
     const {empleados, addEmpleado, deleteEmpleado, fetchEmpleados } = useEmpleados();
 
-   onMounted(fetchEmpleados);
+    onMounted(fetchEmpleados);
 
     const openDeleteDialog = (empleado) => {
       empleadoToDelete.value = empleado;
@@ -138,25 +113,22 @@ export default {
 };
 </script>
 
-
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-tr:hover {
-  background-color: #f5f5f5;
+.employee-container {
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .button-spacing {
   padding-top: 30px;
+  text-align: center;
 }
+
+.custom-button{
+  background-color: white;
+  color: teal;
+}
+
 </style>

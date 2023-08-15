@@ -5,15 +5,44 @@
       <v-card-title class="headline">
         Fecha: {{ formatDate(cita.fecha) }}
         <div class="title-text">
-          <strong>Cliente: </strong> {{ cita.Cliente.nombre_cliente }} {{ cita.Cliente.apellido_paterno }} {{ cita.Cliente.apellido_materno }}
+          <strong>Cliente: </strong>
+          <span class="truncate">
+            {{ truncateName(cita.Cliente.nombre_cliente + ' ' + cita.Cliente.apellido_paterno + ' ' + cita.Cliente.apellido_materno) }}
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >{{ cita.Cliente.nombre_cliente + ' ' + cita.Cliente.apellido_paterno + ' ' + cita.Cliente.apellido_materno }}</v-tooltip>
+          </span>
         </div>
       </v-card-title>
     <!--  <v-card-subtitle> {{ formatDate(cita.fecha) }}</v-card-subtitle> -->
       <v-card-text>
-        <p><strong>Agendo:</strong> {{ cita.Empleado?.nombre_empleado }}  {{ cita.Empleado?.apellido_paterno }} {{ cita.Empleado?.apellido_materno }}</p> 
+        <p><strong>Agendo: </strong> 
+          <span class="truncate">
+            {{ truncateName( cita.Empleado?.nombre_empleado + ' ' + cita.Empleado?.apellido_paterno + ' ' + cita.Empleado?.apellido_materno) }}
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >{{ cita.Empleado?.nombre_empleado + ' ' + cita.Empleado?.apellido_paterno + ' ' + cita.Empleado?.apellido_materno }}</v-tooltip>
+          </span>
+          </p>
         <p><strong>Cabina:</strong> {{ cita.Cabina.turno }} - {{ cita.Cabina.estado_cabina }}  </p>
-        <p><strong>Terapeuta:</strong> {{ cita.Cabina.Empleado.nombre_empleado }} {{ cita.Cabina.Empleado.apellido_paterno }} {{ cita.Cabina.Empleado.apellido_materno }}</p>
-        <p><strong>Paquete:</strong> {{ cita.Paquete.nombre_paquete }}</p>
+        <p><strong>Terapeuta: </strong> 
+          <span class="truncate">
+            {{ truncateName(cita.Cabina.Empleado.nombre_empleado + ' ' + cita.Cabina.Empleado.apellido_paterno + ' ' + cita.Cabina.Empleado.apellido_materno) }}
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >{{cita.Cabina.Empleado.nombre_empleado + ' ' + cita.Cabina.Empleado.apellido_paterno + ' ' + cita.Cabina.Empleado.apellido_materno }}</v-tooltip>
+          </span></p>
+
+        <p><strong>Paquete: </strong><span class="truncate">
+        {{ truncateName(cita.Paquete.nombre_paquete) }}
+        <v-tooltip
+            activator="parent"
+            location="bottom"
+        >{{ cita.Paquete.nombre_paquete }}</v-tooltip>
+    </span></p>
     <!--<p><strong>Sesión:</strong> {{ cita.Sesion.descripcion }}</p> -->
         <p :style="{ backgroundColor: getColorForEstado(cita.estado), color: 'white', padding: '5px', borderRadius: '5px' }"><strong>Estado:</strong> {{ cita.estado }}</p>
       </v-card-text>
@@ -138,6 +167,11 @@ export default {
     const color = colors[estado.toLowerCase()] || '#9e9e9e'; // Gris por defecto
     return chroma(color).hex();
     },
+
+    truncateName(name, limit = 25) {
+    return name.length > limit ? name.substring(0, limit) + '...' : name;
+  },
+
   },
 };
 </script>
@@ -146,5 +180,11 @@ export default {
 .title-text {
   font-size: 1rem;
   font-weight: bold;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

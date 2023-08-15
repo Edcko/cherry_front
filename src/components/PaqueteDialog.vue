@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto" style="max-width: 1000px;">
+  <v-card class="mx-auto" style="width: 100%; max-width: 400px;">
     <v-toolbar color="teal" dark flat>
       <v-btn icon @click="$emit('close')" >
         <v-icon>mdi-arrow-left</v-icon>

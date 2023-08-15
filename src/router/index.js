@@ -14,6 +14,21 @@ import { computed } from 'vue';
 
 const isLoggedIn = computed(() => store.getters.isLoggedIn);
 
+function requireRole(roles) {
+    return (to, from, next) => {
+        if (!isLoggedIn.value) {
+            next({ name: 'NotFound' });
+        } else {
+            const tipoEmpleado = store.getters.tipoEmpleado;
+            if (roles.includes(tipoEmpleado)) {
+                next();
+            } else {
+                next({ name: 'NotFound' });
+            }
+        }
+    }
+}
+
 const routes = [
     {
         path: "/",
@@ -36,80 +51,37 @@ const routes = [
         path: "/paquetes",
         name: "Paquete",
         component: Paquete,
-        beforeEnter: (to, from, next) => {
-            if(!isLoggedIn.value) {
-                next({name: 'NotFound'}); // si el usuario no esta logueado
-            } else {
-                next(); // permite el acceso a la ruta
-            }
-        },
+        beforeEnter: requireRole(['Administrador','Gerente']),
     },
     {
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
-        beforeEnter: (to, from, next) => {
-          if (!isLoggedIn.value) {
-            next({ name: 'NotFound' });
-          } else {
-            const tipoEmpleado = store.getters.tipoEmpleado;  // Obten el valor del getter aquí
-            const permittedRoles = ['Administrador','Gerente','Recepcionista', 'Terapeuta'];
-            if (permittedRoles.includes(tipoEmpleado)) {
-              next();
-            } else {
-              next({ name: 'NotFound' });
-            }
-          }
-        },
+        beforeEnter: requireRole(['Administrador','Gerente']),
       },
     {
         path: "/empleados",
         name: "Empleado",
         component: Empleado,
-        beforeEnter: (to, from, next) => {
-            if(!isLoggedIn.value) {
-                next({name: 'NotFound'}); // si el usuario no esta logueado
-            } else {
-                next(); // permite el acceso a la ruta
-            }
-
-        },
+        beforeEnter: requireRole(['Administrador','Gerente']),
     },
     {
         path: "/cabinas",
         name: "Cabina",
         component: Cabina,
-        beforeEnter: (to, from, next) => {
-            if(!isLoggedIn.value) {
-                next({name: 'NotFound'}); // si el usuario no esta logueado
-            } else {
-                next(); // permite el acceso a la ruta
-            }
-        },
+        beforeEnter: requireRole(['Administrador','Gerente']),
     },
     {
         path: "/clientes",
         name: "Cliente",
         component: Cliente,
-        beforeEnter: (to, from, next) => {
-            if(!isLoggedIn.value) {
-                next({name: 'NotFound'}); // si el usuario no esta logueado
-            } else {
-                next(); // permite el acceso a la ruta
-            }
-        },
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista']),
     },
     {
         path: "/sesiones",
         name: "Sesion",
         component: Sesion,
-        beforeEnter: (to, from, next) => {
-            if(!isLoggedIn.value) {
-                next({name: 'NotFound'}); // si el usuario no esta logueado
-            } else {
-                next(); // permite el acceso a la ruta
-            }
-        },
+        beforeEnter: requireRole(['Administrador','Gerente']),
     },
     {
         path: "/:pathMatch(.*)*",

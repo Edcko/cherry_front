@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto" style="max-width: 800px;">
+  <v-card class="mx-auto" style="width: 100%; max-width: 400px;">
     <v-toolbar color="teal" dark flat>
       <v-btn icon @click="$emit('close')">
         <v-icon>mdi-arrow-left</v-icon>
@@ -230,17 +230,3 @@ export default {
 };
 </script>
 
-<style>
-.dialog {
-  /* Estilos para el diálogo de creación de citas */
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 5px;
-  padding: 40px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  z-index: 100;
-}
-</style>

@@ -43,8 +43,7 @@
     <v-row justify="center">
       <v-dialog v-model="showDialog" persistent width="1024">
         <template v-slot:activator="{ props }">
-          <v-btn color="white" elevation="8" rounded :large="true" class="mx-auto" v-bind="props">
-            <v-icon icon="mdi-checkbox-marked-circle"></v-icon>
+          <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props">
             Crear una nueva cabina
         </v-btn>
         </template>
@@ -118,4 +117,10 @@ tr:hover {
 .button-spacing {
   padding-top: 30px;
 }
+
+.custom-button {
+  background-color: white;
+  color: teal;
+}
+
 </style>

@@ -1,123 +1,122 @@
 <template>
-  <v-table fixed-header height="500px">
-    <thead>
-      <tr>
-      <!--  <th class="text-left">ID Cliente</th> -->
-        <th class="text-left">Nombre</th>
-        <th class="text-left">Apellido Paterno</th>
-        <th class="text-left">Apellido Materno</th>
-        <th class="text-left">Email</th>
-        <th class="text-left">Teléfono</th>
-        <th class="text-left">Fecha de Nacimiento</th>
-        <th class="text-left">Genero</th>
-        <th class="text-left">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="cliente in clientes" :key="cliente.id_cliente">
-<!--        <td>{{ cliente.id_cliente }}</td> -->
-        <td>{{ cliente.nombre_cliente }}</td>
-        <td>{{ cliente.apellido_paterno }}</td>
-        <td>{{ cliente.apellido_materno }}</td>
-        <td>{{ cliente.email }}</td>
-        <td>{{ cliente.telefono_cliente }}</td>
-        <td>{{ helperServices.clienteHelper.formatearFecha(cliente.fecha_nacimiento) }}</td>
-        <td>{{ cliente.sexo }}</td>
-        <td>
-       
-       <!--
-          <v-btn color="white" @click="editCliente(cliente)">
-            <edit-icon></edit-icon>
-          </v-btn>
+  <div class="client-container">
+    <!-- Progress circular cuando los datos están cargando -->
+    <v-row v-if="isLoading" justify="center" align="center" class="full-height">
+      <v-progress-circular indeterminate color="teal"></v-progress-circular>
+    </v-row>
 
-          -->
-
-          <v-btn color="error" @click="openDeleteDialog(cliente)">
-            <delete-icon></delete-icon>
-          </v-btn>
-        </td>
-      </tr>
-    </tbody>
-  </v-table>
-
-  <!-- Dialogo de confirmacion para eliminar -->
-  <v-dialog v-model="deleteDialog" max-width="500px">
-    <v-card>
-      <v-card-title class="headline">Confirmación de eliminación</v-card-title>
-      <v-card-text>
-        ¿Estás seguro de que deseas eliminar el cliente con ID
-        {{ clientToDelete.id_cliente }}?
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="deleteDialog = false"
-          >No</v-btn
+    <!-- Contenido cuando los datos ya están cargados -->
+    <v-row v-else>
+      <v-col 
+        v-for="cliente in displayedClientes"
+        :key="cliente.id_cliente"
+        cols="12" sm="6" md="4"
+      >
+        <v-card 
+          class="mx-auto mb-4" 
+          max-width="344" 
+          variant="outlined"
         >
-        <v-btn color="red darken-1" text @click="confirmDelete">Sí</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+          <v-card-item>
+            <div>
+              <div class="text-h6 mb-1">
+                {{ cliente.nombre_cliente }} {{ cliente.apellido_paterno }} {{ cliente.apellido_materno }}
+              </div>
+              <div class="text-caption">
+                {{ cliente.email }} | {{ cliente.telefono_cliente }}
+              </div>
+              <div class="text-caption">
+                Nacimiento: {{ helperServices.clienteHelper.formatearFecha(cliente.fecha_nacimiento) }}
+              </div>
+              <div class="text-caption">
+                Genero: {{ cliente.sexo }}
+              </div>
+            </div>
+          </v-card-item>
+          <v-card-actions>
+            <v-btn variant="outlined" color="error" @click="openDeleteDialog(cliente)">
+              <delete-icon></delete-icon> Eliminar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
 
-  <div class="button-spacing"></div>
+    <!-- Paginación -->
+    <div class="text-center pagination-spacing">
+      <v-pagination
+        v-model="page"
+        :length="totalPages"
+        prev-icon="mdi-menu-left"
+        next-icon="mdi-menu-right"
+      ></v-pagination>
+    </div>
 
-  <v-row justify="center">
-    <v-dialog v-model="showDialog" persistent width="1024">
-      <template v-slot:activator="{ props }">
-        <v-btn
-          color="white"
-          elevation="8"
-          rounded
-          :large="true"
-          class="mx-auto"
-          v-bind="props"
-        >
-          <v-icon icon="mdi-checkbox-marked-circle"></v-icon>
-          Dar de alta cliente
-        </v-btn>
-      </template>
-      <cliente-dialog
-        :showDialog="showDialog"
-        @close="showDialog = false"
-        @addCliente="addCliente"
-      />
+    <v-dialog v-model="deleteDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="headline">Confirmación de eliminación</v-card-title>
+        <v-card-text>
+          ¿Estás seguro de que deseas eliminar el cliente con ID {{ clientToDelete.id_cliente }}?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="deleteDialog = false">No</v-btn>
+          <v-btn color="red darken-1" text @click="confirmDelete">Sí</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
-  </v-row>
+
+  </div>
+
+  <div class="button-spacing">
+      <v-row justify="center">
+        <v-dialog v-model="showDialog" persistent width="1024">
+          <template v-slot:activator="{ props }">
+            <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props">
+              Dar de alta cliente
+            </v-btn>
+          </template>
+          <cliente-dialog :showDialog="showDialog" @close="showDialog = false" @addCliente="addCliente" />
+        </v-dialog>
+      </v-row>
+    </div>
+
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import apiService from "@/services/apiServices";
 import ClienteDialog from "@/components/ClienteDialog.vue";
 import useClientes from "@/composables/useClientes";
 import helperServices from "@/services/helperServices.js";
 import DeleteIcon from "@/components/icons/DeleteIcon.vue";
-//import EditIcon from "@/components/icons/EditIcon.vue";
 
 export default {
   name: "ClientesComponent",
   components: {
     ClienteDialog,
-    DeleteIcon,
-  //EditIcon,
+    DeleteIcon
   },
   setup() {
+    const page = ref(1); // Estado para la página actual
     const showDialog = ref(false);
     const deleteDialog = ref(false);
     const clientToDelete = ref(null);
+    const isLoading = ref(true); // Para controlar la visualización del progress circular
     const { clientes, addCliente, deleteCliente } = useClientes();
 
     onMounted(async () => {
       try {
         clientes.value = await apiService.getClientes();
+        isLoading.value = false; // Oculta el progress circular una vez que los datos están cargados
       } catch (error) {
         console.error(error);
-        // Agrega aquí el manejo de errores, como mostrar una alerta
+        isLoading.value = false;
       }
     });
 
     const openDeleteDialog = (cliente) => {
       clientToDelete.value = cliente;
-      console.log(clientToDelete.value);
       deleteDialog.value = true;
     };
 
@@ -126,38 +125,54 @@ export default {
       deleteDialog.value = false;
     };
 
+    const displayedClientes = computed(() => {
+      const startIndex = (page.value - 1) * 6; 
+      return clientes.value.slice(startIndex, startIndex + 6);
+    });
+
+    const totalPages = computed(() => Math.ceil(clientes.value.length / 6));
+
     return {
       openDeleteDialog,
       confirmDelete,
       clientes,
       addCliente,
       showDialog,
-      deleteDialog, // retorna deleteDialog
-      clientToDelete, // retorna clientToDelete
-      helperServices, // Retornamos la función para poder usarla en el template
+      deleteDialog,
+      clientToDelete,
+      helperServices,
+      page,
+      displayedClientes,
+      totalPages,
+      isLoading
     };
   },
 };
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-tr:hover {
-  background-color: #f5f5f5;
+.client-container {
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .button-spacing {
   padding-top: 30px;
+  text-align: center;
+}
+
+.pagination-spacing {
+  padding-top: 20px;
+}
+
+.custom-button {
+  background-color: white;
+  color: teal;
+}
+
+.full-height {
+  height: 80vh;
 }
 </style>
