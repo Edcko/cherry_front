@@ -51,7 +51,7 @@ const routes = [
         path: "/paquetes",
         name: "Paquete",
         component: Paquete,
-        beforeEnter: requireRole(['Administrador','Gerente']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción']),
     },
     {
         path: '/agenda',
