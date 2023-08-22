@@ -58,6 +58,13 @@ const getCitas = async () => {
     return response.data;
 };
 
+const getCompras = async () => {
+  const response = await api.get(API_URL + 'compras', {
+    headers: authHeader()
+  });
+  return response.data;
+}
+
 const getSesiones = async () => {
   const response = await api.get(API_URL + 'sesiones', {
     headers: authHeader()
@@ -102,6 +109,13 @@ const addCita = async (cita) => {
   return response.data;
 };
 
+const addCompra = async (compra) => {
+  const response = await api.post(API_URL + 'compra/', compra, {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
 const addEmpleado = async (empleado) => {
   const response = await api.post(API_URL + 'empleado/', empleado, {
     headers: authHeader(),
@@ -140,6 +154,13 @@ const updateCita = async (cita) => {
   return response.data;
 };
 
+const updateCompra = async (compra) => {
+  const response = await api.put(API_URL + 'compra/' + compra.id_compra, compra, {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
 const updateEmpleado = async (empleado) => {
   const response = await api.put(API_URL + 'empleado/' + empleado.id_empleado, empleado,{
     headers: authHeader(),
@@ -152,14 +173,14 @@ const updatePaquete = async (paquete) => {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const updateCabina = async (cabina) => {
   const response = await api.put(API_URL + 'cabina/' + cabina.id_cabina, cabina, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 //------------ Delete -----------//
 
@@ -168,11 +189,18 @@ const deleteCliente = async (id_cliente) => {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const deleteCita = async (id_cita) => {
   console.log("Delete cita id:", id_cita);
   const response = await api.delete(API_URL + 'cita/' + id_cita, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
+
+const deleteCompra = async (id_compra) => {
+  const response = await api.delete(API_URL + 'compra/' + id_compra, {
     headers: authHeader(),
   });
   return response.data;
@@ -204,6 +232,7 @@ export default {
   getClientes,
   getEmpleados,
   getCitas,
+  getCompras,
   getSesiones,
   getCabinas,
   getSpas,
@@ -211,16 +240,19 @@ export default {
   addCliente,
   addEmpleado,
   addCita,
+  addCompra,
   addCabina,
   addPaquete,
   updateCliente,
   updateEmpleado,
   updateCita,
+  updateCompra,
   updatePaquete,
   updateCabina,
   deleteCliente,
   deleteEmpleado,
   deleteCita,
+  deleteCompra,
   deletePaquete,
   deleteCabina,
   // Exporta las otras solicitudes API aquí

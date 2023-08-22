@@ -15,3 +15,9 @@ export const formatearFecha = (fechaNacimiento) => {
   let ano = fecha.getFullYear();
   return `${dia}/${mes}/${ano}`;
 };
+
+export function adjustDateForTimezone(dateString){
+  const date = new Date(dateString);
+  date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+  return date;
+}

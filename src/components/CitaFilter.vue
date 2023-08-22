@@ -48,8 +48,10 @@ import { ref, reactive } from "vue";
 export default {
   setup(_, { emit }) {
     const filters = reactive([
-      { value: ref(null), label: 'Buscar por fecha', type: 'datetime-local', emitOnApply: 'dateFilterChange' },
-      { value: ref(''), label: 'Buscar nombre de cliente', type: 'text', emitOnApply: 'clientIdFilterChange' },
+      { value: ref(null), label: 'Buscar por fecha y hora', type: 'datetime-local', emitOnApply: 'dateFilterChange' },
+      { value: ref(''), label: 'Buscar nombre del cliente', type: 'text', emitOnApply: 'clientIdFilterChange' },
+         // Nuevo filtro agregado para búsqueda por fecha
+      { value: ref(null), label: 'Buscar por fecha', type: 'date', emitOnApply: 'newDateFilterChange' },
     ]);
 
     const applyFilters = () => {

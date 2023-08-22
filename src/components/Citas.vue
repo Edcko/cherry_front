@@ -35,6 +35,7 @@
       @searchChange="search = $event"
       @dateFilterChange="dateFilter = $event"
       @clientIdFilterChange="clientIdFilter = $event"
+      @newDateFilterChange="newDateFilter = $event"
     />
 
     <v-row>
@@ -98,6 +99,7 @@ export default {
     const dateFilter = ref(null);
     const clientIdFilter = ref("");
     const app = getCurrentInstance();
+    const newDateFilter = ref(null);
 
 
     const {
@@ -113,7 +115,8 @@ export default {
       citas,
       search,
       dateFilter,
-      clientIdFilter
+      clientIdFilter,
+      newDateFilter
     );
 
     const {user, loadUser} = useUser();
@@ -199,6 +202,7 @@ export default {
       handleDeleteCita,
       getCitasByCabina,
       user,
+      newDateFilter,
     };
   },
 };

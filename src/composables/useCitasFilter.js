@@ -1,10 +1,11 @@
 import { ref, watch } from "vue";
+import { adjustDateForTimezone } from "@/utils/dateUtils";
 
-export default function useCitasFilter(citas, search, dateFilter, clientIdFilter) {
+export default function useCitasFilter(citas, search, dateFilter, clientIdFilter, newDateFilter) {
   const filteredCitas = ref([]);
 
   watch(
-    [citas, search, dateFilter, clientIdFilter],
+    [citas, search, dateFilter, clientIdFilter, newDateFilter],
     () => {
       let result = citas.value;
   
@@ -21,6 +22,23 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
             new Date(dateFilter.value).getTime()
         );
       }
+
+      console.log("newDateFilter value:", newDateFilter.value);
+      if (newDateFilter.value) {
+        result = result.filter((cita) => {
+            const citaDate = new Date(cita.fecha);
+            console.log("Converted cita.fecha:", citaDate);
+            const filterDate = adjustDateForTimezone(newDateFilter.value);
+            console.log("citaDate:", citaDate);
+            console.log("filterDate:", filterDate);
+            return citaDate.getFullYear() === filterDate.getFullYear() &&
+                   citaDate.getMonth() === filterDate.getMonth() &&
+                   citaDate.getDate() === filterDate.getDate();
+        });
+    }
+    console.log("Filtered result:", result);
+
+    
   
       if (clientIdFilter.value) {
         result = result.filter((cita) =>

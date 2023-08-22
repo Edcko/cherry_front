@@ -81,6 +81,53 @@
       </v-row>
     </div>
 
+  <div class="compras-spacing">
+
+  <!-- Buscador de compras -->
+  <v-row>
+    <v-col cols="12">
+      <v-text-field
+        v-model="searchQuery"
+        append-icon="mdi-magnify"
+        label="Buscar compras"
+        single-line
+        hide-details
+        clearable
+      ></v-text-field>
+    </v-col>
+
+  </v-row>
+
+  <!-- Listado de compras -->
+ <v-row v-if="!isLoading" class="compras-spacing">
+    <v-col 
+      v-for="compra in filteredCompras" 
+      :key="compra.id_cliente" 
+      cols="12"
+    >
+      <v-card>
+        <v-card-item>
+          <div>
+            <div class="text-h6">
+              {{ compra.Cliente.nombre_cliente }} {{ compra.Cliente.apellido_paterno }} {{ compra.Cliente.apellido_materno }}
+            </div>
+            <div class="text-caption">
+              Paquete: {{ compra.Paquete.nombre_paquete }}
+            </div>
+            <div class="text-caption">
+              Fecha de Compra: {{ compra.fecha_compra }}
+            </div>
+            <div class="text-caption">
+              Estado: {{ compra.estado_compra }}
+            </div>
+          </div>
+        </v-card-item>
+      </v-card>
+    </v-col>
+  </v-row>
+</div>
+
+
 </template>
 
 <script>
@@ -102,12 +149,40 @@ export default {
     const showDialog = ref(false);
     const deleteDialog = ref(false);
     const clientToDelete = ref(null);
+    const compras = ref(null);
     const isLoading = ref(true); // Para controlar la visualización del progress circular
     const { clientes, addCliente, deleteCliente } = useClientes();
+    const searchQuery = ref(""); // Estado para la consulta de la busqueda
+
+    const filteredCompras = computed(() => {
+      return compras.value.filter((compra) => {
+        return (
+          compra.Cliente.nombre_cliente
+            .toLowerCase()
+            .includes(searchQuery.value.toLowerCase()) ||
+          compra.Cliente.apellido_paterno
+            .toLowerCase()
+            .includes(searchQuery.value.toLowerCase()) ||
+          compra.Cliente.apellido_materno
+            .toLowerCase()
+            .includes(searchQuery.value.toLowerCase()) ||
+          compra.Paquete.nombre_paquete
+            .toLowerCase()
+            .includes(searchQuery.value.toLowerCase()) ||
+          compra.fecha_compra
+            .toLowerCase()
+            .includes(searchQuery.value.toLowerCase()) ||
+          compra.estado_compra
+            .toLowerCase()
+            .includes(searchQuery.value.toLowerCase())
+        );
+      });
+    }); 
 
     onMounted(async () => {
       try {
         clientes.value = await apiService.getClientes();
+        compras.value = await apiService.getCompras();
         isLoading.value = false; // Oculta el progress circular una vez que los datos están cargados
       } catch (error) {
         console.error(error);
@@ -144,7 +219,10 @@ export default {
       page,
       displayedClientes,
       totalPages,
-      isLoading
+      isLoading,
+      compras,
+      searchQuery,
+      filteredCompras
     };
   },
 };
@@ -161,6 +239,10 @@ export default {
 .button-spacing {
   padding-top: 30px;
   text-align: center;
+}
+
+.compras-spacing {
+  padding-top: 30px;
 }
 
 .pagination-spacing {
