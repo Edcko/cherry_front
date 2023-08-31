@@ -124,6 +124,13 @@
 
       const spas = ref([]);
 
+    function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
+
       onMounted(async () => {
         spas.value = await apiService.getSpas();
         console.log("Spas:", spas.value);
@@ -151,17 +158,19 @@
       };
   
       const onSubmit = () => {
+  cliente.value.nombre_cliente = toTitleCase(cliente.value.nombre_cliente);
+  cliente.value.apellido_paterno = toTitleCase(cliente.value.apellido_paterno);
+  cliente.value.apellido_materno = toTitleCase(cliente.value.apellido_materno);
 
-        const spaSeleccionado = spas.value.find(spa => `${spa.nombre_spa} ${spa.ciudad}` === cliente.value.id_spa);
-        console.log("Spa seleccionado:", spaSeleccionado);
+  const spaSeleccionado = spas.value.find(spa => `${spa.nombre_spa} ${spa.ciudad}` === cliente.value.id_spa);
+  console.log("Spa seleccionado:", spaSeleccionado);
 
-        cliente.value.id_spa = spaSeleccionado
-        ? spaSeleccionado.id_spa
-        : "";
+  cliente.value.id_spa = spaSeleccionado ? spaSeleccionado.id_spa : "";
 
-        emit("addCliente", cliente.value);
-        emit("close");
-      };
+  emit("addCliente", cliente.value);
+  emit("close");
+};
+
       return {
         cliente,
         spaOptions,

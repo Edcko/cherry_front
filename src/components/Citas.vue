@@ -39,21 +39,26 @@
     />
 
     <v-row>
-  <v-col cols="12" md="3" v-for="numeroCabina in 4" :key="'cabina-' + numeroCabina">
-    <v-divider :key="'divider-' + numeroCabina"></v-divider>
-    <h3 class="text-center mt-4">Cabina {{ numeroCabina }}</h3>
-    <cita-card
-      class="custom-card mt-2"
-      v-for="cita in getCitasByCabina(numeroCabina)"
-      :key="cita.id_cita"
-      :cita="cita"
-      @updateCita="updateCita"
-      @deleteCita="handleDeleteCita"
-      @updateEstado="updateCita"
-    />
-  </v-col>
-</v-row>
-
+    <v-col cols="12" md="3" v-for="numeroCabina in 4" :key="'cabina-' + numeroCabina">
+      <v-divider :key="'divider-' + numeroCabina"></v-divider>
+      <h3 class="text-center mt-4">Cabina {{ numeroCabina }}</h3>
+      <cita-card
+        class="custom-card mt-2"
+        v-for="cita in getCitasByCabina(numeroCabina)"
+        :key="cita.id_cita"
+        :cita="cita"
+        @updateCita="updateCita"
+        @deleteCita="handleDeleteCita"
+        @updateEstado="updateCita"
+      />
+      <hora-libre-card
+      v-for="hora in getHorasLibres(getCitasByCabina(numeroCabina))"
+      :key="hora"
+      :hora="hora"
+      @agendar="handleAgendarHoraLibre"
+      />
+    </v-col>
+  </v-row>
 
   </div>
 </v-container>
@@ -81,6 +86,7 @@ import useUser from "@/composables/useUser";
 import { formatDate } from "@/utils/dateUtils";
 import useCitasFilter from "@/composables/useCitasFilter";
 import CitaCard from "./CitaCard.vue";
+import HoraLibreCard from "./HoraLibreCard.vue";
 import { getCurrentInstance } from 'vue';
 
 export default {
@@ -90,6 +96,7 @@ export default {
     CitaFilter,
     CitaCalendar,
     CitaCard,
+    HoraLibreCard,
   },
   setup() {
     const showDialog = ref(false);
@@ -109,6 +116,7 @@ export default {
       deleteCita,
       countCitasForDateColor,
       changeEstado,
+      getHorasLibres,
     } = useCitas();
 
     const { filteredCitas, getCitasByCabina } = useCitasFilter(
@@ -170,6 +178,15 @@ export default {
       }
     };
 
+    // eslint-disable-next-line 
+    const handleAgendarHoraLibre = (hora) => {
+  // Aquí puedes abrir el diálogo de agendar cita con la fecha y hora ya preseleccionadas
+  // Por ejemplo:
+  showDialog.value = true;
+  // Asegúrate de pasar la fecha y hora al diálogo para que se preseleccione
+};
+
+
     const changeEstadoWrapper = async (cita) => {
       try {
         await changeEstado(cita);
@@ -200,9 +217,11 @@ export default {
       filteredCitas,
       countCitasForDateColor,
       handleDeleteCita,
+      handleAgendarHoraLibre,
       getCitasByCabina,
       user,
       newDateFilter,
+      getHorasLibres,
     };
   },
 };

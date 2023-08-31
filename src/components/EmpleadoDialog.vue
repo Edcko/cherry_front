@@ -124,8 +124,12 @@
         password_empleado: "",
         fecha_contratacion: ""
       });
-
-    
+      
+      function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
   
       const generos = ['M', 'F', 'O'];
       
@@ -142,6 +146,13 @@
       };
   
       const onSubmit = () => {
+
+        // Aplicar la función toTitleCase a los campos relevantes
+      empleado.value.nombre_empleado = toTitleCase(empleado.value.nombre_empleado);
+      empleado.value.apellido_paterno = toTitleCase(empleado.value.apellido_paterno);
+      empleado.value.apellido_materno = toTitleCase(empleado.value.apellido_materno);
+
+
         emit("addEmpleado", empleado.value);
         emit("close");
       };
