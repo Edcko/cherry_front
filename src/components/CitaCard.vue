@@ -168,7 +168,7 @@ export default {
     return chroma(color).hex();
     },
 
-    truncateName(name, limit = 25) {
+    truncateName(name, limit = 20) {
     return name.length > limit ? name.substring(0, limit) + '...' : name;
   },
 
