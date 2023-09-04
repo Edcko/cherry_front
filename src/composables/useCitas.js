@@ -11,19 +11,32 @@ export default function useCitas() {
     console.log("Nueva cita:", newCita);
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
-    if (helperServices.citaHelper.countCitasForDate(date, citas) >= 38) {
-     app.appContext.config.globalProperties.$showAlert("Ya se han programado 38 citas para este día.", "error");
-      return;
+    
+    if (helperServices.citaHelper.countCitasForDate(date, citas) >= 36) {
+        app.appContext.config.globalProperties.$showAlert("Ya se han programado 36 citas para este día.", "error");
+        return;
     }
+    
     try {
-      await apiService.addCita(newCita);
-      citas.value = await apiService.getCitas();
-      app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
+        await apiService.addCita(newCita);
+        citas.value = await apiService.getCitas();
+        app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
     } catch (error) {
-      console.error(error);
-      app.appContext.config.globalProperties.$showAlert("Hubo un error al crear la cita.", "error");
+        if (error.response && error.response.status === 400 && error.response.data.message === 'Ya existe una cita agendada para esa fecha y número de cabina.') {
+            app.appContext.config.globalProperties.$showAlert(
+                "Ya existe una cita agendada para esa fecha y número de cabina. Por favor, selecciona otra cabina y fecha.",
+                "error"
+            );
+        } else {
+            app.appContext.config.globalProperties.$showAlert(
+                "Ha ocurrido un error al agregar la cita.",
+                "error"
+            );
+        }
+        console.error(error);
     }
-  };
+};
+
 
   const updateCita = async (cita) => {
     try {
