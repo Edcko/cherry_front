@@ -81,52 +81,14 @@
       </v-row>
     </div>
 
-  <div class="compras-spacing">
+    <div class="compras-spacing">
+      <v-row>
+        <v-col cols="12">
+          <compras-list :compras="compras" :isLoading="isLoading" />
+        </v-col>
+      </v-row>
 
-  <!-- Buscador de compras -->
-  <v-row>
-    <v-col cols="12">
-      <v-text-field
-        v-model="searchQuery"
-        append-icon="mdi-magnify"
-        label="Buscar compras"
-        single-line
-        hide-details
-        clearable
-      ></v-text-field>
-    </v-col>
-
-  </v-row>
-
-  <!-- Listado de compras -->
- <v-row v-if="!isLoading" class="compras-spacing">
-    <v-col 
-      v-for="compra in filteredCompras" 
-      :key="compra.id_cliente" 
-      cols="12"
-    >
-      <v-card>
-        <v-card-item>
-          <div>
-            <div class="text-h6">
-              {{ compra.Cliente.nombre_cliente }} {{ compra.Cliente.apellido_paterno }} {{ compra.Cliente.apellido_materno }}
-            </div>
-            <div class="text-caption">
-              Paquete: {{ compra.Paquete.nombre_paquete }}
-            </div>
-            <div class="text-caption">
-              Fecha de Compra: {{ compra.fecha_compra }}
-            </div>
-            <div class="text-caption">
-              Estado: {{ compra.estado_compra }}
-            </div>
-          </div>
-        </v-card-item>
-      </v-card>
-    </v-col>
-  </v-row>
-</div>
-
+  </div>
 
 </template>
 
@@ -137,12 +99,14 @@ import ClienteDialog from "@/components/ClienteDialog.vue";
 import useClientes from "@/composables/useClientes";
 import helperServices from "@/services/helperServices.js";
 import DeleteIcon from "@/components/icons/DeleteIcon.vue";
+import ComprasList from "@/components/ComprasList.vue";
 
 export default {
   name: "ClientesComponent",
   components: {
     ClienteDialog,
-    DeleteIcon
+    DeleteIcon,
+    ComprasList
   },
   setup() {
     const page = ref(1); // Estado para la página actual
@@ -154,31 +118,7 @@ export default {
     const { clientes, addCliente, deleteCliente } = useClientes();
     const searchQuery = ref(""); // Estado para la consulta de la busqueda
 
-    const filteredCompras = computed(() => {
-      return compras.value.filter((compra) => {
-        return (
-          compra.Cliente.nombre_cliente
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase()) ||
-          compra.Cliente.apellido_paterno
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase()) ||
-          compra.Cliente.apellido_materno
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase()) ||
-          compra.Paquete.nombre_paquete
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase()) ||
-          compra.fecha_compra
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase()) ||
-          compra.estado_compra
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase())
-        );
-      });
-    }); 
-
+   
     onMounted(async () => {
       try {
         clientes.value = await apiService.getClientes();
@@ -222,7 +162,6 @@ export default {
       isLoading,
       compras,
       searchQuery,
-      filteredCompras
     };
   },
 };
