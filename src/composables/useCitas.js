@@ -12,8 +12,8 @@ export default function useCitas() {
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
     
-    if (helperServices.citaHelper.countCitasForDate(date, citas) >= 42) {
-        app.appContext.config.globalProperties.$showAlert("Ya se han programado 42 citas para este día.", "error");
+    if (helperServices.citaHelper.countCitasForDate(date, citas) >= 39) {
+        app.appContext.config.globalProperties.$showAlert("Ya se han programado 39 citas para este día.", "error");
         return;
     }
     

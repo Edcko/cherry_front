@@ -38,7 +38,7 @@ export default {
           key: cita.id_cita,
           dates: cita.fecha,
           highlight: {
-            color: citasCount >= 42 ? "red" : "blue",
+            color: citasCount >= 39 ? "red" : "blue",
             fillMode: "light",
           },
           content: "•",
