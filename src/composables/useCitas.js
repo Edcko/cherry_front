@@ -108,7 +108,7 @@ export default function useCitas() {
   }
 
   const getHorasLibres = (citasDelDia) => {
-    const horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00","19:00", "20:00", "21:00"];
+    const horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00","19:00", "20:00"];
     const horasOcupadas = citasDelDia.map(cita => {
       const date = new Date(cita.fecha);
       return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
