@@ -1,7 +1,11 @@
 <template>
     <v-row justify="center">
+      
       <v-col cols="12" md="6">
         <!-- Buscador de compras -->
+        <v-toolbar color="teal" dark>
+        <v-toolbar-title class="white--text">Paquetes adquiridos</v-toolbar-title>
+      </v-toolbar>
         <v-row>
           <v-col cols="12">
             <v-text-field

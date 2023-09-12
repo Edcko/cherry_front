@@ -3,8 +3,14 @@
   <v-col cols="12" md="6" lg="12" class="mt-5">
     <v-card class="mb-3">
       <v-card-title class="headline">
-        Fecha: {{ formatDate(cita.fecha) }}
-        <div class="title-text">
+        Fecha: {{ truncateName(formatDateToDayMonthYear(cita.fecha)) }}
+        <v-tooltip
+          activator="parent"
+          location="bottom"
+        >{{ formatDateToDayMonthYear(cita.fecha) }}</v-tooltip>
+      </v-card-title>
+      <v-card-subtitle>  
+      <div class="title-text">
           <strong>Cliente: </strong>
           <span class="truncate">
             {{ truncateName(cita.Cliente.nombre_cliente + ' ' + cita.Cliente.apellido_paterno + ' ' + cita.Cliente.apellido_materno) }}
@@ -13,10 +19,9 @@
               location="bottom"
             >{{ cita.Cliente.nombre_cliente + ' ' + cita.Cliente.apellido_paterno + ' ' + cita.Cliente.apellido_materno }}</v-tooltip>
           </span>
-        </div>
-      </v-card-title>
-    <!--  <v-card-subtitle> {{ formatDate(cita.fecha) }}</v-card-subtitle> -->
+        </div></v-card-subtitle> 
       <v-card-text>
+       
         <p><strong>Agendo: </strong> 
           <span class="truncate">
             {{ truncateName( cita.Empleado?.nombre_empleado + ' ' + cita.Empleado?.apellido_paterno + ' ' + cita.Empleado?.apellido_materno) }}
@@ -43,6 +48,15 @@
             location="bottom"
         >{{ cita.Paquete.nombre_paquete }}</v-tooltip>
     </span></p>
+    <p><strong>No. de cita: </strong><span class="truncate">
+        {{ truncateName(cita.numero_visita) }}
+        <v-tooltip
+            activator="parent"
+            location="bottom"
+        >{{ cita.numero_visita }}</v-tooltip>
+    </span></p>
+        
+
     <!--<p><strong>Sesión:</strong> {{ cita.Sesion.descripcion }}</p> -->
         <p :style="{ backgroundColor: getColorForEstado(cita.estado), color: 'white', padding: '5px', borderRadius: '5px' }"><strong>Estado:</strong> {{ cita.estado }}</p>
       </v-card-text>
@@ -93,6 +107,8 @@
 
 <script>
 import { ref, onMounted } from "vue";
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { formatDate } from "@/utils/dateUtils";
 import useCitas from "@/composables/useCitas";
 import useUser from "@/composables/useUser";
@@ -158,6 +174,7 @@ export default {
   methods: {
     getColorForEstado(estado) {
       const colors = {
+      'por confirmar':  '#f18933',// Naranja
       'cita programada': '#9754af', // Morado
       'cita realizada': '#77dd77', // Verde pastel
       'cita perdida': '#84b6f4', // Azul turquesa
@@ -170,6 +187,10 @@ export default {
 
     truncateName(name, limit = 20) {
     return name.length > limit ? name.substring(0, limit) + '...' : name;
+  },
+  formatDateToDayMonthYear(dateString) {
+    const date = new Date(dateString);
+    return format(date, 'EE dd/MMM/yy HH:mm', { locale: es });
   },
 
   },

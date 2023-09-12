@@ -34,6 +34,14 @@
           type="number"
           class="mb-4"
         ></v-text-field>
+        <v-text-field
+          label="Cantidad de citas"
+          v-model="paquete.numero_visitas"
+          variant="filled"
+          color="teal"
+          type="number"
+          class="mb-4"
+        ></v-text-field>
         <v-select
           label="Estado del paquete"
           v-model="paquete.estado_paquete"
@@ -88,6 +96,8 @@
         nombre_paquete: "",
         descripcion: "",
         precio: "",
+        numero_visitas: 0,
+        numero_zonas_cuerpo: 0,
         estado_paquete: "",
         fecha_inicio: "",
         fecha_fin: "",
@@ -111,6 +121,7 @@
           nombre_paquete: "",
           descripcion: "",
           precio: "",
+          numero_visitas: "",
           estado_paquete: "",
           fecha_inicio: "",
           fecha_fin: "",

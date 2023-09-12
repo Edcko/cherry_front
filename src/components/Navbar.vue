@@ -65,8 +65,9 @@ export default {
           {title: "Perfil", icon: "mdi-account", link: "/perfil"},
           { title: "Inicio", icon: "mdi-home", link: "/" },
           { title: "Agenda", icon: "mdi-calendar", link: "/agenda" },
+          { title: "Valoraciones", icon: "mdi-star", link: "/valoraciones" },
           { title: "Clientes", icon: "mdi-account-group", link: "/clientes" },
-          { title: "Empleado", icon: "mdi-account", link: "/empleados" },
+          { title: "Empleados", icon: "mdi-account", link: "/empleados" },
           { title: "Cabinas", icon: "mdi-calendar-multiple", link: "/cabinas" },
           { title: "Paquetes", icon: "mdi-spa", link: "/Paquetes"},
 

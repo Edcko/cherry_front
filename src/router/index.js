@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Perfil from '../views/Perfil.vue';
 import Agenda from '../views/Agenda.vue';
+import Valoracion from '../views/Valoracion.vue';
 import Cabina from '../views/Cabina.vue';
 import Paquete from '../views/Paquete.vue';
 import Empleado from '../views/Empleado.vue';
@@ -51,31 +52,37 @@ const routes = [
         path: "/paquetes",
         name: "Paquete",
         component: Paquete,
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
     },
     {
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
+      },
+      {
+        path: '/valoraciones',
+        name: 'Valoracion',
+        component: Valoracion,
+        beforeEnter: requireRole(['Administrador','Gerente']),
       },
     {
         path: "/empleados",
         name: "Empleado",
         component: Empleado,
-        beforeEnter: requireRole(['Administrador','Gerente']),
+        beforeEnter: requireRole(['Administrador']),
     },
     {
         path: "/cabinas",
         name: "Cabina",
         component: Cabina,
-        beforeEnter: requireRole(['Administrador','Gerente']),
+        beforeEnter: requireRole(['Administrador','Gerente',]),
     },
     {
         path: "/clientes",
         name: "Cliente",
         component: Cliente,
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
     },
     {
         path: "/sesiones",

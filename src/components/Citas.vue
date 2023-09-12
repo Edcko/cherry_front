@@ -41,7 +41,7 @@
     <v-row>
     <v-col cols="12" md="3" v-for="numeroCabina in 4" :key="'cabina-' + numeroCabina">
       <v-divider :key="'divider-' + numeroCabina"></v-divider>
-      <h3 class="text-center mt-4">Cabina {{ numeroCabina }}</h3>
+      <h3 class="text-center mt-4">{{ numeroCabina !== 4 ? 'Cabina ' + numeroCabina : 'Depilación' }}</h3>
       <cita-card
         class="custom-card mt-2"
         v-for="cita in getCitasByCabina(numeroCabina)"
@@ -51,15 +51,20 @@
         @deleteCita="handleDeleteCita"
         @updateEstado="updateCita"
       />
+
       <hora-libre-card
-      v-for="hora in getHorasLibres(getCitasByCabina(numeroCabina))"
-      :key="hora"
-      :hora="hora"
-      @agendar="handleAgendarHoraLibre"
-      />
+  v-for="hora in getHorasLibres(getCitasByCabina(numeroCabina), numeroCabina)"
+  :key="hora"
+  :hora="hora"
+  @agendar="handleAgendarHoraLibre"
+/>
+
+
+    
     </v-col>
   </v-row>
 
+   
   </div>
 </v-container>
 
@@ -86,6 +91,7 @@ import useUser from "@/composables/useUser";
 import { formatDate } from "@/utils/dateUtils";
 import useCitasFilter from "@/composables/useCitasFilter";
 import CitaCard from "./CitaCard.vue";
+//import ValoracionCard from "./ValoracionCard.vue";
 import HoraLibreCard from "./HoraLibreCard.vue";
 import { getCurrentInstance } from 'vue';
 
@@ -96,6 +102,7 @@ export default {
     CitaFilter,
     CitaCalendar,
     CitaCard,
+//    ValoracionCard,
     HoraLibreCard,
   },
   setup() {
@@ -111,6 +118,7 @@ export default {
 
     const {
       citas,
+      valoraciones,
       addCita,
       updateCita,
       deleteCita,
@@ -131,6 +139,7 @@ export default {
 
     onMounted(async () => {
       try {
+        valoraciones.value = await apiService.getValoraciones();
         citas.value = await apiService.getCitas();
         await loadUser();
       } catch (error) {
@@ -201,6 +210,7 @@ export default {
 
     return {
       citas,
+      valoraciones,
       addCita,
       deleteCita,
       updateCita,
@@ -248,9 +258,4 @@ th {
     background-color: white;
     color: teal;
 }
-
-
-
-
-
 </style>

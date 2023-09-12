@@ -5,6 +5,7 @@ import { getCurrentInstance } from 'vue';
 
 export default function useCitas() {
   const citas = ref([]);
+  const valoraciones = ref([]);
   const app = getCurrentInstance();
 
   const addCita = async (newCita) => {
@@ -12,7 +13,7 @@ export default function useCitas() {
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
     
-    if (helperServices.citaHelper.countCitasForDate(date, citas) >= 39) {
+    if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas) >= 39) {
         app.appContext.config.globalProperties.$showAlert("Ya se han programado 39 citas para este día.", "error");
         return;
     }
@@ -77,7 +78,9 @@ export default function useCitas() {
   
 
   const changeEstado = async (cita) => {
-    const estados = ['Cita programada',
+    const estados = [
+    'Por confirmar',
+    'Cita programada',
     'Cita realizada',
     'Cita perdida',
     'Cita cancelada',
@@ -107,8 +110,20 @@ export default function useCitas() {
     return sundays;
   }
 
-  const getHorasLibres = (citasDelDia) => {
-    const horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00","19:00", "20:00"];
+    const getHorasLibres = (citasDelDia, numeroCabina) => {
+    let horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00","19:00", "20:00"];
+  
+   // Si es la cabina 4, ajustamos las horas para media hora
+   if (numeroCabina === 4) {
+    const horasMediaHora = [];
+    for (let i = 0; i < horasTrabajo.length - 1; i++) {
+      horasMediaHora.push(horasTrabajo[i]);
+      const [hora, minuto] = horasTrabajo[i].split(":");
+      horasMediaHora.push(`${hora}:${(parseInt(minuto) + 30).toString().padStart(2, '0')}`);
+    }
+    horasTrabajo = horasMediaHora;
+  }  
+  
     const horasOcupadas = citasDelDia.map(cita => {
       const date = new Date(cita.fecha);
       return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
@@ -119,5 +134,5 @@ export default function useCitas() {
   
 
 
-  return { citas, addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
+  return { citas, valoraciones, addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
 }

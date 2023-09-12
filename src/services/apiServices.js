@@ -93,6 +93,12 @@ const getPaquetes = async () => {
   return response.data;
 }
 
+const getValoraciones = async () => {
+  const response = await api.get(API_URL + 'valoraciones', {
+    headers: authHeader()
+  });
+  return response.data;
+}
 //------------ Add -----------//
 
 const addCliente = async (cliente) => {
@@ -132,6 +138,13 @@ const addPaquete = async (paquete) => {
 
 const addCabina = async (cabina) => {
   const response = await api.post(API_URL + 'cabina/', cabina, {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
+const addValoracion = async (valoracion) => {
+  const response = await api.post(API_URL + 'valoracion/', valoracion, {
     headers: authHeader(),
   });
   return response.data;
@@ -177,6 +190,13 @@ const updatePaquete = async (paquete) => {
 
 const updateCabina = async (cabina) => {
   const response = await api.put(API_URL + 'cabina/' + cabina.id_cabina, cabina, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
+
+const updateValoracion = async (valoracion) => {
+  const response = await api.put(API_URL + 'valoracion/' + valoracion.id_valoracion, valoracion, {
     headers: authHeader(),
   });
   return response.data;
@@ -228,6 +248,13 @@ const deleteCabina = async (id_cabina) => {
   return response.data;
 }
 
+const deleteValoracion = async (id_valoracion) => {
+  const response = await api.delete(API_URL + 'valoracion/' + id_valoracion, {
+    headers: authHeader(),
+  });
+  return response.data;
+}
+
 export default {
   getClientes,
   getEmpleados,
@@ -237,23 +264,27 @@ export default {
   getCabinas,
   getSpas,
   getPaquetes,
+  getValoraciones,
   addCliente,
   addEmpleado,
   addCita,
   addCompra,
   addCabina,
   addPaquete,
+  addValoracion,
   updateCliente,
   updateEmpleado,
   updateCita,
   updateCompra,
   updatePaquete,
   updateCabina,
+  updateValoracion,
   deleteCliente,
   deleteEmpleado,
   deleteCita,
   deleteCompra,
   deletePaquete,
   deleteCabina,
+  deleteValoracion
   // Exporta las otras solicitudes API aquí
 };

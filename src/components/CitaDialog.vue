@@ -45,6 +45,14 @@
         color="teal"
         class="mb-4"
       ></v-autocomplete>
+      <v-text-field
+          label="No. de cita"
+          v-model="cita.numero_visita"
+          variant="filled"
+          color="teal"
+          type="number"
+          class="mb-4"
+        ></v-text-field>
 
       <v-select
         label="Estado"
@@ -93,7 +101,7 @@ export default {
       id_cabina: "",
       id_sesion: 1,
       fecha: "",
-      estado: "Cita programada",
+      estado: "Por confirmar",
       id_paquete: "",
     });
 
