@@ -2,25 +2,33 @@
     <v-table fixed-header height="500px">
       <thead>
         <tr>
-          <th class="text-left">ID Valoración</th>
-          <th class="text-left">ID Cliente</th>
-          <th class="text-left">Fecha Valoración</th>
-          <th class="text-left">Observaciones</th>
-          <th class="text-left">Recomendaciones</th>
-          <th class="text-left">Resultado</th>
-          <th class="text-left">Paquete Recomendado</th>
+          <th class="text-left">Fecha de valoración</th>
+          <th class="text-left">Cliente</th>
+          <th class="text-left">Terapeuta</th>
+ <!--         <th class="text-left">ID Cabina</th> -->
+          <th class="text-left">Estado</th>
+  <!--        <th class="text-left">Resultado</th> -->
+ <!--         <th class="text-left">Observaciones</th> -->
+ <!--       <th class="text-left">Recomendaciones</th> -->
+<!--         <th class="text-left">Paquete Recomendado</th> -->
           <th class="text-left">Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="valoracion in valoraciones" :key="valoracion.id_valoracion">
-          <td>{{ valoracion.id_valoracion }}</td>
-          <td>{{ valoracion.id_cliente }}</td>
-          <td>{{ new Date(valoracion.fecha_valoracion).toLocaleDateString() }}</td>
-          <td>{{ valoracion.observaciones }}</td>
-          <td>{{ valoracion.recomendaciones }}</td>
-          <td>{{ valoracion.resultado ? 'Verdadero' : 'Falso' }}</td>
-          <td>{{ valoracion.paquete_recomendado }}</td>
+          <td>{{ formatDateToDayMonthYear(valoracion.fecha_valoracion)}}</td>
+          <td>{{ valoracion.Cliente.nombre_cliente + ' ' + valoracion.Cliente.apellido_paterno + ' ' + valoracion.Cliente.apellido_materno }}</td>
+          <td>{{ valoracion.Empleado.nombre_empleado + ' ' + valoracion.Empleado.apellido_paterno + ' ' + valoracion.Empleado.apellido_materno }}</td>
+
+          <!-- ... columnas anteriores ... -->
+<!--   <td>{{ valoracion.id_cabina }}</td> -->
+    <td>{{ valoracion.estado }}</td>
+  <!--  <td>{{ valoracion.resultado }}</td> -->
+
+    <!-- ... -->
+     <!--     <td>{{ valoracion.observaciones }}</td> -->
+     <!--     <td>{{ valoracion.recomendaciones }}</td> -->
+<!--          <td>{{ valoracion.paquete_recomendado }}</td> -->
           <td>
             <v-btn color="error" @click="openDeleteDialog(valoracion)">
               <delete-icon></delete-icon>
@@ -45,6 +53,8 @@
       </v-card>
     </v-dialog>
   
+    <div class="button-spacing"></div>
+
     <!-- Botón para agregar una nueva valoración -->
     <v-row justify="center">
       <v-dialog v-model="showDialog" persistent width="1024">
@@ -60,6 +70,8 @@
   
   <script>
   import { onMounted, ref } from 'vue';
+  import { format } from 'date-fns';
+  import { es } from 'date-fns/locale';
   import DeleteIcon from '@/components/icons/DeleteIcon.vue';
   import ValoracionDialog from '@/components/ValoracionDialog.vue';
   import useValoraciones from '@/composables/useValoraciones';
@@ -100,10 +112,20 @@
         valoracionToDelete,
       };
     },
+    methods: {
+      formatDateToDayMonthYear(dateString) {
+    const date = new Date(dateString);
+    return format(date, 'EE dd/MMM/yy HH:mm', { locale: es });
+  },
+    }
   };
   </script>
   
   <style scoped>
-  /* Estilos similares al componente Cabina.vue */
-  </style>
+
+.button-spacing {
+  padding-top: 30px;
+}
+
+</style>
   
