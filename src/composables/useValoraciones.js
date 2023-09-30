@@ -25,6 +25,17 @@ export default function useValoraciones() {
     }
   };
 
+  const updateValoracion = async (valoracion) => {
+    try {
+      await apiService.updateValoracion(valoracion);
+      valoraciones.value = await apiService.getValoraciones();
+      app.appContext.config.globalProperties.$showAlert("La valoración se actualizó correctamente.", "success");
+    } catch (error) {
+      console.error(error);
+      app.appContext.config.globalProperties.$showAlert("La actualización de valoración salió mal.", "error");
+    }
+  };
+
   const deleteValoracion = async (valoracion) => {
     try {
       await apiService.deleteValoracion(valoracion.id_valoracion);
@@ -41,5 +52,5 @@ export default function useValoraciones() {
     }
   };
 
-  return { valoraciones, fetchValoraciones, addValoracion, deleteValoracion };
+  return { valoraciones, fetchValoraciones, addValoracion, updateValoracion, deleteValoracion };
 }
