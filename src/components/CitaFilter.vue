@@ -30,16 +30,21 @@
       @click="applyFilters"
     >Aplicar</v-btn>
 
-    <v-btn
+   <!-- <v-btn
       color="teal"
       elevation="4"
       rounded
       class="mx-3"
       @click="resetFilters"
     >Restablecer</v-btn>
+    -->
+
+
   </v-card-actions>
 </v-card>
   </v-container>
+  
+
 </template>
 
 <script>
@@ -88,10 +93,12 @@ export default {
 input-field {
   max-width: 300px;
   width: 100%;
+  margin-left: 10px;
 }
 
 .button-row {
-  margin-top: 20px;  /* ajusta este valor como prefieras */
+  margin-top: 0px;  
+  margin-bottom: 15px;  
 }
 
 </style>

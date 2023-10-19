@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="user" fluid>
+<!--  <v-container v-if="user" fluid> -->
   <v-col cols="12" md="6" lg="12" class="mt-5">
     <v-card class="mb-3">
       <v-card-title class="headline">
@@ -60,6 +60,8 @@
     <!--<p><strong>Sesión:</strong> {{ cita.Sesion.descripcion }}</p> -->
         <p :style="{ backgroundColor: getColorForEstado(cita.estado), color: 'white', padding: '5px', borderRadius: '5px' }"><strong>Estado:</strong> {{ cita.estado }}</p>
       </v-card-text>
+      
+      <v-container v-if="user" fluid>
       <v-card-actions>
 <!--       <v-btn color="primary" @click="editCita(cita)">Editar</v-btn> -->
     <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="error" @click="handleDeleteCita(cita)">Eliminar</v-btn>
@@ -67,6 +69,10 @@
           Cambiar Estado
         </v-btn>
       </v-card-actions>
+
+      </v-container>
+
+     
  
       <cita-edit-dialog
         v-model="showEditDialog"
@@ -91,9 +97,9 @@
       </v-card>
     </v-dialog>
   </v-col>
-  </v-container>
+<!--  </v-container> -->
 
-  <v-container v-else fluid class="fill-height">
+<!-- <v-container v-else fluid class="fill-height"> 
       <v-row align="center" justify="center">
         <v-progress-circular
           indeterminate
@@ -101,7 +107,7 @@
           size="70"
         ></v-progress-circular>
       </v-row>
-    </v-container>
+    </v-container> -->
 
 </template>
 
@@ -168,7 +174,8 @@ export default {
       citaToDelete,
       deleteCita,
       user,
-      citas
+      citas,
+      loadUser
     };
   },
   methods: {

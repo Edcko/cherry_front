@@ -42,7 +42,7 @@ export default function useCitas() {
   const updateCita = async (cita) => {
     try {
       await apiService.updateCita(cita);
-      citas.value = await apiService.getCitas();
+ //     citas.value = await apiService.getCitas();
       app.appContext.config.globalProperties.$showAlert("La cita se actualizo correctamente.", "success");
     } catch (error) {
       console.error(error);

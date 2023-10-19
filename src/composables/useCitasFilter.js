@@ -1,8 +1,14 @@
 import { ref, watch } from "vue";
 import { adjustDateForTimezone } from "@/utils/dateUtils";
 
+const initialDate = new Date();
 export default function useCitasFilter(citas, search, dateFilter, clientIdFilter, newDateFilter) {
   const filteredCitas = ref([]);
+
+  // Si newDateFilter no tiene valor cuando se inicializa, le asignamos la fecha actual
+  if (!newDateFilter.value) {
+    newDateFilter.value = initialDate;
+  }
 
   watch(
     [citas, search, dateFilter, clientIdFilter, newDateFilter],
@@ -22,31 +28,25 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
             new Date(dateFilter.value).getTime()
         );
       }
-
-      console.log("newDateFilter value:", newDateFilter.value);
+  
+      // Utilizamos newDateFilter para filtrar las citas
       if (newDateFilter.value) {
         result = result.filter((cita) => {
             const citaDate = new Date(cita.fecha);
-            console.log("Converted cita.fecha:", citaDate);
             const filterDate = adjustDateForTimezone(newDateFilter.value);
-            console.log("citaDate:", citaDate);
-            console.log("filterDate:", filterDate);
             return citaDate.getFullYear() === filterDate.getFullYear() &&
                    citaDate.getMonth() === filterDate.getMonth() &&
                    citaDate.getDate() === filterDate.getDate();
         });
-    }
-    console.log("Filtered result:", result);
+      }
 
-    
-  
       if (clientIdFilter.value) {
         result = result.filter((cita) =>
-        `${cita.Cliente.nombre_cliente} ${cita.Cliente.apellido_paterno} ${cita.Cliente.apellido_materno}`.toLowerCase().includes(clientIdFilter.value.toLowerCase())
+          `${cita.Cliente.nombre_cliente} ${cita.Cliente.apellido_paterno} ${cita.Cliente.apellido_materno}`.toLowerCase().includes(clientIdFilter.value.toLowerCase())
         );
       }
-  
-      // Agrega esta línea para ordenar las citas antes de asignarlas a filteredCitas
+
+      // Ordenamos las citas antes de asignarlas a filteredCitas
       result = sortCitas(result, 'fecha');
   
       filteredCitas.value = result;
@@ -62,13 +62,6 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
   return { filteredCitas, getCitasByCabina };
 }
 
-const isToday = (date) => {
-  const today = new Date();
-  return date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear();
-}
-
 const sortCitas = (citas, sortBy) => {
   if (!sortBy) {
     return citas;
@@ -80,9 +73,9 @@ const sortCitas = (citas, sortBy) => {
     const dateA = new Date(a.fecha);
     const dateB = new Date(b.fecha);
 
-    if (isToday(dateA) && !isToday(dateB)) {
+    if (dateA.getTime() === today.getTime() && dateB.getTime() !== today.getTime()) {
       return -1;
-    } else if (!isToday(dateA) && isToday(dateB)) {
+    } else if (dateA.getTime() !== today.getTime() && dateB.getTime() === today.getTime()) {
       return 1;
     }
 

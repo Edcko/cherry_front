@@ -1,5 +1,5 @@
 <template>
-    <v-container v-if="user" fluid>
+  <!--  <v-container v-if="user" fluid> -->
   <div>
     <cita-calendar
       :citas="citas"
@@ -38,10 +38,12 @@
       @newDateFilterChange="newDateFilter = $event"
     />
 
+   
     <v-row>
     <v-col cols="12" md="3" v-for="numeroCabina in 4" :key="'cabina-' + numeroCabina">
       <v-divider :key="'divider-' + numeroCabina"></v-divider>
       <h3 class="text-center mt-4">{{ numeroCabina !== 4 ? 'Cabina ' + numeroCabina : 'Depilación' }}</h3>
+      <v-container v-if="user" fluid>
       <cita-card
         class="custom-card mt-2"
         v-for="cita in getCitasByCabina(numeroCabina)"
@@ -51,6 +53,20 @@
         @deleteCita="handleDeleteCita"
         @updateEstado="updateCita"
       />
+    </v-container>
+
+
+    <v-container v-else fluid class="fill-height">
+      <v-row align="center" justify="center">
+        <v-progress-circular
+          indeterminate
+          color="teal"
+          size="70"
+        ></v-progress-circular>
+      </v-row>
+    </v-container>
+
+
 
       <hora-libre-card
   v-for="hora in getHorasLibres(getCitasByCabina(numeroCabina), numeroCabina)"
@@ -66,8 +82,9 @@
 
    
   </div>
-</v-container>
+<!-- </v-container> -->
 
+<!--
 <v-container v-else fluid class="fill-height">
       <v-row align="center" justify="center">
         <v-progress-circular
@@ -77,6 +94,8 @@
         ></v-progress-circular>
       </v-row>
     </v-container>
+
+  -->
 
 </template>
 
@@ -118,7 +137,6 @@ export default {
 
     const {
       citas,
-      valoraciones,
       addCita,
       updateCita,
       deleteCita,
@@ -139,7 +157,6 @@ export default {
 
     onMounted(async () => {
       try {
-        valoraciones.value = await apiService.getValoraciones();
         citas.value = await apiService.getCitas();
         await loadUser();
       } catch (error) {
@@ -210,7 +227,6 @@ export default {
 
     return {
       citas,
-      valoraciones,
       addCita,
       deleteCita,
       updateCita,

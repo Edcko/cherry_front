@@ -51,9 +51,10 @@ const getClientes = async () => {
   return response.data;
 }
 
-const getCitas = async () => {
+const getCitas = async (params) => {
     const response = await api.get(API_URL + 'citas', {
-        headers: authHeader()
+        headers: authHeader(),
+        params
     });
     return response.data;
 };

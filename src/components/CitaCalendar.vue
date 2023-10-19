@@ -18,18 +18,14 @@ export default {
   name: "CitaCalendar",
   props: ["citas"],
   setup(props) {
-
     const calendar = ref(null);
     const disabledDates = ref([]);
 
     const { getSundays } = useCitas();
-
-    // Asegúrate de ajustar estas fechas para que cubran el rango de fechas que te interesa
     const startDate = new Date(2023, 0, 1);
     const endDate = new Date(2023, 11, 31);
 
     disabledDates.value = getSundays(startDate, endDate);
-
 
     const calendarAttributes = computed(() => {
       return props.citas.map((cita) => {
@@ -41,18 +37,22 @@ export default {
             color: citasCount >= 39 ? "red" : "blue",
             fillMode: "light",
           },
-          content: "•",
-          popovers: {
-            label: `Cita: ${cita.id_cita}`,
-            slots: [
-              {
-                content: `Empleado: ${cita.id_empleado}<br>Cliente: ${cita.id_cliente}`,
-              },
-            ],
-          },
+//          dot: {
+//            color: citasCount >= 39 ? "red" : "blue",
+//          },
+   //       popover: {
+  //          label: `Cita: ${cita.id_cita}`,
+ //           slots: [
+  //            {
+ //               content: `Empleado: ${cita.id_empleado}<br>Cliente: ${cita.id_cliente}`,
+ //             },
+ //           ],
+//          },
         };
       });
     });
+
+
 
     const onDayClick = (day) => {
       const dayDateString = day.date.toISOString().split("T")[0];
