@@ -124,11 +124,11 @@ export default {
 //     empleados.value = await apiService.getEmpleados();
 //      console.log("Empleados:", empleados.value);
       clientes.value = await apiService.getClientes();
-      console.log("Clientes:", clientes.value);
+//      console.log("Clientes:", clientes.value);
       cabinas.value = await apiService.getCabinas();
-      console.log("Cabinas:", cabinas.value);
+//      console.log("Cabinas:", cabinas.value);
       paquetes.value = await apiService.getPaquetes();
-      console.log("Paquetes:", paquetes.value);
+//      console.log("Paquetes:", paquetes.value);
     });
 /*
     const empleadoOptions = computed(() => {

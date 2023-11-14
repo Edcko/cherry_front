@@ -15,8 +15,8 @@ export default createStore({
     console.log('SET_USER_DATA ejecutada con userData:', userData);
       state.userData = userData;
       state.token = userData.token;
-      state.tipo_empleado = userData.tipo_empleado;
-      state.id_empleado = userData.id_empleado;
+   //   state.tipo_empleado = userData.tipo_empleado;
+   //   state.id_empleado = userData.id_empleado;
       localStorage.setItem('user', JSON.stringify(userData));
 
       // Aquí podrías actualizar el token en Axios

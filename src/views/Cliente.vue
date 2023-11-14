@@ -4,53 +4,65 @@
     <v-row v-if="isLoading" justify="center" align="center" class="full-height">
       <v-progress-circular indeterminate color="teal"></v-progress-circular>
     </v-row>
-
-    <!-- Contenido cuando los datos ya están cargados -->
     <v-row v-else>
-      <v-col 
-        v-for="cliente in displayedClientes"
-        :key="cliente.id_cliente"
-        cols="12" sm="6" md="4"
-      >
-        <v-card 
-          class="mx-auto mb-4" 
-          max-width="344" 
-          variant="outlined"
+      <v-col cols="12" md="6">
+      <v-card class="mx-auto my-4" max-width="1000" elevation="10">
+        <v-card-title class="custom-button">
+  Lista de Clientes
+  <v-spacer></v-spacer> <!-- Espaciador para alinear el campo de búsqueda a la derecha -->
+  <v-text-field
+    v-model="searchQuery"
+    append-icon="mdi-magnify"
+    label="Buscar clientes"
+    single-line
+    hide-details
+    @input="searchClientes"
+  ></v-text-field>
+ 
+</v-card-title>
+        <v-divider></v-divider>
+
+        <v-virtual-scroll
+          :items="filteredClientes"
+          height="400"
+          item-height="48"
         >
-          <v-card-item>
-            <div>
-              <div class="text-h6 mb-1">
-                {{ cliente.nombre_cliente }} {{ cliente.apellido_paterno }} {{ cliente.apellido_materno }}
-              </div>
-              <div class="text-caption">
-                {{ cliente.email }} | {{ cliente.telefono_cliente }}
-              </div>
-              <div class="text-caption">
-                Nacimiento: {{ helperServices.clienteHelper.formatearFecha(cliente.fecha_nacimiento) }}
-              </div>
-              <div class="text-caption">
-                Genero: {{ cliente.sexo }}
-              </div>
-            </div>
-          </v-card-item>
-          <v-card-actions>
-            <v-btn variant="outlined" color="error" @click="openDeleteDialog(cliente)">
-              <delete-icon></delete-icon> Eliminar
+          <template v-slot:default="{ item }">
+            <v-list-item
+              :title="`${item.nombre_cliente} ${item.apellido_paterno} ${item.apellido_materno}`"
+              :subtitle="`Email: ${item.email} | Teléfono: ${item.telefono_cliente}`"
+            >
+              <template v-slot:prepend>
+                <v-icon class="custom-button">mdi-account</v-icon>
+              </template>
+              <template v-slot:append>
+                <v-btn class="custom-button" icon @click="openDeleteDialog(item)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
+            </v-list-item>
+          </template>
+        </v-virtual-scroll>
+        
+        <v-row justify="center" class="my-2">
+        <v-dialog v-model="showDialog" persistent width="1024">
+          <template v-slot:activator="{ props }">
+            <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props" icon="mdi-account-plus">
+
             </v-btn>
-          </v-card-actions>
-        </v-card>
+          </template>
+          <cliente-dialog :showDialog="showDialog" @close="showDialog = false" @addCliente="addCliente" />
+        </v-dialog>
+      </v-row>
+
+
+      </v-card>
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <compras-list :compras="compras" :isLoading="isLoading"  @addCompra="addCompra" @deleteCompra="handleDeleteCompra"/>
       </v-col>
     </v-row>
-
-    <!-- Paginación -->
-    <div class="text-center pagination-spacing">
-      <v-pagination
-        v-model="page"
-        :length="totalPages"
-        prev-icon="mdi-menu-left"
-        next-icon="mdi-menu-right"
-      ></v-pagination>
-    </div>
 
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
@@ -67,61 +79,42 @@
     </v-dialog>
 
   </div>
-
-  <div class="button-spacing">
-      <v-row justify="center">
-        <v-dialog v-model="showDialog" persistent width="1024">
-          <template v-slot:activator="{ props }">
-            <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props">
-              Dar de alta cliente
-            </v-btn>
-          </template>
-          <cliente-dialog :showDialog="showDialog" @close="showDialog = false" @addCliente="addCliente" />
-        </v-dialog>
-      </v-row>
-    </div>
-
-    <div class="compras-spacing">
-      <v-row>
-        <v-col cols="12">
-          <compras-list :compras="compras" :isLoading="isLoading" />
-        </v-col>
-      </v-row>
-
-  </div>
-
 </template>
 
 <script>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, watch } from "vue";
 import apiService from "@/services/apiServices";
 import ClienteDialog from "@/components/ClienteDialog.vue";
 import useClientes from "@/composables/useClientes";
+import useCompras from "@/composables/useCompras";
 import helperServices from "@/services/helperServices.js";
-import DeleteIcon from "@/components/icons/DeleteIcon.vue";
 import ComprasList from "@/components/ComprasList.vue";
 
 export default {
   name: "ClientesComponent",
   components: {
     ClienteDialog,
-    DeleteIcon,
     ComprasList
   },
   setup() {
-    const page = ref(1); // Estado para la página actual
+//    const page = ref(1); // Estado para la página actual
     const showDialog = ref(false);
     const deleteDialog = ref(false);
     const clientToDelete = ref(null);
-    const compras = ref(null);
+//    const compras = ref(null);
     const isLoading = ref(true); // Para controlar la visualización del progress circular
+    const { compras, addCompra, updateCompra, deleteCompra } = useCompras();
     const { clientes, addCliente, deleteCliente } = useClientes();
     const searchQuery = ref(""); // Estado para la consulta de la busqueda
+    
+    //Filtrado de ccleintes basado en el texto de busqueda
+    const filteredClientes = ref([]);
 
-   
     onMounted(async () => {
       try {
-        clientes.value = await apiService.getClientes();
+        const fechedClientes = await apiService.getClientes();
+        clientes.value = fechedClientes;
+        filteredClientes.value = fechedClientes;
         compras.value = await apiService.getCompras();
         isLoading.value = false; // Oculta el progress circular una vez que los datos están cargados
       } catch (error) {
@@ -140,12 +133,44 @@ export default {
       deleteDialog.value = false;
     };
 
-    const displayedClientes = computed(() => {
-      const startIndex = (page.value - 1) * 6; 
-      return clientes.value.slice(startIndex, startIndex + 6);
-    });
+    const handleDeleteCompra = async (compra) => {
+      
+      try {
+        await deleteCompra(compra);
+        const index = compras.value.findIndex((c) => c.id_compra === compra.id_compra);
+        if(index !== -1) {
+          compras.value.splice(index, 1);
+        }
+      }catch (error) {
+        this.$showAlert("Ha ocurrido un error al eliminar la cita.", "error");
+        console.error(error);
+      }
 
-    const totalPages = computed(() => Math.ceil(clientes.value.length / 6));
+};
+
+
+
+     // Observa cambios en el camop de busqueda y filtra los clientes
+     watch(searchQuery, (newValue) => {
+    if (newValue === '') {
+      filteredClientes.value = clientes.value; // Si no hay búsqueda, muestra todos los clientes
+    } else {
+      filteredClientes.value = clientes.value.filter((cliente) =>
+        cliente.nombre_cliente.toLowerCase().includes(newValue.toLowerCase()) ||
+        cliente.apellido_paterno.toLowerCase().includes(newValue.toLowerCase()) ||
+        cliente.apellido_materno.toLowerCase().includes(newValue.toLowerCase()) ||
+        cliente.email.toLowerCase().includes(newValue.toLowerCase()) ||
+        cliente.telefono_cliente.toLowerCase().includes(newValue.toLowerCase()) 
+      );
+    }
+  });
+
+//    const displayedClientes = computed(() => {
+///      const startIndex = (page.value - 1) * 6; 
+//      return clientes.value.slice(startIndex, startIndex + 6);
+//    });
+
+//    const totalPages = computed(() => Math.ceil(clientes.value.length / 6));
 
     return {
       openDeleteDialog,
@@ -156,12 +181,17 @@ export default {
       deleteDialog,
       clientToDelete,
       helperServices,
-      page,
-      displayedClientes,
-      totalPages,
+      filteredClientes,
+  //    page,
+  //    displayedClientes,
+  //    totalPages,
       isLoading,
       compras,
+      addCompra,
+      updateCompra,
+      deleteCompra,
       searchQuery,
+      handleDeleteCompra,
     };
   },
 };
@@ -189,8 +219,12 @@ export default {
 }
 
 .custom-button {
-  background-color: white;
   color: teal;
+}
+
+.my-2 {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .full-height {

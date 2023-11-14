@@ -8,6 +8,17 @@ export default function useCitas() {
   const valoraciones = ref([]);
   const app = getCurrentInstance();
 
+
+  const getCitasWithParams = async (param1, param2) => {
+    try{
+      const response = await apiService.getCitas(param1, param2);
+      return response.data;
+    }catch(error){
+      console.error(error);
+      throw new Error("Error al obtener citas");
+    }
+  }
+
   const addCita = async (newCita) => {
     console.log("Nueva cita:", newCita);
     newCita.created_at = new Date().toISOString();
@@ -20,7 +31,7 @@ export default function useCitas() {
     
     try {
         await apiService.addCita(newCita);
-        citas.value = await apiService.getCitas();
+   //     citas.value = await apiService.getCitas();
         app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
     } catch (error) {
         if (error.response && error.response.status === 400 && error.response.data.message === 'Ya existe una cita agendada para esa fecha y número de cabina.') {
@@ -128,11 +139,12 @@ export default function useCitas() {
       const date = new Date(cita.fecha);
       return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
     });
+    
     return horasTrabajo.filter(hora => !horasOcupadas.includes(hora));
   };
   
   
 
 
-  return { citas, valoraciones, addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
+  return { citas, valoraciones, getCitasWithParams ,addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
 }
