@@ -1,7 +1,7 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = 'http://localhost:3000/cherry/auth/';
+const API_URL = 'http://198.199.68.78:3000/cherry/auth/';
 
 // Crear una nueva instancia de Axios
   const api = axios.create({
