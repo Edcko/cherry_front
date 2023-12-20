@@ -5,14 +5,20 @@ import { getCurrentInstance } from 'vue';
 export default function useValoraciones() {
   const valoraciones = ref([]);
   const app = getCurrentInstance();
+  const searchQuery = ref("");
+  const filteredValoraciones = ref([]);
 
   const fetchValoraciones = async () => {
     try {
       valoraciones.value = await apiService.getValoraciones();
+      filteredValoraciones.value = valoraciones.value;
+      console.log("Valoraciones:", valoraciones.value);
+      console.log("Filtered:", filteredValoraciones.value);
+
     } catch (error) {
       console.error("Error obteniendo las valoraciones", error);
     }
-  }
+  };
 
   const addValoracion = async (newValoracion) => {
     try {
@@ -52,5 +58,23 @@ export default function useValoraciones() {
     }
   };
 
-  return { valoraciones, fetchValoraciones, addValoracion, updateValoracion, deleteValoracion };
-}
+  const getSundays = (start, end) =>{
+    let date = new Date(start);
+    let sundays = [];
+  
+    // Avanza hasta el primer domingo
+    while (date.getDay() !== 0) {
+      date.setDate(date.getDate() + 1);
+    }
+  
+    // Agrega todos los domingos hasta la fecha de finalización
+    while (date <= end) {
+      sundays.push(new Date(date));
+      date.setDate(date.getDate() + 7);
+    }
+  
+    return sundays;
+  }
+
+  return { valoraciones, searchQuery, filteredValoraciones, fetchValoraciones, addValoracion, updateValoracion, deleteValoracion, getSundays };
+} 

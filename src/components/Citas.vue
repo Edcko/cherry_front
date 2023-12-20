@@ -156,8 +156,20 @@ export default {
     const {user, loadUser} = useUser();
 
     onMounted(async () => {
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDayOfNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 0);
+
+    const format = (date) => date.toISOString().split('T')[0];
+
+
       try {
-        citas.value = await apiService.getCitas();
+
+        citas.value = await apiService.getCitas({
+            startDate: format(firstDayOfMonth),
+            endDate: format(lastDayOfNextMonth)
+        });
+
         await loadUser();
       } catch (error) {
         console.error(error);

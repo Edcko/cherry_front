@@ -1,43 +1,56 @@
 <template>
-    <v-table fixed-header height="500px">
-      <thead>
-        <tr>
-          <th class="text-left">Fecha de valoración</th>
-          <th class="text-left">Cliente</th>
-          <th class="text-left">Terapeuta</th>
- <!--         <th class="text-left">ID Cabina</th> -->
-          <th class="text-left">Estado</th>
-  <!--        <th class="text-left">Resultado</th> -->
- <!--         <th class="text-left">Observaciones</th> -->
- <!--       <th class="text-left">Recomendaciones</th> -->
-<!--         <th class="text-left">Paquete Recomendado</th> -->
-          <th class="text-left">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="valoracion in valoraciones" :key="valoracion.id_valoracion">
-          <td>{{ formatDateToDayMonthYear(valoracion.fecha_valoracion)}}</td>
-          <td>{{ valoracion.Cliente.nombre_cliente + ' ' + valoracion.Cliente.apellido_paterno + ' ' + valoracion.Cliente.apellido_materno }}</td>
-          <td>{{ valoracion.Empleado.nombre_empleado + ' ' + valoracion.Empleado.apellido_paterno + ' ' + valoracion.Empleado.apellido_materno }}</td>
+    
+    <v-col cols="12" md="6">
+      <div>
+      <valoracion-calendar
+        :valoraciones="valoraciones"
+        @citaClicked="handleCitaClicked"
+        @dayClicked="handleDayClicked"
+        />
+      </div>
+    </v-col>
+    
+    <v-col cols="12">
+        <v-card class="mx-auto my-4" max-width="1000" elevation="10">
+          <v-card-title class="custom-button">
+            Valoraciones
+            <v-spacer></v-spacer>
+            <v-text-field
+              v-model="searchQuery"
+              append-icon="mdi-magnify"
+              label="Buscar valoraciones"
+              single-line
+              hide-details
+              @input="searchValoraciones"
+            ></v-text-field>
+          </v-card-title>
+          <v-divider></v-divider>
 
-          <!-- ... columnas anteriores ... -->
-<!--   <td>{{ valoracion.id_cabina }}</td> -->
-    <td>{{ valoracion.estado }}</td>
-  <!--  <td>{{ valoracion.resultado }}</td> -->
+          <!-- Lista de Valoraciones -->
+          <v-virtual-scroll
+            :items="filteredValoraciones"
+            height="400"
+            item-height="48"
+          >
+            <template v-slot:default="{ item }">
+              <v-list-item
+                :title="`Valoración: ${formatDateToDayMonthYear(item.fecha_valoracion)} | Cliente: ${item.Cliente.nombre_cliente} ${item.Cliente.apellido_paterno} ${item.Cliente.apellido_materno}`"
+                :subtitle="`Valoradora: ${item.Empleado.nombre_empleado} ${item.Empleado.apellido_paterno} ${item.Empleado.apellido_materno} | Estado de valoración: ${item.estado}`"
+              >
+                <template v-slot:prepend>
+                  <v-icon class="custom-button">mdi-star</v-icon>
+                </template>
+                <template v-slot:append>
+                  <v-btn class="custom-button" icon @click="openDeleteDialog(item)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </template>
+              </v-list-item>
+            </template>
+          </v-virtual-scroll>
+        </v-card>
+      </v-col>
 
-    <!-- ... -->
-     <!--     <td>{{ valoracion.observaciones }}</td> -->
-     <!--     <td>{{ valoracion.recomendaciones }}</td> -->
-<!--          <td>{{ valoracion.paquete_recomendado }}</td> -->
-          <td>
-            <v-btn color="error" @click="openDeleteDialog(valoracion)">
-              <delete-icon></delete-icon>
-            </v-btn>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
-  
     <!-- Diálogo de confirmación de eliminación -->
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
@@ -60,7 +73,7 @@
       <v-dialog v-model="showDialog" persistent width="1024">
         <template v-slot:activator="{ props }">
           <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props">
-            Crear una nueva valoración
+            Nueva valoración
           </v-btn>
         </template>
         <valoracion-dialog :showDialog="showDialog" @close="showDialog = false" @addValoracion="addValoracion" />
@@ -69,27 +82,40 @@
   </template>
   
   <script>
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, watch } from 'vue';
   import { format } from 'date-fns';
   import { es } from 'date-fns/locale';
-  import DeleteIcon from '@/components/icons/DeleteIcon.vue';
+//  import DeleteIcon from '@/components/icons/DeleteIcon.vue';
   import ValoracionDialog from '@/components/ValoracionDialog.vue';
+  import ValoracionCalendar from '@/components/ValoracionCalendar.vue';
   import useValoraciones from '@/composables/useValoraciones';
   
   export default {
     name: 'Valoracion_view',
     components: {
-      DeleteIcon,
+//      DeleteIcon,
       ValoracionDialog,
+      ValoracionCalendar,
     },
     setup() {
       const showDialog = ref(false);
       const deleteDialog = ref(false);
       const valoracionToDelete = ref(null);
-      const { valoraciones, addValoracion, deleteValoracion, fetchValoraciones } = useValoraciones();
+      const { valoraciones, filteredValoraciones, searchQuery, addValoracion, deleteValoracion, fetchValoraciones } = useValoraciones();
   
       onMounted(fetchValoraciones);
-  
+
+      watch(searchQuery, (newValue) => {
+      if (newValue === '') {
+        filteredValoraciones.value = valoraciones.value;
+      } else {
+        filteredValoraciones.value = valoraciones.value.filter((val) =>
+          val.fecha_valoracion.toLowerCase().includes(newValue.toLowerCase()) ||
+          val.Empleado.nombre_empleado.toLowerCase().includes(newValue.toLowerCase())
+        );
+      }
+    });
+
       const openDeleteDialog = (valoracion) => {
         valoracionToDelete.value = valoracion;
         deleteDialog.value = true;
@@ -100,24 +126,26 @@
         valoracionToDelete.value = null;
         deleteDialog.value = false;
       };
+
+      const formatDateToDayMonthYear = (dateString) => {
+        const date = new Date(dateString);
+        return format(date, 'EEEE, dd/MMM/yyyy h:mm aa', { locale: es });
+      };
   
       return {
         showDialog,
         valoraciones,
+        filteredValoraciones,
+        searchQuery,
         fetchValoraciones,
         addValoracion,
         deleteDialog,
         openDeleteDialog,
         confirmDelete,
+        formatDateToDayMonthYear,
         valoracionToDelete,
       };
     },
-    methods: {
-      formatDateToDayMonthYear(dateString) {
-    const date = new Date(dateString);
-    return format(date, 'EE dd/MMM/yy HH:mm', { locale: es });
-  },
-    }
   };
   </script>
   

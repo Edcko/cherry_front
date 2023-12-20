@@ -1,6 +1,7 @@
 <template>
   <div>
-    <v-calendar :rows="2"
+    <v-calendar 
+      :rows="1"
       ref="calendar"
       expanded
       :attributes="calendarAttributes"
@@ -27,6 +28,17 @@ export default {
 
     disabledDates.value = getSundays(startDate, endDate);
 
+    onMounted(async () => {
+      if(calendar.value){
+        await calendar.value.move(new Date())
+      }
+    });
+
+    /*
+`calendarAttributes` es una propiedad computada que genera los atributos de cada día en el calendario basándose en las citas.
+ Para cada cita, se crea un objeto que contiene el ID de la cita, la fecha de la cita y el color de resaltado para el día en el calendario.
+  El color del resaltado depende del número de citas para esa fecha.
+    */
     const calendarAttributes = computed(() => {
       return props.citas.map((cita) => {
         const citasCount = countCitasForDate(new Date(cita.fecha));
@@ -72,21 +84,27 @@ export default {
       }
     };
 
+
+/*
+`countCitasForDate` es una función que cuenta el número de citas para una fecha específica que no han sido canceladas ni perdidas.
+*/
+    const countCitasForDate = (date) => {
+  return props.citas.filter((cita) => new Date(cita.fecha).toDateString() === date.toDateString() && cita.estado !== "Cita cancelada" && cita.estado !== "Cita perdida" && cita.Cabina.numero_cabina !== 4).length;
+};
+
+/*
     const countCitasForDate = (date) => {
       return props.citas.filter((cita) => {
         const citaDate = new Date(cita.fecha);
         return (
           citaDate.toDateString() === date.toDateString() &&
-          cita.estado !== "Cancelado"
+          cita.estado !== "Cita cancelada" && 
+          cita.estado !== "Cita perdida" &&
+          cita.Cabina.numero_cabina !== 4
         );
       }).length;
     };
-
-    onMounted(async () => {
-      if(calendar.value){
-        await calendar.value.move(new Date())
-      }
-    });
+*/
 
     return {
       calendar,
