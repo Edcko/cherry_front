@@ -1,6 +1,4 @@
 <template>
-    
-    <v-col cols="12" md="6">
       <div>
       <valoracion-calendar
         :valoraciones="valoraciones"
@@ -8,7 +6,6 @@
         @dayClicked="handleDayClicked"
         />
       </div>
-    </v-col>
     
     <v-col cols="12">
         <v-card class="mx-auto my-4" max-width="1000" elevation="10">
@@ -41,6 +38,9 @@
                   <v-icon class="custom-button">mdi-star</v-icon>
                 </template>
                 <template v-slot:append>
+                  <v-btn class="custom-button" icon @click="openChangeStatusDialog(item)">
+    <v-icon>mdi-transfer</v-icon> <!-- Cambia esto por el icono que prefieras -->
+  </v-btn>
                   <v-btn class="custom-button" icon @click="openDeleteDialog(item)">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
@@ -48,6 +48,21 @@
               </v-list-item>
             </template>
           </v-virtual-scroll>
+
+    <!-- Botón para agregar una nueva valoración -->
+    <v-row justify="center">
+          <v-dialog v-model="showDialog" persistent width="1024">
+        <template v-slot:activator="{ props }">
+          <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props" icon>
+            <v-icon>mdi-playlist-plus</v-icon>
+          </v-btn>
+        </template>
+        <valoracion-dialog :showDialog="showDialog" @close="showDialog = false" @addValoracion="addValoracion" />
+      </v-dialog>
+    </v-row>
+
+    <div class="button-spacing"></div>
+
         </v-card>
       </v-col>
 
@@ -66,19 +81,6 @@
       </v-card>
     </v-dialog>
   
-    <div class="button-spacing"></div>
-
-    <!-- Botón para agregar una nueva valoración -->
-    <v-row justify="center">
-      <v-dialog v-model="showDialog" persistent width="1024">
-        <template v-slot:activator="{ props }">
-          <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props">
-            Nueva valoración
-          </v-btn>
-        </template>
-        <valoracion-dialog :showDialog="showDialog" @close="showDialog = false" @addValoracion="addValoracion" />
-      </v-dialog>
-    </v-row>
   </template>
   
   <script>

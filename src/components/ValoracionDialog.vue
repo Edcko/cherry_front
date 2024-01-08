@@ -67,7 +67,7 @@
       <v-select
         label="Estado"
         v-model="valoracion.estado"
-        :items="['Por confirmar', 'Confirmado', 'Cancelado']"
+        :items="['Por confirmar', 'Confirmado','Adquirió', 'No adquirió', 'Cancelado']"
         :rules="[rules.required]"
         variant="filled"
         color="teal"

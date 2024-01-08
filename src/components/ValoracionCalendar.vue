@@ -25,8 +25,8 @@ export default {
         const disabledDates = ref([]);
 
         const { getSundays } = useValoraciones();
-        const startDate = new Date(2023, 0, 1);
-        const endDate = new Date(2023, 11, 31);
+        const startDate = new Date(2024, 0, 1);
+        const endDate = new Date(2025, 11, 31);
 
         disabledDates.value = getSundays(startDate, endDate);
 
@@ -37,15 +37,12 @@ export default {
                 return {
                     key: valoracion.id_valoracion,
                     dates: valoracion.fecha_valoracion,
-                    highlight: {
-                        color: valoracionesCount >= 39 ? "red" : "teal",
-                        fillMode: "light",
-                    },
+                   
                     dot: {
                         color: valoracionesCount >= 39 ? "red" : "teal",
                     },
                     popover: {
-                        label: `Valoracion: ${fechaFormateada} || Empleado: ${valoracion.id_empleado} || Cliente: ${valoracion.id_cliente}`,
+                        label: `Valoracion: ${fechaFormateada} || Cliente: ${valoracion.Cliente.nombre_cliente} ${valoracion.Cliente.apellido_paterno} ${valoracion.Cliente.apellido_materno}`,
                         slots: [
                             {
                                 content: `Empleado: ${valoracion.id_empleado}<br>Cliente: ${valoracion.Cliente?.nombre_cliente ?? 'Desconocido'} ${valoracion.Cliente?.apellido_paterno ?? ''} ${valoracion.Cliente?.apellido_materno ?? ''} | Estado de compra: ${valoracion.estado}`,
@@ -96,5 +93,9 @@ export default {
 </script>
 
 <style scoped>
+h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
 
 </style>
