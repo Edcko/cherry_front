@@ -29,6 +29,11 @@
             <v-btn color="error" @click="openDeleteDialog(empleado)">
               <delete-icon></delete-icon> Eliminar
             </v-btn>
+<!--
+            <v-btn color="primary" @click="openEditDialog(empleado)">
+              <v-icon>mdi-pencil</v-icon> Editar
+            </v-btn>
+            -->
           </v-card-actions>
         </v-card>
       </v-col>
@@ -58,7 +63,13 @@
               Dar de alta empleado
             </v-btn>
           </template>
-          <empleado-dialog :showDialog="showDialog" @close="showDialog = false" @addEmpleado="addEmpleado" />
+          <empleado-dialog 
+          v-model:showDialog="showDialog" 
+          @close="showDialog = false"
+          @addEmpleado="addEmpleado" 
+          @updateEmpleado="updateEmpleado"
+          :empleadoToEdit="empleadoToEdit"
+          />
         </v-dialog>
       </v-row>
     </div>
@@ -82,7 +93,7 @@ export default {
     const showDialog =  ref(false);
     const deleteDialog = ref(false);
     const empleadoToDelete = ref(null);
-    const {empleados, addEmpleado, deleteEmpleado, fetchEmpleados } = useEmpleados();
+    const {empleados, addEmpleado, updateEmpleado, deleteEmpleado, fetchEmpleados } = useEmpleados();
 
     onMounted(fetchEmpleados);
 
@@ -103,6 +114,7 @@ export default {
       showDialog,
       empleados,
       addEmpleado,
+      updateEmpleado,
       deleteDialog,
       openDeleteDialog,
       confirmDelete,

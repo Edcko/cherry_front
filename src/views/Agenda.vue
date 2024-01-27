@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h1>Calendario de Citas</h1>
     <CitasComponent />
   </div>
 </template>
@@ -18,8 +17,5 @@ export default {
 </script>
 
 <style scoped>
-h1 {
-  text-align: center;
-  margin-bottom: 1rem;
-}
+
 </style>

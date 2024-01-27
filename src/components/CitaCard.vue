@@ -1,7 +1,7 @@
 <template>
-<!--  <v-container v-if="user" fluid> -->
-  <v-col cols="12" md="6" lg="12" class="mt-5">
-    <v-card class="mb-3">
+  <v-container v-if="user" fluid>
+  <v-col >
+    <v-card >
       <v-card-title class="headline">
         Fecha: {{ truncateName(formatDateToDayMonthYear(cita.fecha)) }}
         <v-tooltip
@@ -61,16 +61,19 @@
         <p :style="{ backgroundColor: getColorForEstado(cita.estado), color: 'white', padding: '5px', borderRadius: '5px' }"><strong>Estado:</strong> {{ cita.estado }}</p>
       </v-card-text>
       
-      <v-container v-if="user" fluid>
-      <v-card-actions>
-<!--       <v-btn color="primary" @click="editCita(cita)">Editar</v-btn> -->
-    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="error" @click="handleDeleteCita(cita)">Eliminar</v-btn>
-    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="success" @click="changeEstado(cita)">
-          Cambiar Estado
-        </v-btn>
-      </v-card-actions>
+      <v-card-actions class="actions">
+    <!--     <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="primary" @click="editCita(cita)">
+    <v-icon>mdi-file-document-edit-outline</v-icon>
+    </v-btn>
+    -->
 
-      </v-container>
+    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="error" @click="handleDeleteCita(cita)">
+    <v-icon>mdi-delete</v-icon>
+    </v-btn>
+    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="success" @click="changeEstado(cita)">
+    <v-icon>mdi-check</v-icon>
+    </v-btn>
+      </v-card-actions>
 
      
  
@@ -97,7 +100,7 @@
       </v-card>
     </v-dialog>
   </v-col>
-<!--  </v-container> -->
+  </v-container> 
 
 <!-- <v-container v-else fluid class="fill-height"> 
       <v-row align="center" justify="center">
@@ -205,6 +208,12 @@ export default {
 </script>
 
 <style scope>
+
+.actions {
+  justify-content: center;
+  margin-top: -10px;
+}
+
 .title-text {
   font-size: 1rem;
   font-weight: bold;

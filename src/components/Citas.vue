@@ -1,5 +1,6 @@
 <template>
-  <!--  <v-container v-if="user" fluid> -->
+    <v-container v-if="user" fluid> 
+      <h1>Calendario de Citas</h1>
   <div>
     <cita-calendar
       :citas="citas"
@@ -82,10 +83,10 @@
 
    
   </div>
-<!-- </v-container> -->
+ </v-container> 
 
-<!--
-<v-container v-else fluid class="fill-height">
+
+<v-container v-else fluid class="full-height">
       <v-row align="center" justify="center">
         <v-progress-circular
           indeterminate
@@ -95,7 +96,7 @@
       </v-row>
     </v-container>
 
-  -->
+  
 
 </template>
 
@@ -137,6 +138,7 @@ export default {
 
     const {
       citas,
+      citasTodayTomorrow,
       addCita,
       updateCita,
       deleteCita,
@@ -159,9 +161,16 @@ export default {
     const currentDate = new Date();
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
     const lastDayOfSecondNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, 0);
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     const format = (date) => date.toISOString().split('T')[0];
 
+    console.log("Fecha de hoy", format(today));
+    console.log("Fecha de maniana", format(tomorrow));  
+    console.log("Fecha de inicio del mes", format(firstDayOfMonth));
+    
 
       try {
 
@@ -169,6 +178,15 @@ export default {
             startDate: format(firstDayOfMonth),
             endDate: format(lastDayOfSecondNextMonth)
         });
+
+        console.log("Citas", citas.value);
+
+        citasTodayTomorrow.value = await apiService.getCitas({
+            startDate: format(today),
+            endDate: format(tomorrow)
+        });
+
+         console.log("Citas hoy y maniana", citasTodayTomorrow.value);
 
         await loadUser();
       } catch (error) {
@@ -239,26 +257,27 @@ export default {
 
     return {
       citas,
-      addCita,
-      deleteCita,
-      updateCita,
-      formatDate,
+      citasTodayTomorrow,
       showDialog,
-      changeEstado: changeEstadoWrapper,
-      editCita,
       showEditDialog,
       currentCita,
-      updateCitaFromForm,
       search,
       dateFilter,
       clientIdFilter,
       filteredCitas,
+      user,
+      newDateFilter,
+      addCita,
+      deleteCita,
+      updateCita,
+      formatDate,
+      changeEstado: changeEstadoWrapper,
+      editCita,
+      updateCitaFromForm,
       countCitasForDateColor,
       handleDeleteCita,
       handleAgendarHoraLibre,
       getCitasByCabina,
-      user,
-      newDateFilter,
       getHorasLibres,
     };
   },
@@ -280,6 +299,11 @@ td {
 
 th {
   background-color: #f2f2f2;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .custom-button {

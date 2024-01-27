@@ -6,7 +6,14 @@
         <v-form ref="form" v-model="valid" :lazy-validation="lazy">
           <v-text-field v-model="citaClone.id_empleado" label="ID Empleado" required></v-text-field>
           <v-text-field v-model="citaClone.id_cabina" label="ID Cabina" required></v-text-field>
-          <v-text-field v-model="citaClone.id_cliente" label="ID Cliente" required></v-text-field>
+          <v-autocomplete
+            label="Cliente"
+            v-model="citaClone.id_cliente"
+            :items="clienteOptions"
+            item-text="nombre_cliente"
+            item-value="id_cliente"
+            return-object
+          ></v-autocomplete>
           <v-text-field v-model="citaClone.id_sesion" label="ID Sesión" required></v-text-field>
 
           <!--  
@@ -17,6 +24,7 @@
             v-model="citaClone.estado"
             required
           ></v-select>
+            -->
 
             <v-text-field
             label="Fecha y hora"
@@ -25,7 +33,7 @@
             required
           ></v-text-field>
           
-         -->
+         
 
         </v-form>
       </v-card-text>
@@ -39,8 +47,9 @@
 </template>
 
 <script>
-import { ref, watch, computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { utcToZonedTime, format } from "date-fns-tz";
+import apiService from "@/services/apiServices";
 
 export default {
   props: {
@@ -58,11 +67,24 @@ export default {
     const form = ref(null);
     const valid = ref(true);
     const lazy = ref(false);
+    const clientes = ref([]);
     const citaClone = ref(JSON.parse(JSON.stringify(props.cita)));
 
     const showEditDialog = computed({
       get: () => props.value,
       set: (value) => emit("input", value),
+    });
+
+    onMounted(async () => {
+      clientes.value = await apiService.getClientes();
+    });
+
+    // Transforma ID a valor legible
+    const clienteOptions = computed(() => {
+      return clientes.value.map(
+        (cliente) =>
+          `${cliente.nombre_cliente} ${cliente.apellido_paterno} ${cliente.apellido_materno}`
+      );
     });
 
     watch(
@@ -106,6 +128,7 @@ return {
   valid,
   lazy,
   citaClone,
+  clienteOptions,
   showEditDialog,
   close,
   save,

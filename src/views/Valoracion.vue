@@ -59,6 +59,18 @@
         </template>
         <valoracion-dialog :showDialog="showDialog" @close="showDialog = false" @addValoracion="addValoracion" />
       </v-dialog>
+
+      <!-- Botón para agregar un nuevo cliente -->
+      <div class="button-spacing"></div>
+      <v-dialog v-model="showPosibleClienteDialog" persistent width="1024">
+        <template v-slot:activator="{ props }">
+          <v-btn elevation="8" rounded :large="true" class="custom-button" v-bind="props" icon>
+            <v-icon>mdi-account-plus</v-icon>
+          </v-btn>
+        </template>
+        <posible-cliente-dialog :showPosibleClienteDialog="showPosibleClienteDialog" @close="showPosibleClienteDialog = false" />
+      </v-dialog>
+
     </v-row>
 
     <div class="button-spacing"></div>
@@ -90,6 +102,7 @@
 //  import DeleteIcon from '@/components/icons/DeleteIcon.vue';
   import ValoracionDialog from '@/components/ValoracionDialog.vue';
   import ValoracionCalendar from '@/components/ValoracionCalendar.vue';
+  import PosibleClienteDialog from '@/components/PosibleClienteDialog.vue';
   import useValoraciones from '@/composables/useValoraciones';
   
   export default {
@@ -98,9 +111,11 @@
 //      DeleteIcon,
       ValoracionDialog,
       ValoracionCalendar,
+      PosibleClienteDialog,
     },
     setup() {
       const showDialog = ref(false);
+      const showPosibleClienteDialog = ref(false);
       const deleteDialog = ref(false);
       const valoracionToDelete = ref(null);
       const { valoraciones, filteredValoraciones, searchQuery, addValoracion, deleteValoracion, fetchValoraciones } = useValoraciones();
@@ -136,6 +151,7 @@
   
       return {
         showDialog,
+        showPosibleClienteDialog,
         valoraciones,
         filteredValoraciones,
         searchQuery,
@@ -155,6 +171,7 @@
 
 .button-spacing {
   padding-top: 30px;
+  padding-left: 30px;
 }
 
 </style>

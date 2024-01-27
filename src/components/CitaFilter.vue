@@ -9,7 +9,14 @@
     <v-container>
       <v-row>
         <v-col v-for="(filter, index) in filters" :key="index" cols="12" md="6" class="mb-3 d-flex justify-center">
-          <v-text-field
+          <v-autocomplete v-if="filter.label === 'Buscar nombre del cliente'"
+            outlined
+            v-model="filter.value"
+            :items="clienteOptions"
+            :label="filter.label"
+            class="input-field"
+          ></v-autocomplete>
+          <v-text-field v-else
             outlined
             v-model="filter.value"
             :type="filter.type || 'text'"
@@ -48,13 +55,26 @@
 </template>
 
 <script>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
+import apiService from "@/services/apiServices";
 
 export default {
   setup(_, { emit }) {
+    const clientes = ref([]);
+
+    onMounted(async () => {
+      clientes.value = await apiService.getClientes();
+    });
+
+    const clienteOptions = computed(() => {
+      return clientes.value.map(
+        cliente => `${cliente.nombre_cliente} ${cliente.apellido_paterno} ${cliente.apellido_materno}`
+      );
+    });
+
     const filters = reactive([
       { value: ref(null), label: 'Buscar por fecha y hora', type: 'datetime-local', emitOnApply: 'dateFilterChange' },
-      { value: ref(''), label: 'Buscar nombre del cliente', type: 'text', emitOnApply: 'clientIdFilterChange' },
+      { value: ref(''), label: 'Buscar nombre del cliente', type: 'autocomplete', emitOnApply: 'clientIdFilterChange' },
          // Nuevo filtro agregado para búsqueda por fecha
       { value: ref(null), label: 'Buscar por fecha', type: 'date', emitOnApply: 'newDateFilterChange' },
     ]);
@@ -76,6 +96,7 @@ export default {
       filters,
       applyFilters,
       resetFilters,
+      clienteOptions,
     };
   },
 };

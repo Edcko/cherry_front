@@ -5,6 +5,7 @@ import { getCurrentInstance } from 'vue';
 
 export default function useCitas() {
   const citas = ref([]);
+  const citasTodayTomorrow = ref([]);
   const valoraciones = ref([]);
   const app = getCurrentInstance();
 
@@ -23,7 +24,15 @@ export default function useCitas() {
     console.log("Nueva cita:", newCita);
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
-    
+    const minutos = date.getMinutes();
+
+ 
+    // Verifica si los minutos son 0 o 30
+    if (minutos !== 0 && minutos !== 30) {
+      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar en intervalos de media hora.", "error");
+      return;
+  }
+
     if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas) >= 59) {
         app.appContext.config.globalProperties.$showAlert("Ya se han programado 39 citas para este día.", "error");
         return;
@@ -31,7 +40,7 @@ export default function useCitas() {
     
     try {
         await apiService.addCita(newCita);
-   //     citas.value = await apiService.getCitas();
+        citas.value = await apiService.getCitas();
         app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
     } catch (error) {
         if (error.response && error.response.status === 400 && error.response.data.message === 'Ya existe una cita agendada para esa fecha y número de cabina.') {
@@ -47,6 +56,8 @@ export default function useCitas() {
         }
         console.error(error);
     }
+
+       
 };
 
 
@@ -146,5 +157,5 @@ export default function useCitas() {
   
 
 
-  return { citas, valoraciones, getCitasWithParams ,addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
+  return { citas, citasTodayTomorrow, valoraciones, getCitasWithParams ,addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
 }

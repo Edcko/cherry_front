@@ -4,7 +4,6 @@
       :rows="1"
       ref="calendar"
       expanded
-      :attributes="calendarAttributes"
       @dayclick="onDayClick"
       :disabled-dates="disabledDates"
     />
@@ -13,7 +12,7 @@
 
 <script>
 import useCitas from "@/composables/useCitas.js";
-import { computed, ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 
 export default {
   name: "CitaCalendar",
@@ -39,30 +38,7 @@ export default {
  Para cada cita, se crea un objeto que contiene el ID de la cita, la fecha de la cita y el color de resaltado para el día en el calendario.
   El color del resaltado depende del número de citas para esa fecha.
     */
-    const calendarAttributes = computed(() => {
-      return props.citas.map((cita) => {
-        const citasCount = countCitasForDate(new Date(cita.fecha));
-        return {
-          key: cita.id_cita,
-          dates: cita.fecha,
-          highlight: {
-            color: citasCount >= 39 ? "red" : "blue",
-            fillMode: "light",
-          },
-//          dot: {
-//            color: citasCount >= 39 ? "red" : "blue",
-//          },
-   //       popover: {
-  //          label: `Cita: ${cita.id_cita}`,
- //           slots: [
-  //            {
- //               content: `Empleado: ${cita.id_empleado}<br>Cliente: ${cita.id_cliente}`,
- //             },
- //           ],
-//          },
-        };
-      });
-    });
+    
 
 
 
@@ -88,9 +64,10 @@ export default {
 /*
 `countCitasForDate` es una función que cuenta el número de citas para una fecha específica que no han sido canceladas ni perdidas.
 */
-    const countCitasForDate = (date) => {
-  return props.citas.filter((cita) => new Date(cita.fecha).toDateString() === date.toDateString() && cita.estado !== "Cita cancelada" && cita.estado !== "Cita perdida" && cita.Cabina.numero_cabina !== 4).length;
-};
+ //   const countCitasForDate = (date) => {
+//    console.log("Fecha de la cita en counCitasForDate:", date);
+//  return props.citas.filter((cita) => new Date(cita.fecha).toDateString() === date.toDateString() && cita.estado !== "Cita cancelada" && cita.estado !== "Cita perdida").length;
+//};
 
 /*
     const countCitasForDate = (date) => {
@@ -108,7 +85,6 @@ export default {
 
     return {
       calendar,
-      calendarAttributes,
       onDayClick,
       disabledDates,
     };

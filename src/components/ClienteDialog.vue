@@ -17,7 +17,6 @@
           <v-text-field
             label="Apellido paterno"
             v-model="cliente.apellido_paterno"
-            :rules="[rules.required]"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -26,7 +25,6 @@
           <v-text-field
             label="Apellido materno"
             v-model="cliente.apellido_materno"
-            :rules="[rules.required]"
           ></v-text-field>
         </v-col>
 
