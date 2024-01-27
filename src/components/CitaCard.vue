@@ -1,7 +1,7 @@
 <template>
   <v-container v-if="user" fluid>
-  <v-col cols="12" md="6" lg="12" class="mt-5">
-    <v-card class="mb-3">
+  <v-col>
+    <v-card>
       <v-card-title class="headline">
         Fecha: {{ truncateName(formatDateToDayMonthYear(cita.fecha)) }}
         <v-tooltip
