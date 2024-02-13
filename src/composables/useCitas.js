@@ -26,6 +26,14 @@ export default function useCitas() {
     const date = new Date(newCita.fecha);
     const minutos = date.getMinutes();
 
+    // Fecha limite para agendar citas ( 17 de marzo del anio actual)
+    const fechaLimite = new Date(new Date().getFullYear(), 2, 17, 23, 59, 59);
+
+    // Verifica si la fecha de la cita es mayor a la fecha limite
+    if (date > fechaLimite) {
+      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 16 de marzo. Espera esa semana para que se abran los días posteriores.", "error");
+      return;
+    }
  
     // Verifica si los minutos son 0 o 30
     if (minutos !== 0 && minutos !== 30) {
@@ -33,8 +41,8 @@ export default function useCitas() {
       return;
   }
 
-    if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas) >= 59) {
-        app.appContext.config.globalProperties.$showAlert("Ya se han programado 39 citas para este día.", "error");
+    if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas) >= 64) {
+        app.appContext.config.globalProperties.$showAlert("Ya se han programado 64 citas para este día.", "error");
         return;
     }
     

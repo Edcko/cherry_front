@@ -62,7 +62,9 @@
       </v-card-text>
       
       <v-card-actions class="actions">
-    <!--     <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="primary" @click="editCita(cita)">
+      
+    <!--
+      <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="primary" @click="editCita(cita)">
     <v-icon>mdi-file-document-edit-outline</v-icon>
     </v-btn>
     -->

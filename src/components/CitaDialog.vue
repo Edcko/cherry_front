@@ -87,15 +87,15 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from "vue";
-import { utcToZonedTime, format } from "date-fns-tz";
+import { ref, onMounted, computed, watch } from "vue";
+// import { utcToZonedTime, format } from "date-fns-tz";
 import apiService from "@/services/apiServices";
 import store from "@/store";
 
 export default {
-  props: ["showDialog"],
+  props: ["showDialog", "horaPreseleccionada"],
   setup(props, { emit }) {
-    const cita = ref({
+      const cita = ref({
       id_empleado: store.getters.idEmpleado,
       id_cliente: "",
       id_cabina: "",
@@ -113,6 +113,24 @@ export default {
 //    watch(() => store.getters.idEmpleado, (newIdEmpleado) => {
 //      cita.value.id_empleado = newIdEmpleado;
 //    });
+
+    // Observa los cambios en horaPreseleccionada y actualiza la fecha de la cita.
+watch(() => props.horaPreseleccionada, (newValue) => {
+      if (newValue) {
+              // Suponiendo que quieras combinar la hora con la fecha actual
+    const fechaActual = new Date();
+    const [horas, minutos] = newValue.split(':');
+    fechaActual.setHours(parseInt(horas, 10), parseInt(minutos, 10), 0);
+
+    console.log("Nueva hora preseleccionada:", newValue);
+    
+   // Formatea manualmente la fecha y hora para mantener la zona horaria local
+    const fechaFormatoLocal = `${fechaActual.getFullYear()}-${(fechaActual.getMonth() + 1).toString().padStart(2, '0')}-${fechaActual.getDate().toString().padStart(2, '0')}T${horas}:${minutos}`;
+    console.log("Fecha formato local:", fechaFormatoLocal);
+
+    cita.value.fecha = fechaFormatoLocal;
+      }
+    }, { immediate: true });
 
     const rules = {
       required: (value) => !!value || "Este campo es requerido",
@@ -197,13 +215,13 @@ export default {
         : "";
 
       // Convierte la fecha y la hora de la zona horaria de México a la hora local
-      const fechaUTC = new Date(cita.value.fecha);
-      console.log("fechaUTC:", fechaUTC);
-      const fechaLocal = utcToZonedTime(fechaUTC, "America/Mexico_City");
-      console.log("fechaLocal:", fechaLocal);
+      // const fechaUTC = new Date(cita.value.fecha);
+      // console.log("fechaUTC:", fechaUTC);
+     // const fechaLocal = utcToZonedTime(fechaUTC, "America/Mexico_City");
+     // console.log("fechaLocal:", fechaLocal);
 
       // Formatea la fecha y la hora a ISO y las guarda en la cita
-      cita.value.fecha = format(fechaLocal, "yyyy-MM-dd'T'HH:mm:ss.SSS");
+     // cita.value.fecha = format(fechaLocal, "yyyy-MM-dd'T'HH:mm:ss.SSS");
 
       emit("addCita", cita.value);
       emit("close");

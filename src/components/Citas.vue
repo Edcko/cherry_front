@@ -1,103 +1,101 @@
 <template>
-    <v-container v-if="user" fluid> 
-      <h1>Calendario de Citas</h1>
-  <div>
-    <cita-calendar
-      :citas="citas"
-      @citaClicked="handleCitaClicked"
-      @dayClicked="handleDayClicked"
-    />
+  <v-container v-if="user" fluid>
+    <h1>Calendario de Citas</h1>
+    <div>
+      <cita-calendar
+        :citas="citas"
+        @citaClicked="handleCitaClicked"
+        @dayClicked="handleDayClicked"
+      />
 
-    <div class="d-flex justify-center mb-5 mt-5">
-      <v-row justify="center">
-        <v-dialog v-model="showDialog" persistent width="1024">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              class="custom-button"
-              elevation="8"
-              rounded
-              :large="true"
-              v-bind="props"
-            >
-              Agendar Cita
-            </v-btn>
-          </template>
-          <cita-dialog
-            :showDialog="showDialog"
-            @close="showDialog = false"
-            @addCita="addCita"
-            @updateCita="updateCita"
+      <div class="d-flex justify-center mb-5 mt-5">
+        <v-row justify="center">
+          <v-dialog v-model="showDialog" persistent width="1024">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                class="custom-button"
+                elevation="8"
+                rounded
+                :large="true"
+                v-bind="props"
+              >
+                Agendar Cita
+              </v-btn>
+            </template>
+            <cita-dialog
+              :showDialog="showDialog"
+              :horaPreseleccionada="horaPreseleccionada"
+              @close="showDialog = false"
+              @addCita="addCita"
+              @updateCita="updateCita"
+            />
+          </v-dialog>
+        </v-row>
+      </div>
+
+      <cita-filter
+        @searchChange="search = $event"
+        @dateFilterChange="dateFilter = $event"
+        @clientIdFilterChange="clientIdFilter = $event"
+        @newDateFilterChange="newDateFilter = $event"
+      />
+
+      <v-row>
+        <v-col
+          cols="12"
+          md="3"
+          v-for="numeroCabina in 4"
+          :key="'cabina-' + numeroCabina"
+        >
+          <v-divider :key="'divider-' + numeroCabina"></v-divider>
+          <h3 class="text-center mt-4">
+            {{ numeroCabina !== 4 ? "Cabina " + numeroCabina : "Depilación" }}
+          </h3>
+          <v-container v-if="user" fluid>
+            <cita-card
+              class="custom-card mt-2"
+              v-for="cita in getCitasByCabina(numeroCabina)"
+              :key="cita.id_cita"
+              :cita="cita"
+              @updateCita="updateCita"
+              @deleteCita="handleDeleteCita"
+              @updateEstado="updateCita"
+            />
+          </v-container>
+
+          <v-container v-else fluid class="fill-height">
+            <v-row align="center" justify="center">
+              <v-progress-circular
+                indeterminate
+                color="teal"
+                size="70"
+              ></v-progress-circular>
+            </v-row>
+          </v-container>
+
+          <hora-libre-card
+            v-for="hora in getHorasLibres(
+              getCitasByCabina(numeroCabina),
+              numeroCabina
+            )"
+            :key="hora"
+            :hora="hora"
+            @agendar="handleAgendarHoraLibre"
           />
-        </v-dialog>
+        </v-col>
       </v-row>
     </div>
+  </v-container>
 
-    <cita-filter
-      @searchChange="search = $event"
-      @dateFilterChange="dateFilter = $event"
-      @clientIdFilterChange="clientIdFilter = $event"
-      @newDateFilterChange="newDateFilter = $event"
-    />
-
-   
-    <v-row>
-    <v-col cols="12" md="3" v-for="numeroCabina in 4" :key="'cabina-' + numeroCabina">
-      <v-divider :key="'divider-' + numeroCabina"></v-divider>
-      <h3 class="text-center mt-4">{{ numeroCabina !== 4 ? 'Cabina ' + numeroCabina : 'Depilación' }}</h3>
-      <v-container v-if="user" fluid>
-      <cita-card
-        class="custom-card mt-2"
-        v-for="cita in getCitasByCabina(numeroCabina)"
-        :key="cita.id_cita"
-        :cita="cita"
-        @updateCita="updateCita"
-        @deleteCita="handleDeleteCita"
-        @updateEstado="updateCita"
-      />
-    </v-container>
-
-
-    <v-container v-else fluid class="fill-height">
-      <v-row align="center" justify="center">
-        <v-progress-circular
-          indeterminate
-          color="teal"
-          size="70"
-        ></v-progress-circular>
-      </v-row>
-    </v-container>
-
-
-
-      <hora-libre-card
-  v-for="hora in getHorasLibres(getCitasByCabina(numeroCabina), numeroCabina)"
-  :key="hora"
-  :hora="hora"
-  @agendar="handleAgendarHoraLibre"
-/>
-
-
-    
-    </v-col>
-  </v-row>
-
-   
-  </div>
- </v-container> 
-
-
-<v-container v-else fluid class="full-height">
-      <v-row align="center" justify="center">
-        <v-progress-circular
-          indeterminate
-          color="teal"
-          size="70"
-        ></v-progress-circular>
-      </v-row>
-    </v-container>
-
-  
-
+  <v-container v-else fluid class="full-height">
+    <v-row align="center" justify="center">
+      <v-progress-circular
+        indeterminate
+        color="teal"
+        size="70"
+      ></v-progress-circular>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -113,7 +111,7 @@ import useCitasFilter from "@/composables/useCitasFilter";
 import CitaCard from "./CitaCard.vue";
 //import ValoracionCard from "./ValoracionCard.vue";
 import HoraLibreCard from "./HoraLibreCard.vue";
-import { getCurrentInstance } from 'vue';
+import { getCurrentInstance } from "vue";
 
 export default {
   name: "CitasComponent",
@@ -122,7 +120,7 @@ export default {
     CitaFilter,
     CitaCalendar,
     CitaCard,
-//    ValoracionCard,
+    //    ValoracionCard,
     HoraLibreCard,
   },
   setup() {
@@ -135,6 +133,7 @@ export default {
     const app = getCurrentInstance();
     const newDateFilter = ref(null);
 
+    const horaPreseleccionada = ref(null);
 
     const {
       citas,
@@ -155,38 +154,44 @@ export default {
       newDateFilter
     );
 
-    const {user, loadUser} = useUser();
+    const { user, loadUser } = useUser();
 
     onMounted(async () => {
-    const currentDate = new Date();
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-    const lastDayOfSecondNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, 0);
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+      const currentDate = new Date();
+      const firstDayOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - 1,
+        1
+      );
+      const lastDayOfSecondNextMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 3,
+        0
+      );
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const format = (date) => date.toISOString().split('T')[0];
+      const format = (date) => date.toISOString().split("T")[0];
 
-    console.log("Fecha de hoy", format(today));
-    console.log("Fecha de maniana", format(tomorrow));  
-    console.log("Fecha de inicio del mes", format(firstDayOfMonth));
-    
+      console.log("Fecha de hoy", format(today));
+      console.log("Fecha de maniana", format(tomorrow));
+      console.log("Fecha de inicio del mes", format(firstDayOfMonth));
 
       try {
-
         citas.value = await apiService.getCitas({
-            startDate: format(firstDayOfMonth),
-            endDate: format(lastDayOfSecondNextMonth)
+          startDate: format(firstDayOfMonth),
+          endDate: format(lastDayOfSecondNextMonth),
         });
 
         console.log("Citas", citas.value);
 
         citasTodayTomorrow.value = await apiService.getCitas({
-            startDate: format(today),
-            endDate: format(tomorrow)
+          startDate: format(today),
+          endDate: format(tomorrow),
         });
 
-         console.log("Citas hoy y maniana", citasTodayTomorrow.value);
+        console.log("Citas hoy y maniana", citasTodayTomorrow.value);
 
         await loadUser();
       } catch (error) {
@@ -234,14 +239,15 @@ export default {
       }
     };
 
-    // eslint-disable-next-line 
+    // eslint-disable-next-line
     const handleAgendarHoraLibre = (hora) => {
-  // Aquí puedes abrir el diálogo de agendar cita con la fecha y hora ya preseleccionadas
-  // Por ejemplo:
-  showDialog.value = true;
-  // Asegúrate de pasar la fecha y hora al diálogo para que se preseleccione
-};
-
+      // Aquí puedes abrir el diálogo de agendar cita con la fecha y hora ya preseleccionadas
+      // Por ejemplo:
+      console.log("Estableciendo horaPreseleccionada a:", hora);
+      horaPreseleccionada.value = hora;
+      showDialog.value = true;
+      // Asegúrate de pasar la fecha y hora al diálogo para que se preseleccione
+    };
 
     const changeEstadoWrapper = async (cita) => {
       try {
@@ -259,6 +265,7 @@ export default {
       citas,
       citasTodayTomorrow,
       showDialog,
+      horaPreseleccionada,
       showEditDialog,
       currentCita,
       search,
@@ -307,7 +314,7 @@ h1 {
 }
 
 .custom-button {
-    background-color: white;
-    color: teal;
+  background-color: white;
+  color: teal;
 }
 </style>
