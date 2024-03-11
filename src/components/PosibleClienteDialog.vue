@@ -96,9 +96,11 @@
             apellido_paterno: "",
             apellido_materno: "",
             tipo_cliente: "Normal",
+            email: "no_disponible@gmail.com",
             telefono_cliente: "",
             sexo: "",
             id_spa: "",
+            es_cliente: false,
             como_se_entero: "",
             tipo_valoracion: "",
           });
