@@ -27,7 +27,7 @@ export default function useCitas() {
     const minutos = date.getMinutes();
 
     // Fecha limite para agendar citas ( 17 de marzo del anio actual)
-    const fechaLimite = new Date(new Date().getFullYear(), 2, 23, 23, 59, 59);
+    const fechaLimite = new Date(new Date().getFullYear(), 2, 30, 23, 59, 59);
 
     // Verifica si la fecha de la cita es mayor a la fecha limite
     if (date > fechaLimite) {
