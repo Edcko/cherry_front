@@ -87,7 +87,6 @@
 
 <script>
 import { ref, computed, onMounted, watch } from "vue";
-import { utcToZonedTime, format } from "date-fns-tz";
 import apiService from "@/services/apiServices";
 
 export default {
@@ -95,16 +94,14 @@ export default {
   setup(props, { emit }) {
     const valoracion = ref({
       fecha_valoracion: "",
-      id_cliente: null, // Se cambió a null para un manejo más adecuado de la inicialización
-      id_empleado: null,
-      observaciones: "",
-      recomendaciones: "",
-      resultado: "",
+      id_cliente: "",
+      id_empleado: "",
       estado: "Por confirmar",
     });
 
     const clientes = ref([]);
     const empleados = ref([]);
+
     const rules = {
       required: (value) => !!value || "Este campo es requerido",
     };
@@ -112,74 +109,53 @@ export default {
 
     // Carga inicial de clientes y empleados
     onMounted(async () => {
-      clientes.value = await apiService.getClientes();
-      empleados.value = await apiService.getEmpleados();
-      // Asumimos que este código corre correctamente y trae los datos esperados
+      try {
+        clientes.value = await apiService.getClientes();
+        empleados.value = await apiService.getEmpleados();
+      } catch (error) {
+        console.error("Error al cargar datos iniciales:", error);
+      }
     });
 
-    // Opciones para autocompletes de clientes y empleados
-    const clienteOptions = computed(() => clientes.value.map((cliente) => ({
-      text: `${cliente.nombre_cliente} ${cliente.apellido_paterno} ${cliente.apellido_materno}`,
-      value: cliente.id_cliente
-    })));
-    const empleadoOptions = computed(() => empleados.value.map((empleado) => ({
-      text: `${empleado.nombre_empleado} ${empleado.apellido_paterno} ${empleado.apellido_materno}`,
-      value: empleado.id_empleado
-    })));
+    // Preparación de opciones para v-autocomplete
+    const clienteOptions = computed(() =>
+      clientes.value.map(cliente => ({
+        text: `${cliente.nombre_cliente} ${cliente.apellido_paterno} ${cliente.apellido_materno}`,
+        value: cliente.id_cliente
+      }))
+    );
 
-    // Observador para actualizar los campos cuando se edita una valoración
+    const empleadoOptions = computed(() =>
+      empleados.value.map(empleado => ({
+        text: `${empleado.nombre_empleado} ${empleado.apellido_paterno} ${empleado.apellido_materno}`,
+        value: empleado.id_empleado
+      }))
+    );
+
+    // Manejo de valoración para editar
     watch(() => props.valoracionParaEditar, (nuevaValoracion) => {
       if (nuevaValoracion) {
-        // Ajuste de fecha para input datetime-local
-        const fechaLocal = format(utcToZonedTime(new Date(nuevaValoracion.fecha_valoracion), "America/Mexico_City"), "yyyy-MM-dd'T'HH:mm");
-        
-        // Actualización de la valoración con datos para edición
-        valoracion.value = {
-          ...nuevaValoracion,
-          fecha_valoracion: fechaLocal,
-          id_cliente: nuevaValoracion.id_cliente,
-          id_empleado: nuevaValoracion.id_empleado
-        };
+        // Ajustar el formato de la fecha para el input datetime-local
+        valoracion.value = { ...nuevaValoracion };
+        valoracion.value.fecha_valoracion = nuevaValoracion.fecha_valoracion.slice(0, 16); // Asegúrate de que la fecha tenga el formato correcto
       }
     }, { deep: true, immediate: true });
 
-    // Limpiar campos
     const clearFields = () => {
       valoracion.value = {
         fecha_valoracion: "",
-        id_cliente: null,
-        id_empleado: null,
-        observaciones: "",
-        recomendaciones: "",
-        resultado: "",
+        id_cliente: "",
+        id_empleado: "",
         estado: "Por confirmar",
       };
     };
 
-    // Enviar valoración
     const onSubmit = () => {
-      // Convierte el nombre del cliente y empleado seleccionado de vuelta a sus IDs
-  const clienteSeleccionado = clientes.value.find(c => 
-    `${c.nombre_cliente} ${c.apellido_paterno} ${c.apellido_materno}` === valoracion.value.id_cliente
-  );
-  valoracion.value.id_cliente = clienteSeleccionado ? clienteSeleccionado.id_cliente : valoracion.value.id_cliente;
-
-  const empleadoSeleccionado = empleados.value.find(e => 
-    `${e.nombre_empleado} ${e.apellido_paterno} ${e.apellido_materno}` === valoracion.value.id_empleado
-  );
-  valoracion.value.id_empleado = empleadoSeleccionado ? empleadoSeleccionado.id_empleado : valoracion.value.id_empleado;
-
-
-      // Formatear la fecha a UTC o el formato que requiera tu backend
-      const fechaUTC = format(utcToZonedTime(new Date(valoracion.value.fecha_valoracion), "UTC"), "yyyy-MM-dd'T'HH:mm:ss'Z'");
-      valoracion.value.fecha_valoracion = fechaUTC;
-
       if (props.valoracionParaEditar) {
         emit("updateValoracion", valoracion.value);
       } else {
         emit("addValoracion", valoracion.value);
       }
-
       emit("close");
     };
 
@@ -196,7 +172,6 @@ export default {
 };
 </script>
 
-  
   <style scoped>
   .dialog {
     background-color: rgba(255, 255, 255, 0.9);

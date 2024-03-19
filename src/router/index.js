@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Perfil from '../views/Perfil.vue';
 import Agenda from '../views/Agenda.vue';
+import Nails from '../views/Nails.vue';
 import Valoracion from '../views/Valoracion.vue';
 import Cabina from '../views/Cabina.vue';
 import Paquete from '../views/Paquete.vue';
@@ -58,6 +59,12 @@ const routes = [
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
+      },
+      {
+        path: '/nails',
+        name: 'Nails',
+        component: Nails,
         beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
       },
       {
