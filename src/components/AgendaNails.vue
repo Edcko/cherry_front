@@ -10,28 +10,65 @@
       :disabled-dates="disabledDates"
     />
     <!-- Acá puedes agregar un diálogo o menú emergente que se active al hacer clic en un día -->
+    <div class="estaciones-container" v-if="citasSeleccionadas.length > 0">
+      <div class="estacion" v-for="estacion in [1, 2]" :key="'estacion-' + estacion">
+  <h3>Estación {{ estacion }}</h3>
+  <ul>
+    <li v-for="cita in filtrarCitasPorEstacion(estacion)" :key="cita.id_cita">
+      <cita-card :cita="cita"></cita-card>
+    </li>
+  </ul>
+  <div class="horas-libres">
+    <h4>Horas Libres</h4>
+    <v-btn v-for="horaLibre in horasLibres" :key="horaLibre" @click="agregarCita(horaLibre, estacion)">
+      {{ horaLibre }}
+    </v-btn>
   </div>
+</div>
+</div>
+
+<!-- Agrega el diálogo para agregar una nueva cita --> 
+<cita-dialog
+  :showDialog="showDialog"
+  :citaPreseleccionada="citaPreseleccionada"
+  @addCita="addCita"
+  @close="showDialog = false"/>
+
+</div>
 </template>
 
 <script>
 import { ref, onMounted } from "vue";
+// eslint-disable-next-line
+import { format, startOfDay, addHours } from "date-fns";
 import useUser from "@/composables/useUser";
 import apiServices from "@/services/apiServices.js";
-import useCitas from "@/composables/useCitas.js"; // Asume que este composable puede ser reutilizado aquí
+import useCitas from "@/composables/useCitas.js"; 
+import CitaCard from "@/components/CitaCard.vue";
+import CitaDialog from "@/components/CitaDialog.vue";
 
 export default {
   name: "AgendaNails",
+  components: {
+    CitaCard,
+    CitaDialog,
+  },
   setup() {
     const calendar = ref(null);
     const citas = ref([]);
     const citasSeleccionadas = ref([]);
+    const horasLibres = ref([]);
     const attrs = ref([]); // Asegúrate de que esta variable sea reactiva
     const disabledDates = ref([]);
+    const showDialog = ref(false);
+    const citaPreseleccionada = ref({
+      fecha: '',
+    });
     const { user, loadUser } = useUser();
-    const { getSundays } = useCitas(); // O alguna función similar que necesites
+    const { getSundays, addCita } = useCitas(); // O alguna función similar que necesites
     const startDate = new Date(2024, 0, 1); // Ajusta las fechas según necesites
     const endDate = new Date(2024, 11, 31);
-    const format = (date) => {
+    const formatDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 porque getMonth() devuelve un índice basado en 0
   const day = String(date.getDate()).padStart(2, '0');
@@ -49,8 +86,8 @@ export default {
     onMounted(async () => {
       await loadUser();
       try {
-    const formattedStartDate = format(firstDayOfMonth);
-    const formattedEndDate = format(lastDayOfMonth);
+    const formattedStartDate = formatDate(firstDayOfMonth);
+    const formattedEndDate = formatDate(lastDayOfMonth);
     console.log("Fecha de inicio:", formattedStartDate);
     console.log("Fecha de fin:", formattedEndDate);
     
@@ -82,30 +119,90 @@ export default {
 
     const getCitasDelDia = (fechaSeleccionada) => {
   return citas.value
-    .filter(cita => new Date(cita.fecha).toDateString() === new Date(fechaSeleccionada).toDateString())
+    .filter(cita => 
+      new Date(cita.fecha).toDateString() === new Date(fechaSeleccionada).toDateString() &&
+      cita.tipo_cita.toLowerCase() === "uñas" &&
+      (cita.Cabina.numero_cabina === 5 || cita.Cabina.numero_cabina === 6))
     .sort((a, b) => {
-      if (a.id_cabina === b.id_cabina) {
-        // Si la cabina es la misma, ordenamos por la hora de la fecha
-        return new Date(a.fecha) - new Date(b.fecha);
-      }
-      // Orden básico por ID de cabina
-      return a.id_cabina - b.id_cabina;
+      // Utiliza la fecha completa para ordenar, ya que incluye la hora
+      return new Date(a.fecha) - new Date(b.fecha);
     });
 };
+
+const generarHorasLibres = (fechaSeleccionada) => {
+  let horasLibres = [];
+  const inicioDia = startOfDay(new Date(fechaSeleccionada));
+  
+  for (let i = 0; i < 12; i++) { // De 08:00 a 20:00
+    const horaCandidata = addHours(inicioDia, 8 + i);
+    const horaFormateada = format(horaCandidata, 'HH:mm');
+    
+    // Verifica si alguna cita coincide con esta hora específica
+    const esHoraOcupada = citasSeleccionadas.value.some(cita => 
+      format(new Date(cita.fecha), 'HH:mm') === horaFormateada &&
+      new Date(cita.fecha).toDateString() === new Date(fechaSeleccionada).toDateString()
+    );
+
+    if (!esHoraOcupada) {
+      horasLibres.push(horaFormateada);
+    }
+  }
+
+  console.log("Horas libres:", horasLibres);
+  return horasLibres;
+};
+
+const filtrarCitasPorEstacion = (estacion) => {
+  const numeroCabina = estacion === 1 ? 5 : 6;
+  return citasSeleccionadas.value.filter(cita => cita.Cabina.numero_cabina === numeroCabina);
+};
+
 
 const onDayClick = (day) => {
   console.log("Día seleccionado:", day.date.toISOString().split("T")[0]);
   citasSeleccionadas.value = getCitasDelDia(day.date);
+  horasLibres.value = generarHorasLibres(day.date);
   // Aquí, abre el modal o muestra la sección con las citasSeleccionadas
 };
 
+const agregarCita = (horaLibre, estacion) => {
+  console.log("Citas seleccionadas:", citasSeleccionadas.value);
+  console.log("citePreseleccionada:", citaPreseleccionada.value);
+  // Preparar los datos preseleccionados para la cita
+  const fechaCita = new Date();
+  fechaCita.setHours(parseInt(horaLibre.split(":")[0]), parseInt(horaLibre.split(":")[1]));
+
+  citaPreseleccionada.value = {
+    fecha: fechaCita.toISOString().slice(0, 16),
+    id_cabina: estacion === 1 ? 5 : 6,
+    tipo_cita: "Uñas",
+  };
+  console.log("Valor de showDialog 1:" , showDialog.value);
+  showDialog.value = true;
+  console.log("Valor de showDialog 2:" , showDialog.value);
+  console.log("Cita preseleccionada 3:", citaPreseleccionada.value);
+};
+
+//const handleAddCita = (cita) => {
+
+
+//}
+
     return {
+      showDialog,
+      citaPreseleccionada,
       user,
       citas,
+      citasSeleccionadas,
+      horasLibres,
       attrs,
       calendar,
+      addCita,
       getCitasDelDia,
+      generarHorasLibres,
+      filtrarCitasPorEstacion,
       onDayClick,
+      agregarCita,
       disabledDates,
       // Asegúrate de retornar aquí cualquier otra propiedad reactiva o método que necesites
     };
@@ -115,5 +212,40 @@ const onDayClick = (day) => {
 </script>
 
 <style>
+
+.estaciones-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+
+  .estacion {
+    flex: 1;
+    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrar los elementos de la estación */
+  }
+
+  .estacion h3, .horas-libres h4 {
+    text-align: center; /* Centrar títulos */
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%; /* Asegurar que la lista ocupe todo el ancho disponible */
+  }
+
+  .horas-libres {
+    margin-top: 20px; /* Añadir espacio entre las citas y las horas libres */
+    width: 100%; /* Asegurar que las horas libres ocupen todo el ancho disponible */
+  }
+
+  .horas-libres button {
+    margin: 5px; /* Añadir espacio alrededor de cada botón */
+  }
+}
+
 
 </style>

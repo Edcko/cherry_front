@@ -54,6 +54,17 @@
           class="mb-4"
         ></v-text-field>
 
+        <v-select
+  label="Tipo de Cita"
+  v-model="cita.tipo_cita"
+  :rules="[rules.required]"
+  :items="['Aparatología', 'Uñas', 'Depilación']"
+  variant="filled"
+  color="teal"
+  class="mb-4"
+></v-select>
+
+
       <v-select
         label="Estado"
         v-model="cita.estado"
@@ -93,7 +104,7 @@ import apiService from "@/services/apiServices";
 import store from "@/store";
 
 export default {
-  props: ["showDialog", "horaPreseleccionada"],
+  props: ["showDialog", "horaPreseleccionada", "citaPreseleccionada"],
   setup(props, { emit }) {
       const cita = ref({
       id_empleado: store.getters.idEmpleado,
@@ -103,6 +114,7 @@ export default {
       fecha: "",
       estado: "Por confirmar",
       id_paquete: "",
+      tipo_cita: "", //Valor inicial vacio o predeterminado.
     });
 
   //const empleados = ref([]);
@@ -113,6 +125,17 @@ export default {
 //    watch(() => store.getters.idEmpleado, (newIdEmpleado) => {
 //      cita.value.id_empleado = newIdEmpleado;
 //    });
+
+watch(() => props.citaPreseleccionada, (newValue) => {
+  if (newValue) {
+    cita.value.fecha = newValue.fecha; // Asume que newValue ya contiene la fecha en el formato correcto
+    // Aquí puedes asignar otros valores de newValue a cita.value si es necesario
+    cita.value.id_cabina = newValue.id_cabina;
+    cita.value.tipo_cita = newValue.tipo_cita;
+    // Repite para otros valores que necesites de citaPreseleccionada
+  }
+}, { immediate: true });
+
 
     // Observa los cambios en horaPreseleccionada y actualiza la fecha de la cita.
 watch(() => props.horaPreseleccionada, (newValue) => {
