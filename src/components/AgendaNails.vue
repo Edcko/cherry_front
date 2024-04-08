@@ -1,19 +1,26 @@
 <template>
   <div>
-    <VCalendar :citas="citas" :attributes="attrs" :rows="1" ref="calendar" expanded @dayclick="onDayClick"
-      :disabled-dates="disabledDates" />
+    <h1>Calendario de Citas para Uñas</h1>
+    <VCalendar 
+    :citas="citas" 
+    :attributes="attrs" 
+    :rows="1" ref="calendar" 
+    expanded 
+    @dayclick="onDayClick"
+    :disabled-dates="disabledDates" />
     <!-- Acá puedes agregar un diálogo o menú emergente que se active al hacer clic en un día -->
     <div class="estaciones-container" v-if="citasSeleccionadas.length >= 0">
       <div class="estacion" v-for="estacion in [1, 2]" :key="'estacion-' + estacion">
         <h3>Estación {{ estacion }}</h3>
-        <ul>
-          <li v-for="cita in filtrarCitasPorEstacion(estacion)" :key="cita.id_cita">
+        
+          <v-container v-if="user" fluid>
             <cita-card 
+            v-for="cita in filtrarCitasPorEstacion(estacion)" 
+            :key="cita.id_cita"
             :cita="cita"
             @deleteCita="handleDeleteCita"          
-            ></cita-card>
-          </li>
-        </ul>
+            />
+          </v-container>
         <div class="horas-libres">
           <h4>Horas Libres</h4>
           <v-btn v-for="horaLibre in horasLibres[estacion === 1 ? 5 : 6]" :key="horaLibre"
@@ -36,8 +43,11 @@
               </v-btn>
             </template>
           </template>
-          <cita-dialog :showDialog="showDialog" :citaPreseleccionada="citaPreseleccionada" @addCita="addCita"
-            @close="showDialog = false" />
+          <cita-dialog 
+          :showDialog="showDialog" 
+          :citaPreseleccionada="citaPreseleccionada" 
+          @addCita="addCita"
+          @close="showDialog = false" />
         </v-dialog>
       </v-row>
     </div>
@@ -46,7 +56,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 // eslint-disable-next-line
 import { format, startOfDay, addHours } from "date-fns";
 import useUser from "@/composables/useUser";
@@ -63,7 +73,9 @@ export default {
   },
   setup() {
     const calendar = ref(null);
-    const citas = ref([]);
+   // const citas = ref([]);
+   const diaSeleccionado = ref(null); // Almacena el día actualmente seleccionado
+
     const citasSeleccionadas = ref([]);
     const horasLibres = ref({
       5: [],
@@ -77,7 +89,7 @@ export default {
       fecha: '',
     });
     const { user, loadUser } = useUser();
-    const { getSundays, addCita, deleteCita } = useCitas(); // O alguna función similar que necesites
+    const { citas, getSundays, addCita, deleteCita } = useCitas(); // O alguna función similar que necesites
     const startDate = new Date(2024, 0, 1); // Ajusta las fechas según necesites
     const endDate = new Date(2024, 11, 31);
     const formatDate = (date) => {
@@ -94,6 +106,34 @@ export default {
     const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
     disabledDates.value = getSundays(startDate, endDate);
+
+watch(citas, (nuevasCitas) => {
+  // Actualizar attrs para reflejar los cambios en el calendario
+  attrs.value = nuevasCitas.map(cita => ({
+    key: cita.id_cita, // Asegúrate de que sea el identificador único de la cita
+    highlight: {
+      color: 'teal', // Este es un ejemplo, ajusta según tus necesidades
+    },
+    dates: new Date(cita.fecha),
+    // Puedes agregar más propiedades según necesites
+  }));
+
+  // Si necesitas actualizar otras cosas basadas en las citas, hazlo aquí
+  // Por ejemplo, recalcular horas libres o actualizar citas seleccionadas
+  // Asegúrate de que el día actualmente seleccionado se recalcula adecuadamente
+  // Esto podría requerir tener una ref() que rastree el día seleccionado actual y
+  // utilizarlo para recalcular horas libres, etc.
+}, { deep: true });
+
+watch(diaSeleccionado, (nuevoDia) => {
+  if (!nuevoDia) return; // Salir si nuevoDia es nulo
+
+  citasSeleccionadas.value = getCitasDelDia(nuevoDia);
+
+  // Generamos horas libres para cada cabina basadas en el nuevo día seleccionado
+  generarHorasLibres(nuevoDia, 5);
+  generarHorasLibres(nuevoDia, 6);
+});
 
     onMounted(async () => {
       await loadUser();
@@ -172,17 +212,14 @@ export default {
 
 
     const onDayClick = (day) => {
+      diaSeleccionado.value = day.date;
       console.log("Día seleccionado:", day.date.toISOString().split("T")[0]);
       citaPreseleccionada.value.fecha = day.date.toISOString().split("T")[0]; // Guarda solo la fecha sin la hora
-
-      // Resetea citasSeleccionadas a un array vacío para forzar la generación de horas libres
-  citasSeleccionadas.value = [];
+      citasSeleccionadas.value = getCitasDelDia(day.date);
 
       // Generamos horas libres para cada cabina al seleccionar un dia
       generarHorasLibres(day.date, 5);
       generarHorasLibres(day.date, 6);
-
-      citasSeleccionadas.value = getCitasDelDia(day.date);
     };
 
     const agregarCita = (horaLibre, estacion) => {
@@ -213,10 +250,8 @@ export default {
     const handleDeleteCita = async (cita) => {
       try {
         await deleteCita(cita);
-        const index = citas.value.findIndex((c) => c.id_cita === cita.id_cita);
-        if (index !== -1) {
-          citas.value.splice(index, 1);
-        }
+        citas.value = citas.value.filter(c => c.id_cita !== cita.id_cita);
+
       } catch (error) {
         this.$showAlert("Ha ocurrido un error al eliminar la cita.", "error");
         console.error(error);
@@ -236,6 +271,7 @@ export default {
       citas,
       citasSeleccionadas,
       horasLibres,
+      diaSeleccionado,
       attrs,
       calendar,
       addCita,
