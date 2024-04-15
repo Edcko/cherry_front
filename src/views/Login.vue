@@ -1,45 +1,51 @@
 <template>
   <v-app>
-    <v-main>
-      <v-container class="fill-height" fluid>
-        <v-row align="center" justify="center">
-          <v-col cols="12" sm="10" md="6" lg="5">
-            <v-card class="elevation-12">
-              <v-toolbar color="teal" dark flat>
-                <v-toolbar-title>Iniciar sesión</v-toolbar-title>
-                <v-spacer></v-spacer>
-              </v-toolbar>
-              <v-card-text>
-                <v-form ref="form">
-                  <v-text-field
-                    v-model="email"
-                    :rules="emailRules"
-                    label="Email del usuario" 
-                    name="email"
-                    prepend-icon="mdi-account"
-                    type="email"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="password_empleado"
-                    :rules="passwordRules"
-                    label="Contraseña"
-                    name="password_empleado"
-                    prepend-icon="mdi-lock"
-                    type="password"
-                  ></v-text-field>
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="teal" @click="submit">Ingresar</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
+    <div class="shape-container">
+      <v-main>
+        <v-container class="fill-height" fluid>
+          <v-row align="center" justify="center">
+            <v-col cols="12" sm="8" md="4" lg="3">
+              <v-card class="elevation-12" style="border-radius: 16px;">
+                <v-toolbar color="teal accent-4" dark flat>
+                  <v-toolbar-title>Iniciar sesión</v-toolbar-title>
+                  <v-spacer></v-spacer>
+                </v-toolbar>
+                <v-card-text class="py-4">
+                  <v-form ref="form">
+                    <v-text-field
+                      v-model="email"
+                      :rules="emailRules"
+                      label="correo electrónico del usuario" 
+                      name="email"
+                      prepend-icon="mdi-account"
+                      type="email"
+                      solo
+                      class="mb-3"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="password_empleado"
+                      :rules="passwordRules"
+                      label="Contraseña"
+                      name="password_empleado"
+                      prepend-icon="mdi-lock"
+                      type="password"
+                      solo
+                    ></v-text-field>
+                  </v-form>
+                </v-card-text>
+                <v-card-actions class="px-4 py-4">
+                  <v-spacer></v-spacer>
+                  <v-btn color="teal accent-4" dark @click="submit" large block rounded>INGRESAR</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-main>
+    </div>
   </v-app>
 </template>
+
 
 <script>
 import { ref } from "vue";
@@ -96,3 +102,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.shape-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
