@@ -9,7 +9,6 @@ import  useGlobalAlert  from '@/composables/useGlobalAlert.js';
 
 const API_URL = 'http://198.199.68.78:3000/cherry/';
 
-
 // Crear una nueva instancia de Axios 
 
   const api = axios.create({

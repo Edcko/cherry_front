@@ -9,6 +9,7 @@ export default createStore({
     token: null,
     tipo_empleado: null,
     id_empleado: null,
+    id_spa: null,
   },
   mutations: {
     SET_USER_DATA(state, userData) {
@@ -17,6 +18,7 @@ export default createStore({
       state.token = userData.token;
       state.tipo_empleado = userData.tipo_empleado;
       state.id_empleado = userData.id_empleado;
+      state.id_spa = userData.id_spa;
       localStorage.setItem('user', JSON.stringify(userData));
 
       // Aquí podrías actualizar el token en Axios
@@ -28,6 +30,8 @@ export default createStore({
     console.log('LOGOUT ejecutada');
       state.userData = null;
       state.token = null;
+      state.id_empleado = null;
+      state.id_spa = null;
       localStorage.removeItem('user');
       // Aquí podrías borrar el token en Axios
       //axios.defaults.headers.common['Authorization'] = null;
@@ -37,6 +41,10 @@ export default createStore({
     async login({ commit }, { email, password_empleado }) {
       const user = await authService.login(email, password_empleado);
       console.log('User:', user);
+      console.log('Token:', user.token);
+      console.log('Tipo empleado:', user.tipo_empleado);
+      console.log('Id empleado:', user.id_empleado);
+      console.log('Id spa:', user.id_spa);
       commit('SET_USER_DATA', user);
     },
     logout({ commit }) {
@@ -71,7 +79,11 @@ export default createStore({
       idEmpleado: state => {
         console.log('Getter idEmpleado:', state.id_empleado);
         return state.id_empleado; // Nota el cambio aquí    
-      }
+      },
+      idSpa: state => {
+        console.log('Getter idSpa:', state.id_spa);
+        return state.id_spa; // Nota el cambio aquí    
+      },
   },
   created() {
     console.log('Estado inicial:', this.state);
