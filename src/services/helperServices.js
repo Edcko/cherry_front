@@ -1,9 +1,12 @@
 const citaHelper = {
 
-     countCitasForDate: (date, citas) => {
+     countCitasForDate: (date, citas, idSpa) => {
         return citas.value.filter(cita => {
           const citaDate = new Date(cita.fecha);
-          return citaDate.toDateString() === date.toDateString() && cita.estado !== 'Cancelado' && cita.estado !== 'Reagendo';
+          return citaDate.toDateString() === date.toDateString() &&
+          cita.estado !== 'Cancelado' && 
+          cita.estado !== 'Reagendo' &&
+          cita.id_spa === idSpa;
         }).length;
       },
 

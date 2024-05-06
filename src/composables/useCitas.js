@@ -2,12 +2,16 @@ import { ref } from 'vue';
 import apiService from "@/services/apiServices";
 import helperServices from "@/services/helperServices.js";
 import { getCurrentInstance } from 'vue';
+import store from '@/store';
 
 export default function useCitas() {
   const citas = ref([]);
   const citasTodayTomorrow = ref([]);
   const valoraciones = ref([]);
   const app = getCurrentInstance();
+
+  const idSpa = store.getters.idSpa;
+  
 
 
   const getCitasWithParams = async (param1, param2) => {
@@ -26,8 +30,8 @@ export default function useCitas() {
     const date = new Date(newCita.fecha);
     const minutos = date.getMinutes();
 
-    // Fecha limite para agendar citas ( 06 de marzo del anio actual)
-    const fechaLimite = new Date(new Date().getFullYear(), 11, 4, 23, 59, 59);
+    // Fecha limite para agendar citas ( 18 de mayo del anio actual)
+    const fechaLimite = new Date(new Date().getFullYear(), 18, 4, 23, 59, 59);
 
     // Verifica si la fecha de la cita es mayor a la fecha limite
     if (date > fechaLimite) {
@@ -41,14 +45,15 @@ export default function useCitas() {
       return;
   }
 
-    if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas) >= 64) {
-        app.appContext.config.globalProperties.$showAlert("Ya se han programado 64 citas para este día.", "error");
+  if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas, idSpa) >= 64) {
+    app.appContext.config.globalProperties.$showAlert("Ya se han programado 64 citas para este día.", "error");
         return;
     }
     
     try {
         await apiService.addCita(newCita);
-        citas.value = await apiService.getCitas();
+        console.log("Spa_id:", idSpa);
+        citas.value = await apiService.getCitas({idSpa: idSpa});
         app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
     } catch (error) {
         if (error.response && error.response.status === 400 && error.response.data.message === 'Ya existe una cita agendada para esa fecha y número de cabina.') {

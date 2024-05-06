@@ -111,6 +111,7 @@ import useCitasFilter from "@/composables/useCitasFilter";
 import CitaCard from "./CitaCard.vue";
 //import ValoracionCard from "./ValoracionCard.vue";
 import HoraLibreCard from "./HoraLibreCard.vue";
+import store from "@/store";
 import { getCurrentInstance } from "vue";
 
 export default {
@@ -134,6 +135,8 @@ export default {
     const newDateFilter = ref(null);
 
     const horaPreseleccionada = ref(null);
+
+    const idSpa = store.getters.idSpa;
 
     const {
       citas,
@@ -180,6 +183,7 @@ export default {
 
       try {
         citas.value = await apiService.getCitas({
+          idSpa: idSpa,
           startDate: format(firstDayOfMonth),
           endDate: format(lastDayOfSecondNextMonth),
         });
@@ -187,6 +191,7 @@ export default {
         console.log("Citas", citas.value);
 
         citasTodayTomorrow.value = await apiService.getCitas({
+          idSpa: idSpa,
           startDate: format(today),
           endDate: format(tomorrow),
         });

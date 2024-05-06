@@ -57,13 +57,17 @@
 <script>
 import { ref, reactive, onMounted, computed } from "vue";
 import apiService from "@/services/apiServices";
+import store from "@/store";
 
 export default {
   setup(_, { emit }) {
     const clientes = ref([]);
+    const idSpa = store.getters.idSpa;
 
     onMounted(async () => {
-      clientes.value = await apiService.getClientes();
+      clientes.value = await apiService.getClientes({
+        idSpa: idSpa,
+      });
     });
 
     const clienteOptions = computed(() => {

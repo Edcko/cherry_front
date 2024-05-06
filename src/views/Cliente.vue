@@ -89,6 +89,7 @@ import useClientes from "@/composables/useClientes";
 import useCompras from "@/composables/useCompras";
 import helperServices from "@/services/helperServices.js";
 import ComprasList from "@/components/ComprasList.vue";
+import store from "@/store";
 
 export default {
   name: "ClientesComponent",
@@ -101,6 +102,7 @@ export default {
     const showDialog = ref(false);
     const deleteDialog = ref(false);
     const clientToDelete = ref(null);
+    const idSpa = store.getters.idSpa;
 //    const compras = ref(null);
     const isLoading = ref(true); // Para controlar la visualización del progress circular
     const { compras, addCompra, updateCompra, deleteCompra } = useCompras();
@@ -112,7 +114,7 @@ export default {
 
     onMounted(async () => {
       try {
-        const fechedClientes = await apiService.getClientes();
+        const fechedClientes = await apiService.getClientes({idSpa: idSpa});
         clientes.value = fechedClientes;
         filteredClientes.value = fechedClientes;
         compras.value = await apiService.getCompras();

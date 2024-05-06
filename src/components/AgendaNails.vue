@@ -64,6 +64,7 @@ import apiServices from "@/services/apiServices.js";
 import useCitas from "@/composables/useCitas.js";
 import CitaCard from "@/components/CitaCard.vue";
 import CitaDialog from "@/components/CitaDialog.vue";
+import store from "@/store";
 
 export default {
   name: "AgendaNails",
@@ -73,6 +74,7 @@ export default {
   },
   setup() {
     const calendar = ref(null);
+    const idSpa = store.getters.idSpa;
    // const citas = ref([]);
     const citasSeleccionadas = ref([]);
     const horasLibres = ref({
@@ -123,6 +125,7 @@ export default {
         console.log("Fecha de fin:", formattedEndDate);
 
         citas.value = await apiServices.getCitas({
+          id_spa: idSpa,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
         });

@@ -42,10 +42,11 @@ const getEmpleados = async () => {
     return response.data;
 };
 
-const getClientes = async () => {
+const getClientes = async (params) => {
 
   const response = await api.get(API_URL + 'clientes', {
     headers: authHeader(),
+    params
   });
   return response.data;
 }

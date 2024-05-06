@@ -50,6 +50,7 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { utcToZonedTime, format } from "date-fns-tz";
 import apiService from "@/services/apiServices";
+import store from "@/store";
 
 export default {
   props: {
@@ -68,6 +69,7 @@ export default {
     const valid = ref(true);
     const lazy = ref(false);
     const clientes = ref([]);
+    const idSpa = store.getters.idSpa;
     const citaClone = ref(JSON.parse(JSON.stringify(props.cita)));
 
     const showEditDialog = computed({
@@ -76,7 +78,9 @@ export default {
     });
 
     onMounted(async () => {
-      clientes.value = await apiService.getClientes();
+      clientes.value = await apiService.getClientes({
+        idSpa: idSpa,
+      });
     });
 
     // Transforma ID a valor legible

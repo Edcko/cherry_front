@@ -111,6 +111,7 @@ export default {
       id_cliente: "",
       id_cabina: "",
       id_sesion: 1,
+      id_spa: store.getters.idSpa,
       fecha: "",
       estado: "Por confirmar",
       id_paquete: "",
@@ -121,6 +122,8 @@ export default {
     const cabinas = ref([]);
     const clientes = ref([]);
     const paquetes = ref([]);
+
+    const idSpa = store.getters.idSpa;
 
 //    watch(() => store.getters.idEmpleado, (newIdEmpleado) => {
 //      cita.value.id_empleado = newIdEmpleado;
@@ -164,7 +167,9 @@ watch(() => props.horaPreseleccionada, (newValue) => {
      onMounted(async () => {
 //     empleados.value = await apiService.getEmpleados();
 //      console.log("Empleados:", empleados.value);
-      clientes.value = await apiService.getClientes();
+      clientes.value = await apiService.getClientes({
+        idSpa: idSpa,
+      });
 //      console.log("Clientes:", clientes.value);
       cabinas.value = await apiService.getCabinas();
 //      console.log("Cabinas:", cabinas.value);

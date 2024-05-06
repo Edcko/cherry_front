@@ -59,7 +59,7 @@ const routes = [
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora', 'Terapeuta']),
       },
       {
         path: '/nails',
