@@ -73,9 +73,10 @@ const getSesiones = async () => {
   return response.data;
 }
 
-const getCabinas = async () => {
+const getCabinas = async (params) => {
   const response = await api.get(API_URL + 'cabinas', {
-    headers: authHeader()
+    headers: authHeader(),
+    params
   });
   return response.data;
 }

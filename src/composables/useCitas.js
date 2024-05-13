@@ -31,11 +31,11 @@ export default function useCitas() {
     const minutos = date.getMinutes();
 
     // Fecha limite para agendar citas ( 18 de mayo del anio actual)
-    const fechaLimite = new Date(new Date().getFullYear(), 18, 4, 23, 59, 59);
+    const fechaLimite = new Date(new Date().getFullYear(), 25, 4, 23, 59, 59);
 
     // Verifica si la fecha de la cita es mayor a la fecha limite
     if (date > fechaLimite) {
-      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 11 de Mayo. Espera esa semana para que se abran los días posteriores.", "error");
+      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 25 de Mayo. Espera esa semana para que se abran los días posteriores.", "error");
       return;
     }
  
@@ -88,17 +88,11 @@ export default function useCitas() {
   const deleteCita = async (cita) => {
     try {
       await apiService.deleteCita(cita.id_cita);
+      citas.value = await apiService.getCitas({idSpa: idSpa});
       app.appContext.config.globalProperties.$showAlert("La cita se eliminó correctamente.", "success");
     } catch (error) {
       console.error("Error deleting cita:", error);
       app.appContext.config.globalProperties.$showAlert("Algo salio mal al eliminar la cita.", "error");
-    }
-    
-    try {
-      citas.value = await apiService.getCitas();
-    } catch (error) {
-      console.error("Error getting citas:", error);
-      
     }
   };
   

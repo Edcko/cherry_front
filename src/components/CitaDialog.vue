@@ -171,7 +171,9 @@ watch(() => props.horaPreseleccionada, (newValue) => {
         idSpa: idSpa,
       });
 //      console.log("Clientes:", clientes.value);
-      cabinas.value = await apiService.getCabinas();
+      cabinas.value = await apiService.getCabinas({
+        idSpa: idSpa
+      });
 //      console.log("Cabinas:", cabinas.value);
       paquetes.value = await apiService.getPaquetes();
 //      console.log("Paquetes:", paquetes.value);
