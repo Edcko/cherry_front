@@ -97,6 +97,19 @@ const routes = [
         component: Sesion,
         beforeEnter: requireRole(['Administrador','Gerente']),
     },
+/*    {
+        path: "/perteneceA",
+        name: "PerteneceA",
+        component: PerteneceA,
+        beforeEnter: requireRole(['Administrador','Gerente']),
+    },
+    {
+        path: "/trabajaEn",
+        name: "TrabajaEn",
+        component: TrabajaEn,
+        beforeEnter: requireRole(['Administrador','Gerente']),
+    },
+*/
     {
         path: "/:pathMatch(.*)*",
         name: "NotFound",

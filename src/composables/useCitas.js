@@ -31,11 +31,11 @@ export default function useCitas() {
     const minutos = date.getMinutes();
 
     // Fecha limite para agendar citas ( 18 de mayo del anio actual)
-    const fechaLimite = new Date(new Date().getFullYear(), 25, 4, 23, 59, 59);
+    const fechaLimite = new Date(new Date().getFullYear(), 1, 5, 23, 59, 59);
 
     // Verifica si la fecha de la cita es mayor a la fecha limite
     if (date > fechaLimite) {
-      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 25 de Mayo. Espera esa semana para que se abran los días posteriores.", "error");
+      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 01 de Junio. Espera esa semana para que se abran los días posteriores.", "error");
       return;
     }
  

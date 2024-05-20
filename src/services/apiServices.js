@@ -34,6 +34,20 @@ const API_URL = 'http://198.199.68.78:3000/cherry/';
 
 //------------ Get -----------//
 
+const getPerteneceA = async () => {
+  const response = await api.get(API_URL + 'perteneceA',{
+    headers: authHeader()
+  });
+  return response.data;
+};
+
+const getPerteneceABySpa = async (spaId) => {
+  const response = await api.get(API_URL + 'perteneceA/' + spaId, {
+    headers: authHeader()
+  });
+  return response.data;
+};
+
 const getEmpleados = async () => {
   
     const response = await api.get(API_URL + 'empleados', {
@@ -49,7 +63,7 @@ const getClientes = async (params) => {
     params
   });
   return response.data;
-}
+};
 
 const getCitas = async (params) => {
     const response = await api.get(API_URL + 'citas', {
@@ -64,14 +78,14 @@ const getCompras = async () => {
     headers: authHeader()
   });
   return response.data;
-}
+};
 
 const getSesiones = async () => {
   const response = await api.get(API_URL + 'sesiones', {
     headers: authHeader()
   });
   return response.data;
-}
+};
 
 const getCabinas = async (params) => {
   const response = await api.get(API_URL + 'cabinas', {
@@ -79,29 +93,37 @@ const getCabinas = async (params) => {
     params
   });
   return response.data;
-}
+};
 
 const getSpas = async () => {
     const response = await api.get(API_URL + 'spas', {
         headers: authHeader()
     });
   return response.data;
-}
+};
 
 const getPaquetes = async () => {
   const response = await api.get(API_URL + 'paquetes', {
     headers: authHeader()
   });
   return response.data;
-}
+};
 
 const getValoraciones = async () => {
   const response = await api.get(API_URL + 'valoraciones', {
     headers: authHeader()
   });
   return response.data;
-}
+};
+
 //------------ Add -----------//
+
+const addPerteceneA = async (perteneceA) => {
+  const response = await api.post(API_URL + 'perteneceA/', perteneceA, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
 
 const addCliente = async (cliente) => {
   const response = await api.post(API_URL + 'cliente/', cliente, {
@@ -122,37 +144,44 @@ const addCompra = async (compra) => {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const addEmpleado = async (empleado) => {
   const response = await api.post(API_URL + 'empleado/', empleado, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const addPaquete = async (paquete) => {
   const response = await api.post(API_URL + 'paquete/', paquete, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const addCabina = async (cabina) => {
   const response = await api.post(API_URL + 'cabina/', cabina, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const addValoracion = async (valoracion) => {
   const response = await api.post(API_URL + 'valoracion/', valoracion, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 //------------ Update -----------//
+
+const updatePerteneceA = async (spaId, paqueteId, perteneceA) => {
+  const response = await api.put(API_URL + 'perteneceA/' + spaId + '/' + paqueteId, perteneceA, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
 
 const updateCliente = async (cliente) => {
 
@@ -160,7 +189,7 @@ const updateCliente = async (cliente) => {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const updateCita = async (cita) => {
   const response = await api.put(API_URL + 'cita/' + cita.id_cita, cita, {
@@ -174,14 +203,14 @@ const updateCompra = async (compra) => {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const updateEmpleado = async (empleado) => {
   const response = await api.put(API_URL + 'empleado/' + empleado.id_empleado, empleado,{
     headers: authHeader(),
 });
   return response.data;
-}
+};
 
 const updatePaquete = async (paquete) => {
   const response = await api.put(API_URL + 'paquete/' + paquete.id_paquete, paquete, {
@@ -205,6 +234,13 @@ const updateValoracion = async (valoracion) => {
 };
 
 //------------ Delete -----------//
+
+const deltePterneceA = async (spaId, paqueteId) => {
+  const response = await api.delete(API_URL + 'perteneceA/' + spaId + '/' + paqueteId, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
 
 const deleteCliente = async (id_cliente) => {
   const response = await api.delete(API_URL + 'cliente/' + id_cliente,{
@@ -234,28 +270,28 @@ const deleteEmpleado = async (id_empleado) => {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const deletePaquete = async (id_paquete) => {
   const response = await api.delete(API_URL + 'paquete/' + id_paquete, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const deleteCabina = async (id_cabina) => {
   const response = await api.delete(API_URL + 'cabina/' + id_cabina, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 const deleteValoracion = async (id_valoracion) => {
   const response = await api.delete(API_URL + 'valoracion/' + id_valoracion, {
     headers: authHeader(),
   });
   return response.data;
-}
+};
 
 export default {
   getClientes,
@@ -266,7 +302,10 @@ export default {
   getCabinas,
   getSpas,
   getPaquetes,
+  getPerteneceA,
+  getPerteneceABySpa,
   getValoraciones,
+  addPerteceneA,
   addCliente,
   addEmpleado,
   addCita,
@@ -274,6 +313,7 @@ export default {
   addCabina,
   addPaquete,
   addValoracion,
+  updatePerteneceA,
   updateCliente,
   updateEmpleado,
   updateCita,
@@ -281,6 +321,7 @@ export default {
   updatePaquete,
   updateCabina,
   updateValoracion,
+  deltePterneceA,
   deleteCliente,
   deleteEmpleado,
   deleteCita,
