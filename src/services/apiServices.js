@@ -118,7 +118,7 @@ const getValoraciones = async () => {
 
 //------------ Add -----------//
 
-const addPerteceneA = async (perteneceA) => {
+const addPerteneceA = async (perteneceA) => {
   const response = await api.post(API_URL + 'perteneceA/', perteneceA, {
     headers: authHeader(),
   });
@@ -305,7 +305,7 @@ export default {
   getPerteneceA,
   getPerteneceABySpa,
   getValoraciones,
-  addPerteceneA,
+  addPerteneceA,
   addCliente,
   addEmpleado,
   addCita,

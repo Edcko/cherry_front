@@ -175,8 +175,8 @@ watch(() => props.horaPreseleccionada, (newValue) => {
         idSpa: idSpa
       });
 //      console.log("Cabinas:", cabinas.value);
-      paquetes.value = await apiService.getPaquetes();
-//      console.log("Paquetes:", paquetes.value);
+      paquetes.value = await apiService.getPerteneceABySpa(idSpa);
+      console.log("Paquetes:", paquetes.value);
     });
 /*
     const empleadoOptions = computed(() => {
@@ -200,7 +200,7 @@ watch(() => props.horaPreseleccionada, (newValue) => {
     });
 
     const paqueteOptions = computed(() => {
-      return paquetes.value.map((paquete) => `${paquete.nombre_paquete}`);
+      return paquetes.value.map((paquete) => `${paquete.Paquete.nombre_paquete}`);
     });
 
     const onSubmit = () => {
@@ -237,7 +237,7 @@ watch(() => props.horaPreseleccionada, (newValue) => {
       console.log("cita.value.id_cabina:", cita.value.id_cabina);
 
       const paqueteSeleccionado = paquetes.value.find(
-        (p) => `${p.nombre_paquete}` === cita.value.id_paquete
+        (p) => `${p.Paquete.nombre_paquete}` === cita.value.id_paquete
       );
       console.log("paqueteSeleccionado:", paqueteSeleccionado);
       cita.value.id_paquete = paqueteSeleccionado

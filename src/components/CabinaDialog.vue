@@ -62,6 +62,7 @@
   <script>
   import { ref, onMounted, computed } from "vue";
   import apiService from "@/services/apiServices";
+  import store from "@/store";
   
   export default {
     props: ["showDialog"],
@@ -71,9 +72,11 @@
         numero_cabina: "",
         estado_cabina: "",
         turno: "",
+        id_spa: store.getters.idSpa
       });
   
       const empleados = ref([]);
+      const idSpa = store.getters.idSpa;
   
       onMounted(async () => {
         empleados.value = await apiService.getEmpleados();
@@ -104,6 +107,7 @@
       };
   
       return {
+        idSpa,
         cabina,
         empleados,
         onSubmit,

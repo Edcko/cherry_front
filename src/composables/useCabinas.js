@@ -1,15 +1,19 @@
 import { ref } from 'vue';
 import apiService from "@/services/apiServices";
 import { getCurrentInstance } from 'vue';
+import store from '@/store';
 
 export default function useCabinas() {
   const cabinas = ref([]);
   const app = getCurrentInstance();
 
+  const idSpa = store.getters.idSpa;
 
   const fetchCabinas = async () => {
     try {
-      cabinas.value = await apiService.getCabinas();
+      cabinas.value = await apiService.getCabinas({ 
+        idSpa: idSpa 
+        });
     } catch (error) {
       console.error("Error obteniendo las cabinas", error);
     }
