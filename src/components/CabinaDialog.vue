@@ -18,6 +18,7 @@
                 :items="[
                   'Matutino',
                   'Vespertino',
+                  'Mixto',
                 ]"
                 label="Turno"
                 v-model="cabina.turno"

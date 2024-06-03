@@ -1,29 +1,29 @@
 <template>
   <v-row>
-    <v-col cols="12" sm="6" md="4" lg="3" v-for="paquete in filteredPaquetes" :key="paquete.id_paquete">
+    <v-col cols="12" sm="6" md="4" lg="3" v-for="paquete in filteredPaquetes" :key="paquete.Paquete.id_paquete">
       <v-card class="mx-auto" max-width="344">
         <v-img v-if="paquete.Paquete && paquete.Paquete.imagen_paquete" height="200px" :src="paquete.Paquete.imagen_paquete" :alt="paquete.Paquete.nombre_paquete" cover></v-img>
         <v-card-title v-if="paquete.Paquete">{{ paquete.Paquete.nombre_paquete }}</v-card-title>
         <v-card-subtitle v-if="paquete.Paquete">${{ paquete.Paquete.precio }}</v-card-subtitle>
         <v-card-actions>
-          <v-btn :icon="showDescription[paquete.id_paquete] ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="toggleDescription(paquete.id_paquete)"></v-btn>
+          <v-btn :icon="showDescription[paquete.Paquete.id_paquete] ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="toggleDescription(paquete.Paquete.id_paquete)"></v-btn>
           <v-spacer></v-spacer>
           <v-btn icon color="error" @click="openDeleteDialog(paquete)">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </v-card-actions>
         <v-expand-transition>
-          <div v-show="showDescription[paquete.id_paquete]">
+          <div v-show="showDescription[paquete.Paquete.id_paquete]">
             <v-divider></v-divider>
             <v-card-text>
-              <div v-if="showFullDescription[paquete.id_paquete] && paquete.Paquete">
+              <div v-if="showFullDescription[paquete.Paquete.id_paquete] && paquete.Paquete">
                 {{ paquete.Paquete.descripcion }}
               </div>
               <div v-else-if="paquete.Paquete">
                 {{ truncateDescription(paquete.Paquete.descripcion) }}
               </div>
-              <v-btn v-if="paquete.Paquete" variant="plain" size="x-small" @click="toggleFullDescription(paquete.id_paquete)">
-                {{ showFullDescription[paquete.id_paquete] ? "Mostrar menos" : "Mostrar más" }}
+              <v-btn v-if="paquete.Paquete" variant="plain" size="x-small" @click="toggleFullDescription(paquete.Paquete.id_paquete)">
+                {{ showFullDescription[paquete.Paquete.id_paquete] ? "Mostrar menos" : "Mostrar más" }}
               </v-btn>
             </v-card-text>
             <v-card-text v-if="paquete.Paquete">Fecha de inicio: {{ paquete.Paquete.fecha_inicio }}</v-card-text>
@@ -39,7 +39,7 @@
     <v-card>
       <v-card-title class="headline">Confirmación de eliminación</v-card-title>
       <v-card-text>
-        ¿Estás seguro de que deseas eliminar el paquete <span v-if="paqueteToDelete">{{ paqueteToDelete.nombre_paquete }}</span>?
+        ¿Estás seguro de que deseas eliminar el paquete <span v-if="paqueteToDelete">{{ paqueteToDelete.Paquete.nombre_paquete }}</span>?
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -99,8 +99,8 @@ export default {
     const filteredPaquetes = computed(() => {
       if (!search.value) return paquetes.value;
       return paquetes.value.filter(paquete =>
-        paquete.nombre_paquete.toLowerCase().includes(search.value.toLowerCase()) ||
-        paquete.descripcion.toLowerCase().includes(search.value.toLowerCase())
+        paquete.Paquete.nombre_paquete.toLowerCase().includes(search.value.toLowerCase()) ||
+        paquete.Paquete.descripcion.toLowerCase().includes(search.value.toLowerCase())
       );
     });
 
