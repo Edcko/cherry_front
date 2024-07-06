@@ -44,7 +44,7 @@
         <v-col
           cols="12"
           md="3"
-          v-for="numeroCabina in 4"
+          v-for="numeroCabina in cabinas"
           :key="'cabina-' + numeroCabina"
         >
           <v-divider :key="'divider-' + numeroCabina"></v-divider>
@@ -158,6 +158,14 @@ export default {
     );
 
     const { user, loadUser } = useUser();
+
+    // Definir las cabinas basadas en idSpa
+    const cabinas = ref([]);
+    if (idSpa === 1) {
+      cabinas.value = [1, 2, 4];
+    } else {
+      cabinas.value = [1, 2, 3, 4];
+    }
 
     onMounted(async () => {
       const currentDate = new Date();
@@ -291,6 +299,7 @@ export default {
       handleAgendarHoraLibre,
       getCitasByCabina,
       getHorasLibres,
+      cabinas, // agregar cabinas al return
     };
   },
 };
