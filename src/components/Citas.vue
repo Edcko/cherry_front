@@ -164,7 +164,7 @@ export default {
     if (idSpa === 1) {
       cabinas.value = [1, 2, 4];
     } else {
-      cabinas.value = [1, 2, 3, 4];
+      cabinas.value = [1, 2,  4];
     }
 
     onMounted(async () => {
