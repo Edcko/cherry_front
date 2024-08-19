@@ -21,7 +21,7 @@
           </span>
         </div></v-card-subtitle> 
       <v-card-text>
-       
+
         <p><strong>Agendo: </strong> 
           <span class="truncate">
             {{ truncateName( cita.Empleado?.nombre_empleado + ' ' + cita.Empleado?.apellido_paterno + ' ' + cita.Empleado?.apellido_materno) }}
