@@ -1,7 +1,7 @@
 <template>
   <v-container v-if="user" fluid>
-  <v-col>
-    <v-card>
+    <v-col>
+      <v-card>
       <v-card-title class="headline">
         Fecha: {{ truncateName(formatDateToDayMonthYear(cita.fecha)) }}
         <v-tooltip
@@ -77,8 +77,6 @@
     </v-btn>
       </v-card-actions>
 
-     
- 
       <cita-edit-dialog
         v-model="showEditDialog"
         :cita="currentCita"
@@ -197,7 +195,7 @@ export default {
     return chroma(color).hex();
     },
 
-    truncateName(name, limit = 20) {
+    truncateName(name, limit = 35) {
     return name.length > limit ? name.substring(0, limit) + '...' : name;
   },
   formatDateToDayMonthYear(dateString) {
@@ -226,4 +224,7 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+
 </style>

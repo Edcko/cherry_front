@@ -42,8 +42,7 @@
 
       <v-row>
         <v-col
-          cols="12"
-          md="3"
+        md="4"       
           v-for="numeroCabina in cabinas"
           :key="'cabina-' + numeroCabina"
         >
@@ -164,7 +163,7 @@ export default {
     if (idSpa === 1) {
       cabinas.value = [1, 2, 4];
     } else {
-      cabinas.value = [1, 2,  4];
+      cabinas.value = [1, 2, 4];
     }
 
     onMounted(async () => {
