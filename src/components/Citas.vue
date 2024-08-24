@@ -33,16 +33,22 @@
         </v-row>
       </div>
 
-      <cita-filter
+      
+
+      <v-row>
+        <cita-filter
         @searchChange="search = $event"
         @dateFilterChange="dateFilter = $event"
         @clientIdFilterChange="clientIdFilter = $event"
         @newDateFilterChange="newDateFilter = $event"
       />
-
-      <v-row>
         <v-col
-        md="4"       
+        cols="6"
+        sm="6"
+        md="4"
+        lg="4"
+
+        
           v-for="numeroCabina in cabinas"
           :key="'cabina-' + numeroCabina"
         >

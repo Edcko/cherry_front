@@ -83,7 +83,7 @@ const routes = [
         path: "/cabinas",
         name: "Cabina",
         component: Cabina,
-        beforeEnter: requireRole(['Administrador','Gerente',]),
+        beforeEnter: requireRole(['Administrador']),
     },
     {
         path: "/clientes",
