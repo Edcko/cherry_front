@@ -17,13 +17,13 @@ import { ref, onMounted } from "vue";
 export default {
   name: "CitaCalendar",
   props: ["citas"],
-  setup(props) {
+  setup(props, {emit}) {
     const calendar = ref(null);
     const disabledDates = ref([]);
 
     const { getSundays } = useCitas();
-    const startDate = new Date(2023, 0, 1);
-    const endDate = new Date(2023, 11, 31);
+    const startDate = new Date(2024, 0, 1);
+    const endDate = new Date(2024, 11, 31);
 
     disabledDates.value = getSundays(startDate, endDate);
 
@@ -40,26 +40,11 @@ export default {
     */
     
 
-
-
     const onDayClick = (day) => {
-      const dayDateString = day.date.toISOString().split("T")[0];
-      const clickedCita = props.citas.find((cita) => {
-        const citaDateString = new Date(cita.fecha).toISOString().split("T")[0];
-        return citaDateString === dayDateString;
-      });
-      if (clickedCita) {
-        // Emite el evento con la cita clickeada
-        console.log(`Cita: ${clickedCita.id_cita}`);
-        console.log(`Empleado: ${clickedCita.id_empleado}`);
-        console.log(`Cliente: ${clickedCita.id_cliente}`);
-        //      this.$emit('citaClicked', clickedCita);
-      } else {
-        //    this.$emit('dayClicked', day);
-        console.log("Selected day: ");
-      }
+      console.log("Day clicked:", day);
+      const dayDate = day.date;
+      emit("dayClicked", { date: dayDate });
     };
-
 
 /*
 `countCitasForDate` es una función que cuenta el número de citas para una fecha específica que no han sido canceladas ni perdidas.

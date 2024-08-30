@@ -2,10 +2,10 @@ import { ref, watch } from "vue";
 import { adjustDateForTimezone } from "@/utils/dateUtils";
 
 const initialDate = new Date();
+
 export default function useCitasFilter(citas, search, dateFilter, clientIdFilter, newDateFilter) {
   const filteredCitas = ref([]);
 
-  // Si newDateFilter no tiene valor cuando se inicializa, le asignamos la fecha actual
   if (!newDateFilter.value) {
     newDateFilter.value = initialDate;
   }
@@ -29,7 +29,6 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
         );
       }
   
-      // Utilizamos newDateFilter para filtrar las citas
       if (newDateFilter.value) {
         result = result.filter((cita) => {
             const citaDate = new Date(cita.fecha);
@@ -46,7 +45,6 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
         );
       }
 
-      // Ordenamos las citas antes de asignarlas a filteredCitas
       result = sortCitas(result, 'fecha');
   
       filteredCitas.value = result;
@@ -58,7 +56,6 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
     return filteredCitas.value.filter(cita => cita.Cabina.numero_cabina === numeroCabina);
   };
   
-
   return { filteredCitas, getCitasByCabina };
 }
 
@@ -82,8 +79,6 @@ const sortCitas = (citas, sortBy) => {
     if (sortBy === 'id_cita') {
       return a.id_cita - b.id_cita;
     } else if (sortBy === 'fecha') {
-      // Sólo queremos considerar citas futuras, así que si alguna cita es de una fecha pasada,
-      // la ponemos al final.
       if(dateA < today) {
         return 1;
       }
@@ -91,7 +86,6 @@ const sortCitas = (citas, sortBy) => {
         return -1;
       }
 
-      // Para las citas futuras, hacemos una comparación normal para obtener un orden ascendente.
       return dateA - dateB;
     }
 
