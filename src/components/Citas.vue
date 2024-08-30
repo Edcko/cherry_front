@@ -33,7 +33,12 @@
         </v-row>
       </div>
 
-      
+      <cita-filter
+        @searchChange="search = $event"
+        @dateFilterChange="dateFilter = $event"
+        @clientIdFilterChange="clientIdFilter = $event"
+        @newDateFilterChange="newDateFilter = $event"
+      />
 
       <v-row>
         <v-col
@@ -101,7 +106,7 @@
 import { onMounted, ref } from "vue";
 import apiService from "@/services/apiServices";
 import CitaDialog from "@/components/CitaDialog.vue";
-//import CitaFilter from "./CitaFilter.vue";
+import CitaFilter from "./CitaFilter.vue";
 import CitaCalendar from "./CitaCalendar.vue";
 import useCitas from "@/composables/useCitas";
 import useUser from "@/composables/useUser";
@@ -117,7 +122,7 @@ export default {
   name: "CitasComponent",
   components: {
     CitaDialog,
- //   CitaFilter,
+    CitaFilter,
     CitaCalendar,
     CitaCard,
     //    ValoracionCard,
@@ -304,7 +309,7 @@ export default {
       getCitasByCabina,
       getHorasLibres,
       cabinas, // agregar cabinas al return
-      handleDayClicked
+      handleDayClicked,
     };
   },
 };

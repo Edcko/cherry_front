@@ -80,7 +80,7 @@ export default {
          //  { value: ref(null), label: 'Buscar por fecha y hora', type: 'datetime-local', emitOnApply: 'dateFilterChange' },
       { value: ref(''), label: 'Buscar nombre del cliente', type: 'autocomplete', emitOnApply: 'clientIdFilterChange' },
          // Nuevo filtro agregado para búsqueda por fecha
-      { value: ref(null), label: 'Buscar por fecha', type: 'date', emitOnApply: 'newDateFilterChange' },
+     // { value: ref(null), label: 'Buscar por fecha', type: 'date', emitOnApply: 'newDateFilterChange' },
     ]);
 
     const applyFilters = () => {
