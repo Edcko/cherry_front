@@ -140,23 +140,12 @@ watch(() => props.citaPreseleccionada, (newValue) => {
 }, { immediate: true });
 
 
-    // Observa los cambios en horaPreseleccionada y actualiza la fecha de la cita.
-watch(() => props.horaPreseleccionada, (newValue) => {
-      if (newValue) {
-              // Suponiendo que quieras combinar la hora con la fecha actual
-    const fechaActual = new Date();
-    const [horas, minutos] = newValue.split(':');
-    fechaActual.setHours(parseInt(horas, 10), parseInt(minutos, 10), 0);
-
-    console.log("Nueva hora preseleccionada:", newValue);
-    
-   // Formatea manualmente la fecha y hora para mantener la zona horaria local
-    const fechaFormatoLocal = `${fechaActual.getFullYear()}-${(fechaActual.getMonth() + 1).toString().padStart(2, '0')}-${fechaActual.getDate().toString().padStart(2, '0')}T${horas}:${minutos}`;
-    console.log("Fecha formato local:", fechaFormatoLocal);
-
-    cita.value.fecha = fechaFormatoLocal;
-      }
-    }, { immediate: true });
+  // Observa los cambios en horaPreseleccionada y actualiza la fecha de la cita.
+  watch(() => props.horaPreseleccionada, (newValue) => {
+  if (newValue) {
+    cita.value.fecha = newValue; // Ahora newValue ya contiene tanto la fecha como la hora
+  }
+}, { immediate: true });
 
     const rules = {
       required: (value) => !!value || "Este campo es requerido",

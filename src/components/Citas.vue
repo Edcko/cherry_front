@@ -137,6 +137,7 @@ export default {
     const clientIdFilter = ref("");
     const app = getCurrentInstance();
     const newDateFilter = ref(null);
+    const selectedDate = ref(null);
 
     const horaPreseleccionada = ref(null);
 
@@ -173,6 +174,7 @@ export default {
 
     onMounted(async () => {
       const currentDate = new Date();
+      selectedDate.value = currentDate; // Asigna la fecha actual como la predeterminada
       const firstDayOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() - 1,
@@ -258,13 +260,22 @@ export default {
 
     // eslint-disable-next-line
     const handleAgendarHoraLibre = (hora) => {
-      // Aquí puedes abrir el diálogo de agendar cita con la fecha y hora ya preseleccionadas
-      // Por ejemplo:
-      console.log("Estableciendo horaPreseleccionada a:", hora);
-      horaPreseleccionada.value = hora;
-      showDialog.value = true;
-      // Asegúrate de pasar la fecha y hora al diálogo para que se preseleccione
-    };
+  if (selectedDate.value) {
+    const [horas, minutos] = hora.split(':');
+    const fechaConHora = new Date(selectedDate.value);
+    fechaConHora.setHours(parseInt(horas, 10), parseInt(minutos, 10), 0);
+
+    const fechaFormatoLocal = `${fechaConHora.getFullYear()}-${(fechaConHora.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${fechaConHora.getDate().toString().padStart(2, '0')}T${horas}:${minutos}`;
+    
+    horaPreseleccionada.value = fechaFormatoLocal;
+    showDialog.value = true;
+  } else {
+    console.warn("No se ha seleccionado una fecha en el calendario.");
+  }
+};
+
 
     const changeEstadoWrapper = async (cita) => {
       try {
@@ -280,6 +291,7 @@ export default {
 
     const handleDayClicked = (day) => {
       console.log("Day received in Citas.vue:", day);
+      selectedDate.value = day.date;
       newDateFilter.value = day.date;
     };
 
@@ -310,6 +322,7 @@ export default {
       getHorasLibres,
       cabinas, // agregar cabinas al return
       handleDayClicked,
+      selectedDate,
     };
   },
 };
