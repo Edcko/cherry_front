@@ -49,7 +49,7 @@
           label="Estado de la Compra"
           v-model="compra.estado_compra"
           :rules="[rules.required]"
-          :items="['En proceso', 'Completado', 'Cancelado']"
+          :items="['Completado','Adeudo', 'Cancelado']"
           variant="filled"
           color="teal"
           class="mb-4"
@@ -74,6 +74,7 @@
   //import { format, utcToZonedTime } from "date-fns-tz";
   import { ref, onMounted, computed } from "vue";
   import apiService from "@/services/apiServices";
+  import store from "@/store";
   
   export default {
     props: ["showDialog"],
@@ -90,7 +91,9 @@
   
       const clientes = ref([]);
       const paquetes = ref([]);
-  
+      
+      const idSpa = store.getters.idSpa;
+
       const rules = {
         required: (value) => !!value || "Este campo es requerido",
         numeric: (value) => !isNaN(parseFloat(value)) && isFinite(value) || "Debe ser un número"
@@ -99,8 +102,8 @@
       const isValid = ref(true);
   
       onMounted(async () => {
-        clientes.value = await apiService.getClientes();
-        paquetes.value = await apiService.getPaquetes();
+        clientes.value = await apiService.getClientes({idSpa: idSpa});
+        paquetes.value = await apiService.getPaquetes({idSpa: idSpa});
       });
   
       const clienteOptions = computed(() => {

@@ -10,7 +10,6 @@
         single-line
         hide-details
         clearable
-        @input="searchCompras"
       ></v-text-field>
     </v-card-title>
     <v-divider></v-divider>
@@ -28,31 +27,27 @@
           item-height="48"
         >
         <template v-slot:default="{ item }">
-  <v-list-item two-line>
-    <v-list-item-content>
-      <v-list-item-title>
-        {{ item.Cliente.nombre_cliente }} {{ item.Cliente.apellido_paterno }} {{ item.Cliente.apellido_materno }}
-      </v-list-item-title>
-      <v-list-item-subtitle>
-        Paquete: {{ item.Paquete.nombre_paquete }} - Fecha de Compra: {{ item.fecha_compra }}
-      </v-list-item-subtitle>
-    </v-list-item-content>
+          <v-list-item two-line>
+  <v-list-item-content>
+    <v-list-item-title>
+      {{ item.Cliente.nombre_cliente }} {{ item.Cliente.apellido_paterno }} {{ item.Cliente.apellido_materno }}
+    </v-list-item-title>
     <v-list-item-subtitle>
-  Monto Original: ${{ item.monto_original }} - Monto Pagado: ${{ item.monto_pagado }} - Monto Adeudado: ${{ item.monto_adeudado }}
-  <br>
-  Estado: {{ item.estado_compra }}
-</v-list-item-subtitle>
-
-    <v-list-item-action class ="button-actions">
-      <v-btn icon @click="handleAbonarCompra(item)"  class="mr-2">
-        <v-icon color="teal">mdi-cash-plus</v-icon>
-      </v-btn>
-      <v-btn icon @click="handleDeleteCompra(item)">
-        <v-icon color="teal">mdi-delete</v-icon>
-      </v-btn>
-    </v-list-item-action>
-  </v-list-item>
-  <v-divider></v-divider>
+      Paquete: {{ item.Paquete.nombre_paquete }} - Fecha de Compra: {{ item.fecha_compra }}<br>
+      Monto Original: ${{ item.monto_original }} - Monto Pagado: ${{ item.monto_pagado }} - Monto Adeudado: ${{ item.monto_adeudado }}<br>
+      Estado: {{ item.estado_compra }}
+    </v-list-item-subtitle>
+  </v-list-item-content>
+  <v-list-item-action class="button-actions">
+    <v-btn icon @click="handleAbonarCompra(item)" class="mr-2">
+      <v-icon color="teal">mdi-cash-plus</v-icon>
+    </v-btn>
+    <v-btn icon @click="handleDeleteCompra(item)">
+      <v-icon color="teal">mdi-delete</v-icon>
+    </v-btn>
+  </v-list-item-action>
+</v-list-item>
+<v-divider></v-divider>
 </template>
         </v-virtual-scroll>
       </v-col>
@@ -111,6 +106,7 @@ export default {
       default: false
     }, 
   },
+  emits: ['addCompra', 'deleteCompra'],
   setup(props, { emit }) { //Aqui desestructuras 'emit'
     const localSearchQuery = ref('');
     const showCompraDialog = ref(false);
@@ -120,9 +116,9 @@ export default {
 
     // Se define una función de búsqueda que actualizará el filtro cada vez que el usuario escriba en el campo de búsqueda.
     // eslint-disable-next-line
-    const searchCompras = (newValue) => {
+ //   const searchCompras = (newValue) => {
       // La lógica de filtrado se aplica aquí, similar a lo que ya tienes en el watcher.
-    };
+ //   };
 
     // Metodo para manejar el evento addCompra
     const handleAddCompra = (compra) => {
@@ -166,7 +162,7 @@ const handleAbonarCompra = (compra) => {
       showCompraDialog,
       localSearchQuery,
       filteredCompras,
-      searchCompras,
+    //  searchCompras,
       handleAddCompra,
       handleDeleteCompra,
       handleAbonarCompra,

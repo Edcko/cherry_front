@@ -16,7 +16,6 @@
     label="Buscar clientes"
     single-line
     hide-details
-    @input="searchClientes"
   ></v-text-field>
  
 </v-card-title>
