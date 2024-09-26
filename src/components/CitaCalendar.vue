@@ -1,24 +1,24 @@
 <template>
   <div>
-    <v-calendar
+    <v-calendar 
       :rows="1"
       ref="calendar"
       expanded
+      :attributes="calendarAttributes"
       @dayclick="onDayClick"
       :disabled-dates="disabledDates"
-      :day-format="customDayFormatter"
     />
   </div>
 </template>
 
 <script>
 import useCitas from "@/composables/useCitas.js";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
 export default {
   name: "CitaCalendar",
-  props: ["citas"], // Recibe las citas como propiedad
-  setup(props, { emit }) {
+  props: ["citas"],
+  setup(props, {emit}) {
     const calendar = ref(null);
     const disabledDates = ref([]);
 
@@ -26,53 +26,41 @@ export default {
     const startDate = new Date(2024, 0, 1);
     const endDate = new Date(2024, 11, 31);
 
+    // Deshabilitar los domingos
     disabledDates.value = getSundays(startDate, endDate);
 
-    // Mover el calendario a la fecha actual al montarse
+    // Definir los atributos del calendario para colorear los días con citas
+    const calendarAttributes = computed(() => {
+      return props.citas.map((cita) => {
+        return {
+          key: cita.id_cita,
+          dates: cita.fecha, // La fecha de la cita
+          highlight: {
+            color: "blue", // Color teal para los días con citas
+            fillMode: "light", // El modo de llenado
+          },
+        };
+      });
+    });
+
     onMounted(async () => {
       if (calendar.value) {
         await calendar.value.move(new Date());
       }
     });
 
-    // Evento cuando se hace clic en un día del calendario
     const onDayClick = (day) => {
       console.log("Day clicked:", day);
       const dayDate = day.date;
       emit("dayClicked", { date: dayDate });
     };
 
-    // Formateador personalizado para el calendario
-    const customDayFormatter = (day) => {
-      const dayDate = new Date(day.date).toDateString(); // Convertimos la fecha del día actual
-
-      // Verificamos si hay citas en la fecha actual
-      const hasCita = props.citas.some((cita) => {
-        const citaDate = new Date(cita.fecha).toDateString(); // Convertimos la fecha de la cita
-        return dayDate === citaDate; // Comparamos las fechas
-      });
-
-      // Si hay citas, aplicamos un color de fondo
-      return hasCita
-        ? { class: 'cita-day', content: day.day }
-        : { content: day.day };
-    };
-
     return {
       calendar,
       onDayClick,
       disabledDates,
-      customDayFormatter,
+      calendarAttributes, // Devolver los atributos del calendario
     };
   },
 };
 </script>
-
-<style scoped>
-/* Estilo personalizado para los días con citas */
-.cita-day {
-  background-color: #e0f7fa; /* Tono bajo de teal */
-  border-radius: 50%;
-  color: #00695c;
-}
-</style>
