@@ -29,25 +29,48 @@ export default {
     // Deshabilitar los domingos
     disabledDates.value = getSundays(startDate, endDate);
 
-    // Definir los atributos del calendario para colorear los días con citas
-    const calendarAttributes = computed(() => {
-      return props.citas.map((cita) => {
-        return {
-          key: cita.id_cita,
-          dates: cita.fecha, // La fecha de la cita
-          highlight: {
-            color: "blue", // Color teal para los días con citas
-            fillMode: "light", // El modo de llenado
-          },
-        };
-      });
-    });
+ // Crear un mapa de fechas con el número de citas
+ const citasCountByDate = ref(new Map());
 
-    onMounted(async () => {
-      if (calendar.value) {
-        await calendar.value.move(new Date());
-      }
+// Preprocesar las citas para obtener el conteo por fecha
+const precomputeCitasCount = () => {
+  const countMap = new Map();
+  
+  props.citas.forEach((cita) => {
+    const citaDate = new Date(cita.fecha).toDateString(); // Convertir la fecha a string para ser usada como clave
+    if (!countMap.has(citaDate)) {
+      countMap.set(citaDate, 0);
+    }
+    countMap.set(citaDate, countMap.get(citaDate) + 1);
+  });
+
+  citasCountByDate.value = countMap;
+};
+
+// Calcular los atributos del calendario basados en el número de citas
+const calendarAttributes = computed(() => {
+  const attributes = [];
+  citasCountByDate.value.forEach((count, dateString) => {
+    const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal"; // Cambiar el color basado en el número de citas
+
+    attributes.push({
+      key: dateString,
+      dates: new Date(dateString), // Convertir el string de nuevo a Date
+      highlight: {
+        color: color,
+        fillMode: "light",
+      },
     });
+  });
+  return attributes;
+});
+
+onMounted(() => {
+  precomputeCitasCount(); // Precomputar el número de citas por fecha al montar el componente
+  if (calendar.value) {
+    calendar.value.move(new Date());
+  }
+});
 
     const onDayClick = (day) => {
       console.log("Day clicked:", day);

@@ -195,7 +195,7 @@ export default {
     return chroma(color).hex();
     },
 
-    truncateName(name, limit = 35) {
+    truncateName(name, limit = 30) {
     return name.length > limit ? name.substring(0, limit) + '...' : name;
   },
   formatDateToDayMonthYear(dateString) {
