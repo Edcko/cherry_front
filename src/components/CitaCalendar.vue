@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-calendar 
+    <v-calendar
       :rows="1"
       ref="calendar"
       expanded
@@ -18,7 +18,7 @@ import { ref, onMounted, computed } from "vue";
 export default {
   name: "CitaCalendar",
   props: ["citas"],
-  setup(props, {emit}) {
+  setup(props, { emit }) {
     const calendar = ref(null);
     const disabledDates = ref([]);
 
@@ -29,48 +29,61 @@ export default {
     // Deshabilitar los domingos
     disabledDates.value = getSundays(startDate, endDate);
 
- // Crear un mapa de fechas con el número de citas
- const citasCountByDate = ref(new Map());
+    // Crear un mapa de fechas con el número de citas para el mes presente
+    const citasCountByDate = ref(new Map());
 
-// Preprocesar las citas para obtener el conteo por fecha
-const precomputeCitasCount = () => {
-  const countMap = new Map();
-  
-  props.citas.forEach((cita) => {
-    const citaDate = new Date(cita.fecha).toDateString(); // Convertir la fecha a string para ser usada como clave
-    if (!countMap.has(citaDate)) {
-      countMap.set(citaDate, 0);
-    }
-    countMap.set(citaDate, countMap.get(citaDate) + 1);
-  });
+    // Obtener el primer y último día del mes actual
+    const getCurrentMonthRange = () => {
+      const currentDate = new Date();
+      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Último día del mes
+      return { firstDayOfMonth, lastDayOfMonth };
+    };
 
-  citasCountByDate.value = countMap;
-};
+    // Preprocesar las citas para obtener el conteo por fecha del mes presente
+    const precomputeCitasCount = () => {
+      const countMap = new Map();
+      const { firstDayOfMonth, lastDayOfMonth } = getCurrentMonthRange();
 
-// Calcular los atributos del calendario basados en el número de citas
-const calendarAttributes = computed(() => {
-  const attributes = [];
-  citasCountByDate.value.forEach((count, dateString) => {
-    const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal"; // Cambiar el color basado en el número de citas
+      props.citas.forEach((cita) => {
+        const citaDate = new Date(cita.fecha);
+        // Filtrar solo citas que estén dentro del mes actual
+        if (citaDate >= firstDayOfMonth && citaDate <= lastDayOfMonth) {
+          const dateString = citaDate.toDateString(); // Convertir la fecha a string para ser usada como clave
+          if (!countMap.has(dateString)) {
+            countMap.set(dateString, 0);
+          }
+          countMap.set(dateString, countMap.get(dateString) + 1);
+        }
+      });
 
-    attributes.push({
-      key: dateString,
-      dates: new Date(dateString), // Convertir el string de nuevo a Date
-      highlight: {
-        color: color,
-        fillMode: "light",
-      },
+      citasCountByDate.value = countMap;
+    };
+
+    // Calcular los atributos del calendario basados en el número de citas para el mes presente
+    const calendarAttributes = computed(() => {
+      const attributes = [];
+      citasCountByDate.value.forEach((count, dateString) => {
+        const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal"; // Cambiar el color basado en el número de citas
+
+        attributes.push({
+          key: dateString,
+          dates: new Date(dateString), // Convertir el string de nuevo a Date
+          highlight: {
+            color: color,
+            fillMode: "light",
+          },
+        });
+      });
+      return attributes;
     });
-  });
-  return attributes;
-});
 
-onMounted(() => {
-  precomputeCitasCount(); // Precomputar el número de citas por fecha al montar el componente
-  if (calendar.value) {
-    calendar.value.move(new Date());
-  }
-});
+    onMounted(() => {
+      precomputeCitasCount(); // Precomputar el número de citas por fecha al montar el componente
+      if (calendar.value) {
+        calendar.value.move(new Date());
+      }
+    });
 
     const onDayClick = (day) => {
       console.log("Day clicked:", day);
