@@ -36,65 +36,76 @@ const routes = [
         path: "/",
         name: "Home",
         component: Home,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
     },
     {
         path: "/login",
         name: "Login",
         component: Login,
+        meta: { requiresAuth: false }, // Ruta pública
     },
 
     {
         path: "/perfil",
         name: "Perfil",
         component: Perfil,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
     },
 
     {
         path: "/paquetes",
         name: "Paquete",
         component: Paquete,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
     },
     {
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora', 'Terapeuta']),
       },
       {
         path: '/nails',
         name: 'Nails',
         component: Nails,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
       },
       {
         path: '/valoraciones',
         name: 'Valoracion',
         component: Valoracion,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador','Gerente']),
       },
     {
         path: "/empleados",
         name: "Empleado",
         component: Empleado,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador']),
     },
     {
         path: "/cabinas",
         name: "Cabina",
         component: Cabina,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador']),
     },
     {
         path: "/clientes",
         name: "Cliente",
         component: Cliente,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador','Gerente']),
     },
     {
         path: "/sesiones",
         name: "Sesion",
         component: Sesion,
+        meta: { requiresAuth: true }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Administrador','Gerente']),
     },
 /*    {
@@ -115,12 +126,27 @@ const routes = [
         name: "NotFound",
         component: NotFound,
     },
-   
 ];
 
 const router = createRouter({
     history: createWebHistory(),
     routes
 });
+
+// Implementar la guardia global
+router.beforeEach((to, from, next) => {
+    const isAuthenticated = store.getters.isLoggedIn; // Verificar autenticación desde Vuex
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+    // Si la ruta requiere autenticación y no está autenticado, redirigir a login
+    if (requiresAuth && !isAuthenticated) {
+      next('/login'); // Redirigir a login
+    } else if (to.path === '/login' && isAuthenticated) {
+      // Si intenta ir a login y ya está autenticado, redirigir a Home
+      next('/');
+    } else {
+      next(); // Continuar a la ruta solicitada
+    }
+    });  
 
 export default router;
