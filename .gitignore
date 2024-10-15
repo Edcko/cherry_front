@@ -3,7 +3,8 @@ node_modules
 /dist
 .env
 .gitignore
-
+spa-proyecto@0.1.0
+vue-cli-service
 
 # local env files
 .env.local
