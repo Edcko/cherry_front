@@ -54,7 +54,7 @@
   <v-row justify="center">
     <v-dialog v-model="showDialog" persistent width="1024">
       <template v-slot:activator="{ props }">
-        <v-btn icon="mdi-plus" color="white" elevation="12" size="x-large" :large="true" class="mx-auto" v-bind="props"></v-btn>
+        <v-btn icon="mdi-plus" elevation="12" size="x-large" :large="true" class="mx-auto" v-bind="props"></v-btn>
       </template>
       <paquete-dialog :showDialog="showDialog" @close="showDialog = false" @addPaquete="handleAddPaquete" />
     </v-dialog>

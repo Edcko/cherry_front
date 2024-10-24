@@ -3,12 +3,9 @@
 
     <navbar :user="state.user" />
   
-    <v-main app class="main-background">
+    <v-main app>
       <router-view/>
     </v-main>
-
-    
-
 
     <global-alert
         :show="showGlobalAlert"

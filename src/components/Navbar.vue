@@ -33,7 +33,9 @@
 
       <v-spacer></v-spacer>
 
-      
+      <v-btn @click="toggleTheme" icon>
+        <v-icon>{{ isDarkTheme ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
+      </v-btn>
 
       <v-btn v-if="isLogged" text @click="logout">Cerrar Sesión</v-btn>
     </v-app-bar>
@@ -44,6 +46,8 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { useTheme } from 'vuetify';
+
 
 export default {
   name: "Navbar_Component",
@@ -53,11 +57,23 @@ export default {
   setup() {
     const drawer = ref(false);
     const showNavbar = ref(true);
-    
+
     const store = useStore(); // utilizar useStore para acceder al store de Vuex
     const router = useRouter();
     const isLogged = computed(() => store.getters.isLoggedIn); // utilizar computed para acceder a una propiedad del store de Vuex
     console.log('isLogged:', isLogged.value);
+
+     // Utilizamos el hook `useTheme` para manejar los temas
+  const theme = useTheme();
+
+// Verificar si el tema actual es oscuro
+const isDarkTheme = computed(() => theme.global.name.value === 'dark');
+
+// Función para alternar entre temas
+const toggleTheme = () => {
+  theme.global.name.value = isDarkTheme.value ? 'light' : 'dark';
+};
+
 
     const items = computed(() => {
       if (isLogged.value) {
@@ -119,6 +135,8 @@ export default {
       password,
       login,
       logout,
+      isDarkTheme,
+      toggleTheme,
     };
   },
 };

@@ -55,7 +55,7 @@
     </v-row>
   </v-container>
 
-  <v-footer color="white" class="mt-7">
+  <v-footer class="mt-7">
       <v-row justify="center">
         <v-col class="text-center" cols="12">
           <div class="white--text mb-4">Hecho con ♥ por <a class="white--text" href="http://gpocherry.com">TANYA DE ICAZA</a></div>
@@ -73,10 +73,10 @@
 
         <v-col cols="12" md="4" class="mb-5">
           <h4 class="white--text mb-2">Síguenos</h4>
-          <v-btn text icon color="white" href="#"><v-icon>mdi-facebook</v-icon></v-btn>
-          <v-btn text icon color="white" href="#"><v-icon>mdi-twitter</v-icon></v-btn>
-          <v-btn text icon color="white" href="#"><v-icon>mdi-instagram</v-icon></v-btn>
-          <v-btn text icon color="white" href="#"><v-icon>mdi-linkedin</v-icon></v-btn>
+          <v-btn text icon href="#"><v-icon>mdi-facebook</v-icon></v-btn>
+          <v-btn text icon href="#"><v-icon>mdi-twitter</v-icon></v-btn>
+          <v-btn text icon href="#"><v-icon>mdi-instagram</v-icon></v-btn>
+          <v-btn text icon href="#"><v-icon>mdi-linkedin</v-icon></v-btn>
         </v-col>
 
         <v-col class="text-center" cols="12">
@@ -158,12 +158,10 @@ export default {
 }
 
 .services-section {
-  background-color: #f2f2f2;
   padding: 50px 0;
 }
 
 .service-card {
-  border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
@@ -185,12 +183,10 @@ export default {
 }
 
 .testimonials-section {
-  background-color: #ffffff;
   padding: 50px 0;
 }
 
 .testimonial-card {
-  border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
@@ -202,7 +198,6 @@ export default {
 }
 
 .more-info-button {
-  background-color: #fafbfd;
   color: #fff;
   border-radius: 8px;
   padding: 10px 20px;

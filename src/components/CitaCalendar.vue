@@ -1,6 +1,8 @@
 <template>
   <div>
+    <!-- Componente VCalendar que ahora está sincronizado con el tema global -->
     <v-calendar
+      :is-dark="isDarkTheme"
       :rows="1"
       ref="calendar"
       expanded
@@ -14,6 +16,7 @@
 <script>
 import useCitas from "@/composables/useCitas.js";
 import { ref, onMounted, computed } from "vue";
+import { useTheme } from 'vuetify'; // Importar useTheme para acceder al tema global
 
 export default {
   name: "CitaCalendar",
@@ -21,6 +24,13 @@ export default {
   setup(props, { emit }) {
     const calendar = ref(null);
     const disabledDates = ref([]);
+    
+     // Acceso al tema global de Vuetify
+const theme = useTheme();
+
+// Computed para verificar si el tema es oscuro
+const isDarkTheme = computed(() => theme.global.name.value === 'dark');
+
 
     const { getSundays } = useCitas();
     const startDate = new Date(2024, 0, 1);
@@ -32,24 +42,21 @@ export default {
     // Crear un mapa de fechas con el número de citas para el mes presente
     const citasCountByDate = ref(new Map());
 
-    // Obtener el primer y último día del mes actual
     const getCurrentMonthRange = () => {
       const currentDate = new Date();
       const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Último día del mes
+      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
       return { firstDayOfMonth, lastDayOfMonth };
     };
 
-    // Preprocesar las citas para obtener el conteo por fecha del mes presente
     const precomputeCitasCount = () => {
       const countMap = new Map();
       const { firstDayOfMonth, lastDayOfMonth } = getCurrentMonthRange();
 
       props.citas.forEach((cita) => {
         const citaDate = new Date(cita.fecha);
-        // Filtrar solo citas que estén dentro del mes actual
         if (citaDate >= firstDayOfMonth && citaDate <= lastDayOfMonth) {
-          const dateString = citaDate.toDateString(); // Convertir la fecha a string para ser usada como clave
+          const dateString = citaDate.toDateString();
           if (!countMap.has(dateString)) {
             countMap.set(dateString, 0);
           }
@@ -60,15 +67,14 @@ export default {
       citasCountByDate.value = countMap;
     };
 
-    // Calcular los atributos del calendario basados en el número de citas para el mes presente
     const calendarAttributes = computed(() => {
       const attributes = [];
       citasCountByDate.value.forEach((count, dateString) => {
-        const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal"; // Cambiar el color basado en el número de citas
+        const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal";
 
         attributes.push({
           key: dateString,
-          dates: new Date(dateString), // Convertir el string de nuevo a Date
+          dates: new Date(dateString),
           highlight: {
             color: color,
             fillMode: "light",
@@ -79,14 +85,13 @@ export default {
     });
 
     onMounted(() => {
-      precomputeCitasCount(); // Precomputar el número de citas por fecha al montar el componente
+      precomputeCitasCount();
       if (calendar.value) {
         calendar.value.move(new Date());
       }
     });
 
     const onDayClick = (day) => {
-      console.log("Day clicked:", day);
       const dayDate = day.date;
       emit("dayClicked", { date: dayDate });
     };
@@ -95,7 +100,8 @@ export default {
       calendar,
       onDayClick,
       disabledDates,
-      calendarAttributes, // Devolver los atributos del calendario
+      calendarAttributes,
+      isDarkTheme, // Retorna el estado de tema global
     };
   },
 };

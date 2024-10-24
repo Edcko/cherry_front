@@ -351,7 +351,6 @@ h1 {
 }
 
 .custom-button {
-  background-color: white;
   color: teal;
 }
 </style>
