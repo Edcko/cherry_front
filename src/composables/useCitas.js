@@ -140,18 +140,16 @@ export default function useCitas() {
   }
 
     const getHorasLibres = (citasDelDia, numeroCabina) => {
-    let horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00","19:00", "20:00"];
-  
-   // Si es la cabina 4, ajustamos las horas para media hora
-   if (numeroCabina === 4) {
-    const horasMediaHora = [];
-    for (let i = 0; i < horasTrabajo.length - 1; i++) {
-      horasMediaHora.push(horasTrabajo[i]);
-      const [hora, minuto] = horasTrabajo[i].split(":");
-      horasMediaHora.push(`${hora}:${(parseInt(minuto) + 30).toString().padStart(2, '0')}`);
-    }
-    horasTrabajo = horasMediaHora;
-  }  
+    let horasTrabajo;
+
+     // Si es la cabina 4, ajustamos las horas de trabajo de 13:00 a 17:00 (01:00 pm a 05:00 pm)
+  if (numeroCabina === 4) {
+    horasTrabajo = ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+  } else {
+    // Horarios estándar para otras cabinas
+    horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
+  }
+
   
     const horasOcupadas = citasDelDia.map(cita => {
       const date = new Date(cita.fecha);
