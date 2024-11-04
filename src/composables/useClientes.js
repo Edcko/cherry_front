@@ -52,10 +52,35 @@ export default function useClientes() {
     }
   };
 
+  const generateDocument = async (cliente) => {
+    try {
+      const response = await apiServices.generateClientDocument(cliente.id_cliente);
+      const filePath = response.filePath;
+  
+      if (filePath) {
+        // Crea un enlace para descargar el documento
+        const url = `http://localhost:3000/cherry/${filePath}`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `cliente_${cliente.id_cliente}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error('Error al generar el documento:', error);
+      app.appContext.config.globalProperties.$showAlert(
+        "Hubo un error al generar el documento.",
+        "error"
+      );
+    }
+  };
+
   return { 
     clientes, 
     addCliente, 
     updateCliente, 
-    deleteCliente 
+    deleteCliente,
+    generateDocument,
   };
 }

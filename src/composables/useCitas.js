@@ -31,20 +31,18 @@ export default function useCitas() {
     const minutos = date.getMinutes();
 
     // Fecha limite para agendar citas ( 28 de Septiembre del anio actual)
-    const fechaLimite = new Date(new Date().getFullYear(), 10, 9, 23, 59, 59);
+    const fechaLimite = new Date(new Date().getFullYear(), 10, 16, 23, 59, 59);
 
     // Verifica si la fecha de la cita es mayor a la fecha limite
     if (date > fechaLimite) {
-      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 09 de Noviembre. Espera esa semana para que se abran los días posteriores.", "error");
+      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 16 de Noviembre. Espera esa semana para que se abran los días posteriores.", "error");
       return;
     }
- 
     // Verifica si los minutos son 0 o 30
     if (minutos !== 0 && minutos !== 30) {
       app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar en intervalos de media hora.", "error");
       return;
   }
-
   if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas, idSpa) >= 64) {
     app.appContext.config.globalProperties.$showAlert("Ya se han programado 64 citas para este día.", "error");
         return;
@@ -69,8 +67,6 @@ export default function useCitas() {
         }
         console.error(error);
     }
-
-       
 };
 
 

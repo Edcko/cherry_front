@@ -11,7 +11,7 @@
       <div class="d-flex justify-center mb-5 mt-5">
         <v-row justify="center">
           <v-dialog v-model="showDialog" persistent width="1024">
-            <template v-slot:activator="{ props }">
+            <!--<template v-slot:activator="{ props }">
               <v-btn
                 class="custom-button"
                 elevation="8"
@@ -21,7 +21,7 @@
               >
                 Agendar Cita
               </v-btn>
-            </template>
+            </template>-->
             <cita-dialog
               :showDialog="showDialog"
               :horaPreseleccionada="horaPreseleccionada"

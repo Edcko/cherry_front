@@ -27,7 +27,7 @@
           item-height="48"
         >
           <template v-slot:default="{ item }">
-            <v-list-item
+            <v-list-item 
               :title="`${item.nombre_cliente} ${item.apellido_paterno} ${item.apellido_materno}`"
               :subtitle="`Email: ${item.email} | Teléfono: ${item.telefono_cliente}`"
             >
@@ -38,6 +38,8 @@
                 <v-btn class="custom-button" icon @click="openDeleteDialog(item)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
+                <v-btn @click="generateDocument(cliente)" class="custom-button">
+                  <v-icon>mdi-download</v-icon></v-btn>
               </template>
             </v-list-item>
           </template>
@@ -105,7 +107,7 @@ export default {
 //    const compras = ref(null);
     const isLoading = ref(true); // Para controlar la visualización del progress circular
     const { compras, addCompra, updateCompra, deleteCompra } = useCompras();
-    const { clientes, addCliente, deleteCliente } = useClientes();
+    const { clientes, addCliente, updateCliente, deleteCliente, generateDocument } = useClientes();
     const searchQuery = ref(""); // Estado para la consulta de la busqueda
     
     //Filtrado de ccleintes basado en el texto de busqueda
@@ -149,10 +151,8 @@ export default {
 
 };
 
-
-
      // Observa cambios en el camop de busqueda y filtra los clientes
-     watch(searchQuery, (newValue) => {
+    watch(searchQuery, (newValue) => {
     if (newValue === '') {
       filteredClientes.value = clientes.value; // Si no hay búsqueda, muestra todos los clientes
     } else {
@@ -165,7 +165,7 @@ export default {
       );
     }
   });
-
+  
 //    const displayedClientes = computed(() => {
 ///      const startIndex = (page.value - 1) * 6; 
 //      return clientes.value.slice(startIndex, startIndex + 6);
@@ -193,6 +193,8 @@ export default {
       deleteCompra,
       searchQuery,
       handleDeleteCompra,
+      updateCliente,
+      generateDocument
     };
   },
 };

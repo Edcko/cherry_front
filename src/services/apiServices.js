@@ -174,6 +174,14 @@ const addValoracion = async (valoracion) => {
   return response.data;
 };
 
+// ----------- Crear Documento Cliente -------/
+const generateClientDocument = async (clienteId) => {
+  const response = await api.post(`clientes/${clienteId}/document`, {
+    headers: authHeader(),
+  });
+  return response.data; // Retorna la respuesta, que incluye el `filePath`
+};
+
 //------------ Update -----------//
 
 const updatePerteneceA = async (spaId, paqueteId, perteneceA) => {
@@ -313,6 +321,7 @@ export default {
   addCabina,
   addPaquete,
   addValoracion,
+  generateClientDocument,
   updatePerteneceA,
   updateCliente,
   updateEmpleado,
