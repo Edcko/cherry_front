@@ -17,7 +17,6 @@
     single-line
     hide-details
   ></v-text-field>
- 
 </v-card-title>
         <v-divider></v-divider>
 
@@ -35,12 +34,14 @@
                 <v-icon class="custom-button">mdi-account</v-icon>
               </template>
               <template v-slot:append>
-                <v-btn class="custom-button" icon @click="openDeleteDialog(item)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-                <v-btn @click="generateDocument(cliente)" class="custom-button">
-                  <v-icon>mdi-download</v-icon></v-btn>
-              </template>
+                <v-btn class="custom-button mx-1" icon @click="generateDocument(item)">
+    <v-icon>mdi-download</v-icon>
+  </v-btn>
+  <v-btn class="custom-button mx-1" icon @click="openDeleteDialog(item)">
+    <v-icon>mdi-delete</v-icon>
+  </v-btn>
+</template>
+
             </v-list-item>
           </template>
         </v-virtual-scroll>
@@ -222,6 +223,11 @@ export default {
 
 .custom-button {
   color: teal;
+  margin-right: 8px;
+}
+
+.custom-button:last-child {
+  margin-right: 0; /* Quita el margen derecho en el último botón */
 }
 
 .my-2 {

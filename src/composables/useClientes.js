@@ -54,19 +54,20 @@ export default function useClientes() {
 
   const generateDocument = async (cliente) => {
     try {
-      const response = await apiServices.generateClientDocument(cliente.id_cliente);
-      const filePath = response.filePath;
+      await apiServices.generateClientDocument(cliente.id_cliente);
   
-      if (filePath) {
-        // Crea un enlace para descargar el documento
-        const url = `http://localhost:3000/cherry/${filePath}`;
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `cliente_${cliente.id_cliente}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      // Ajusta la URL para descargar el documento
+      const fileName = `cliente_${cliente.id_cliente}.pdf`;
+      const url = `http://198.199.68.78:3000/documents/${fileName}`;
+      
+      // Crea un enlace para descargar el documento
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
     } catch (error) {
       console.error('Error al generar el documento:', error);
       app.appContext.config.globalProperties.$showAlert(
@@ -75,6 +76,7 @@ export default function useClientes() {
       );
     }
   };
+    
 
   return { 
     clientes, 

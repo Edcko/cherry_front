@@ -28,7 +28,7 @@
         >
         <template v-slot:default="{ item }">
           <v-list-item two-line>
-  <v-list-item-content>
+  <v-list-item>
     <v-list-item-title>
       {{ item.Cliente.nombre_cliente }} {{ item.Cliente.apellido_paterno }} {{ item.Cliente.apellido_materno }}
     </v-list-item-title>
@@ -37,7 +37,7 @@
       Monto Original: ${{ item.monto_original }} - Monto Pagado: ${{ item.monto_pagado }} - Monto Adeudado: ${{ item.monto_adeudado }}<br>
       Estado: {{ item.estado_compra }}
     </v-list-item-subtitle>
-  </v-list-item-content>
+  </v-list-item>
   <v-list-item-action class="button-actions">
     <v-btn icon @click="handleAbonarCompra(item)" class="mr-2">
       <v-icon color="teal">mdi-cash-plus</v-icon>
@@ -56,11 +56,11 @@
     <!--  boton para agregar compras -->
     <v-row justify="center" class="my-2">
       <v-dialog v-model="showCompraDialog" persistent max-width="600px">
-    <template v-slot:activator="{ on, props }">
-      <v-btn dark class="custom-button" elevation="8" v-bind="props" v-on="on" icon>
-        <v-icon>mdi-playlist-plus</v-icon>
-      </v-btn>
-    </template>
+        <template v-slot:activator="{ props }">
+  <v-btn dark class="custom-button" elevation="8" v-bind="props" @click="showCompraDialog = true" icon>
+    <v-icon>mdi-playlist-plus</v-icon>
+  </v-btn>
+</template>
     <compra-dialog :show-dialog="showCompraDialog" @close="showCompraDialog = false" @addCompra="handleAddCompra" />
   </v-dialog>
 
