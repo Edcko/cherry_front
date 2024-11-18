@@ -35,12 +35,15 @@
               </template>
               <template v-slot:append>
                 <v-btn class="custom-button mx-1" icon @click="generateDocument(item)">
-    <v-icon>mdi-download</v-icon>
-  </v-btn>
-  <v-btn class="custom-button mx-1" icon @click="openDeleteDialog(item)">
-    <v-icon>mdi-delete</v-icon>
-  </v-btn>
-</template>
+              <v-icon>mdi-download</v-icon>
+              </v-btn>
+              <v-btn class="custom-button mx-1" icon @click="openEditDialog(item)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn class="custom-button mx-1" icon @click="openDeleteDialog(item)">
+              <v-icon>mdi-delete</v-icon>
+              </v-btn>
+              </template>
 
             </v-list-item>
           </template>
@@ -65,6 +68,11 @@
         <compras-list :compras="compras" :isLoading="isLoading"  @addCompra="addCompra" @deleteCompra="handleDeleteCompra"/>
       </v-col>
     </v-row>
+
+    <v-dialog v-model="editDialog" max-width = "500px">
+      <cliente-dialog :clienteEdit="selectedClient" @updateCliente ="updateCliente" @close="editDialog = false"
+      />
+    </v-dialog>
 
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
@@ -102,7 +110,9 @@ export default {
   setup() {
 //    const page = ref(1); // Estado para la página actual
     const showDialog = ref(false);
+    const editDialog = ref(false);
     const deleteDialog = ref(false);
+    const selectedClient = ref(null);
     const clientToDelete = ref(null);
     const idSpa = store.getters.idSpa;
 //    const compras = ref(null);
@@ -111,7 +121,7 @@ export default {
     const { clientes, addCliente, updateCliente, deleteCliente, generateDocument } = useClientes();
     const searchQuery = ref(""); // Estado para la consulta de la busqueda
     
-    //Filtrado de ccleintes basado en el texto de busqueda
+    //Filtrado de clientes basado en el texto de busqueda
     const filteredClientes = ref([]);
 
     onMounted(async () => {
@@ -126,6 +136,11 @@ export default {
         isLoading.value = false;
       }
     });
+
+    const openEditDialog = (cliente) => {
+      selectedClient.value = { ...cliente}; // Clona los datos para evitar modificaciones directas
+      editDialog.value = true;
+    };
 
     const openDeleteDialog = (cliente) => {
       clientToDelete.value = cliente;
@@ -178,8 +193,11 @@ export default {
       openDeleteDialog,
       confirmDelete,
       clientes,
+      selectedClient,
       addCliente,
       showDialog,
+      editDialog,
+      openEditDialog,
       deleteDialog,
       clientToDelete,
       helperServices,

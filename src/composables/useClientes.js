@@ -58,7 +58,7 @@ export default function useClientes() {
   
       // Ajusta la URL para descargar el documento
       const fileName = `cliente_${cliente.id_cliente}.pdf`;
-      const url = `http://198.199.68.78:3000/documents/${fileName}`;
+      const url = `http://localhost:3000/documents/${fileName}`;
       
       // Crea un enlace para descargar el documento
       const link = document.createElement('a');
