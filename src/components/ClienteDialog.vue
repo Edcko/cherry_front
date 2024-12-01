@@ -29,13 +29,23 @@
           </v-col>
 
           <v-col cols="12" sm="6">
-            <v-autocomplete
-              label="Spa"
-              v-model="cliente.id_spa"
-              :items="spaOptions"
-              :rules="[rules.required]"
-            ></v-autocomplete>
-          </v-col>
+    <!-- Campo editable al crear un cliente -->
+    <v-autocomplete
+      v-if="!clienteEdit"
+      label="Spa"
+      v-model="cliente.id_spa"
+      :items="spaOptions"
+      :rules="[rules.required]"
+    ></v-autocomplete>
+
+    <!-- Campo de solo lectura al editar un cliente -->
+    <v-text-field
+      v-else
+      label="Spa"
+      :value="getSpaText(cliente.id_spa)"
+      readonly
+    ></v-text-field>
+  </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" sm="6">
@@ -123,6 +133,11 @@ export default {
       return spas.value.map(spa => `${spa.nombre_spa} ${spa.ciudad}`);
     });
 
+    const getSpaText = (id) => {
+      const spa = spas.value.find(spa => spa.id_spa === id);
+      return spa ? `${spa.nombre_spa} ${spa.ciudad}` : "Spa no encontrado";
+    };
+
     const generos = ["M", "F", "O"];
     
     const rules = {
@@ -165,6 +180,7 @@ export default {
     return {
       cliente,
       spaOptions,
+      getSpaText,
       onSubmit,
       generos,
       rules

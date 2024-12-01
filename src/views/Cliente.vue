@@ -34,9 +34,9 @@
                 <v-icon class="custom-button">mdi-account</v-icon>
               </template>
               <template v-slot:append>
-                <v-btn class="custom-button mx-1" icon @click="generateDocument(item)">
+                <!-- <v-btn class="custom-button mx-1" icon @click="generateDocument(item)">
               <v-icon>mdi-download</v-icon>
-              </v-btn>
+              </v-btn>-->
               <v-btn class="custom-button mx-1" icon @click="openEditDialog(item)">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
