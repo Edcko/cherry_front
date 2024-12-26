@@ -65,7 +65,7 @@
       </v-virtual-scroll>
 
       <!-- Botón para agregar una nueva valoración -->
-      <v-row justify="center">
+      <v-row justify="center" class="button-container">
         <v-dialog v-model="showDialog" persistent width="1024">
           <template v-slot:activator="{ props }">
             <v-btn
@@ -75,6 +75,7 @@
               class="custom-button"
               v-bind="props"
               icon
+              @click="openAddDialog"
             >
               <v-icon>mdi-playlist-plus</v-icon>
             </v-btn>
@@ -196,8 +197,13 @@ export default {
       deleteDialog.value = true;
     };
 
+    const openAddDialog = () => {
+      valoracionAEditar.value = null; // Limpia la valoración
+      showDialog.value = true;
+    };
+
     const openEditDialog = (valoracion) => {
-      valoracionAEditar.value = valoracion;
+      valoracionAEditar.value = { ...valoracion }; // Clona la valoración para edición
       showDialog.value = true;
     };
 
@@ -229,12 +235,18 @@ export default {
       confirmDelete,
       formatDateToDayMonthYear,
       valoracionToDelete,
+      openAddDialog,
     };
   },
 };
 </script>
 
 <style scoped>
+.button-container {
+  margin-top: 10px; /* Ajusta este valor según lo necesites */
+  margin-bottom: 10px; /* Opcional, para agregar espacio con la lista */
+}
+
 .button-spacing {
   padding-top: 30px;
   padding-left: 15px;

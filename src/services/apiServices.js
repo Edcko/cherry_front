@@ -56,6 +56,14 @@ const getEmpleados = async () => {
     return response.data;
 };
 
+const getEmpleadosActivos = async () => {
+
+    const response = await api.get(API_URL + 'empleados/activos',{
+      headers: authHeader(),
+    });
+    return response.data;
+}
+
 const getClientes = async (params) => {
 
   const response = await api.get(API_URL + 'clientes', {
@@ -71,6 +79,14 @@ const getCitas = async (params) => {
         params
     });
     return response.data;
+}
+
+const getCitasCount = async (params) => {
+  const response = await api.get(API_URL + 'citas/count', {
+    headers: authHeader(),
+    params, // Agregar otras opciones como params
+  });
+  return response.data;
 };
 
 const getCompras = async () => {
@@ -109,9 +125,10 @@ const getPaquetes = async () => {
   return response.data;
 };
 
-const getValoraciones = async () => {
+const getValoraciones = async (params) => {
   const response = await api.get(API_URL + 'valoraciones', {
-    headers: authHeader()
+    headers: authHeader(),
+    params
   });
   return response.data;
 };
@@ -304,7 +321,9 @@ const deleteValoracion = async (id_valoracion) => {
 export default {
   getClientes,
   getEmpleados,
+  getEmpleadosActivos,
   getCitas,
+  getCitasCount,
   getCompras,
   getSesiones,
   getCabinas,

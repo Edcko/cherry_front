@@ -124,15 +124,22 @@ export default {
         console.log("Fecha de inicio:", formattedStartDate);
         console.log("Fecha de fin:", formattedEndDate);
 
-        citas.value = await apiServices.getCitas({
-          id_spa: idSpa,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
-        });
-        console.log("Citas del mes actual:", citas.value);
-      } catch (error) {
-        console.error("Error al cargar las citas: ", error);
-      }
+         // Cargar todas las citas desde el servidor
+    const allCitas = await apiServices.getCitas({
+      idSpa: idSpa,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+    });
+
+    console.log("Citas sin filtrar:", allCitas);
+
+    // Filtrar solo las citas de tipo 'evaluación'
+    citas.value = allCitas.filter(cita => cita.tipo_cita && cita.tipo_cita.toLowerCase() === "evaluación");
+
+    console.log("Citas filtradas para evaluación:", citas.value);
+  } catch (error) {
+    console.error("Error al cargar las citas: ", error);
+  }
 
       // Convertir cada cita a un atributo para el calendario
       attrs.value = citas.value.map(cita => ({
@@ -155,7 +162,7 @@ export default {
       return citas.value
         .filter(cita =>
           new Date(cita.fecha).toDateString() === new Date(fechaSeleccionada).toDateString() &&
-          cita.tipo_cita.toLowerCase() === "uñas" &&
+          cita.tipo_cita.toLowerCase() === "evaluación" &&
           (cita.Cabina.numero_cabina === 5 || cita.Cabina.numero_cabina === 6))
         .sort((a, b) => {
           // Utiliza la fecha completa para ordenar, ya que incluye la hora
@@ -219,7 +226,7 @@ export default {
         ...citaPreseleccionada.value, // Conserva otros valores previos si es necesario
         fecha: nuevaFechaHoraCita,
         id_cabina: numeroCabinaSeleccionada,
-        tipo_cita: "Uñas",
+        tipo_cita: "Evaluación",
       };
       showDialog.value = true;
 

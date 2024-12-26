@@ -58,7 +58,7 @@
   label="Tipo de Cita"
   v-model="cita.tipo_cita"
   :rules="[rules.required]"
-  :items="['Aparatología', 'Uñas', 'Depilación']"
+  :items="['Aparatología', 'Uñas', 'Depilación','Evaluación']"
   variant="filled"
   color="teal"
   class="mb-4"

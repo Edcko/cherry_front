@@ -57,21 +57,21 @@ const routes = [
         name: "Paquete",
         component: Paquete,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
     },
     {
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora', 'Terapeuta']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora', 'Terapeuta']),
       },
       {
         path: '/nails',
         name: 'Nails',
         component: Nails,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente', 'Recepcionista', 'Recepción', 'Valoradora']),
+        beforeEnter: requireRole(['Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
       },
       {
         path: '/valoraciones',
@@ -99,7 +99,7 @@ const routes = [
         name: "Cliente",
         component: Cliente,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente']),
+        beforeEnter: requireRole(['Administrador', 'Manager', 'Gerente']),
     },
     {
         path: "/sesiones",

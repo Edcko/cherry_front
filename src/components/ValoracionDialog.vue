@@ -20,6 +20,7 @@
         class="mb-4"
       ></v-text-field>
       <v-autocomplete
+        v-if="!valoracionParaEditar"
         label="Nombre del cliente"
         v-model="valoracion.id_cliente"
         :rules="[rules.required]"
@@ -28,7 +29,17 @@
         color="teal"
         class="mb-4"
       ></v-autocomplete>
+      <v-text-field
+        v-else
+        label="Nombre del cliente"
+        :value="getClienteText(valoracion.id_cliente)"
+        readonly
+        variant="filled"
+        color="teal"
+        class="mb-4"
+      />
       <v-autocomplete
+        v-if="!valoracionParaEditar"
         label="Nombre del terapeuta"
         v-model="valoracion.id_empleado"
         :rules="[rules.required]"
@@ -36,8 +47,26 @@
         variant="filled"
         color="teal"
         class="mb-4"
-        ></v-autocomplete>
-  <!--
+      ></v-autocomplete>
+      <v-text-field
+        v-else
+        label="Nombre del terapeuta"
+        :value="getEmpleadoText(valoracion.id_empleado)"
+        readonly
+        variant="filled"
+        color="teal"
+        class="mb-4"
+      />
+      <v-select
+        label="Estado"
+        v-model="valoracion.estado"
+        :items="['Por confirmar', 'Confirmado','Adquirió', 'No adquirió', 'Cancelado']"
+        :rules="[rules.required]"
+        variant="filled"
+        color="teal"
+        class="mb-4"
+      ></v-select>
+      <!--
         <v-textarea
         label="Observaciones"
         v-model="valoracion.observaciones"
@@ -64,15 +93,6 @@
         class="mb-4"
       ></v-select>
       -->
-      <v-select
-        label="Estado"
-        v-model="valoracion.estado"
-        :items="['Por confirmar', 'Confirmado','Adquirió', 'No adquirió', 'Cancelado']"
-        :rules="[rules.required]"
-        variant="filled"
-        color="teal"
-        class="mb-4"
-      ></v-select>
     </v-form>
 
     <v-divider></v-divider>
@@ -88,6 +108,7 @@
 <script>
 import { ref, computed, onMounted, watch } from "vue";
 import apiService from "@/services/apiServices";
+import store from "@/store";
 
 export default {
   props: ["showDialog", "valoracionParaEditar"],
@@ -97,49 +118,91 @@ export default {
       id_cliente: "",
       id_empleado: "",
       estado: "Por confirmar",
+      id_spa: store.getters.idSpa,
     });
 
     const clientes = ref([]);
     const empleados = ref([]);
+
+    const idSpa = store.getters.idSpa;
 
     const rules = {
       required: (value) => !!value || "Este campo es requerido",
     };
     const isValid = ref(true);
 
-    // Carga inicial de clientes y empleados
     onMounted(async () => {
       try {
-        clientes.value = await apiService.getClientes();
+        clientes.value = await apiService.getClientes({
+          idSpa: idSpa,
+        });
         empleados.value = await apiService.getEmpleados();
       } catch (error) {
         console.error("Error al cargar datos iniciales:", error);
       }
     });
 
-    // Preparación de opciones para v-autocomplete
-    const clienteOptions = computed(() =>
-      clientes.value.map(cliente => ({
-        text: `${cliente.nombre_cliente} ${cliente.apellido_paterno} ${cliente.apellido_materno}`,
-        value: cliente.id_cliente
-      }))
-    );
+    const clienteOptions = computed(() => {
+  return clientes.value.map((cliente) => {
+    // Validar que las propiedades no sean null o undefined
+    const nombre = cliente.nombre_cliente || "Sin nombre";
+    const apellidoPaterno = cliente.apellido_paterno || "";
+    const apellidoMaterno = cliente.apellido_materno || "";
+    return `${nombre} ${apellidoPaterno} ${apellidoMaterno}`.trim();
+  });
+});
 
-    const empleadoOptions = computed(() =>
-      empleados.value.map(empleado => ({
-        text: `${empleado.nombre_empleado} ${empleado.apellido_paterno} ${empleado.apellido_materno}`,
-        value: empleado.id_empleado
-      }))
-    );
+const empleadoOptions = computed(() => {
+  return empleados.value.map((empleado) => {
+    // Validar que las propiedades no sean null o undefined
+    const nombre = empleado.nombre_empleado || "Sin nombre";
+    const apellidoPaterno = empleado.apellido_paterno || "";
+    const apellidoMaterno = empleado.apellido_materno || "";
+    return `${nombre} ${apellidoPaterno} ${apellidoMaterno}`.trim();
+  });
+});
 
-    // Manejo de valoración para editar
-    watch(() => props.valoracionParaEditar, (nuevaValoracion) => {
-      if (nuevaValoracion) {
-        // Ajustar el formato de la fecha para el input datetime-local
-        valoracion.value = { ...nuevaValoracion };
-        valoracion.value.fecha_valoracion = nuevaValoracion.fecha_valoracion.slice(0, 16); // Asegúrate de que la fecha tenga el formato correcto
+
+const getClienteText = (id) => {
+  const cliente = clientes.value.find((cliente) => cliente.id_cliente === id);
+  if (!cliente) return "Cliente no encontrado";
+  const nombre = cliente.nombre_cliente || "Sin nombre";
+  const apellidoPaterno = cliente.apellido_paterno || "";
+  const apellidoMaterno = cliente.apellido_materno || "";
+  return `${nombre} ${apellidoPaterno} ${apellidoMaterno}`.trim();
+};
+
+const getEmpleadoText = (id) => {
+  const empleado = empleados.value.find((empleado) => empleado.id_empleado === id);
+  if (!empleado) return "Empleado no encontrado";
+  const nombre = empleado.nombre_empleado || "Sin nombre";
+  const apellidoPaterno = empleado.apellido_paterno || "";
+  const apellidoMaterno = empleado.apellido_materno || "";
+  return `${nombre} ${apellidoPaterno} ${apellidoMaterno}`.trim();
+};
+
+
+    watch(
+  () => props.valoracionParaEditar,
+  (nuevaValoracion) => {
+    if (nuevaValoracion) {
+      valoracion.value = { ...nuevaValoracion };
+
+      // Ajustar el formato de la fecha para el input datetime-local
+      if (nuevaValoracion.fecha_valoracion) {
+        const date = new Date(nuevaValoracion.fecha_valoracion);
+
+        // Convertir la fecha a la zona horaria local
+        const offset = date.getTimezoneOffset();
+        const localDate = new Date(date.getTime() - offset * 60000);
+
+        const formattedDate = localDate.toISOString().slice(0, 16); // Formato: YYYY-MM-DDTHH:mm
+        valoracion.value.fecha_valoracion = formattedDate;
       }
-    }, { deep: true, immediate: true });
+    }
+  },
+  { deep: true, immediate: true }
+);
 
     const clearFields = () => {
       valoracion.value = {
@@ -151,13 +214,42 @@ export default {
     };
 
     const onSubmit = () => {
-      if (props.valoracionParaEditar) {
-        emit("updateValoracion", valoracion.value);
-      } else {
-        emit("addValoracion", valoracion.value);
-      }
-      emit("close");
-    };
+  if (!props.valoracionParaEditar) {
+    // En caso de agregar: Convertir nombres seleccionados en IDs
+    const clienteSeleccionado = clientes.value.find(
+      (c) =>
+        `${c.nombre_cliente} ${c.apellido_paterno} ${c.apellido_materno}`.trim() ===
+        valoracion.value.id_cliente
+    );
+    valoracion.value.id_cliente = clienteSeleccionado
+      ? clienteSeleccionado.id_cliente
+      : null;
+
+    const empleadoSeleccionado = empleados.value.find(
+      (e) =>
+        `${e.nombre_empleado} ${e.apellido_paterno} ${e.apellido_materno}`.trim() ===
+        valoracion.value.id_empleado
+    );
+    valoracion.value.id_empleado = empleadoSeleccionado
+      ? empleadoSeleccionado.id_empleado
+      : null;
+  } else {
+    // En caso de editar: Asegurar que los IDs ya están presentes
+    if (!valoracion.value.id_cliente || !valoracion.value.id_empleado) {
+      console.error("No se puede editar la valoración sin cliente o empleado válidos.");
+      return;
+    }
+  }
+
+  // Emitir el evento correspondiente
+  emit(
+    props.valoracionParaEditar ? "updateValoracion" : "addValoracion",
+    valoracion.value
+  );
+  emit("close");
+};
+
+
 
     return {
       valoracion,
@@ -167,22 +259,9 @@ export default {
       isValid,
       clearFields,
       onSubmit,
+      getClienteText,
+      getEmpleadoText,
     };
   },
 };
 </script>
-
-  <style scoped>
-  .dialog {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 5px;
-    padding: 40px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 300px;
-    z-index: 100;
-  }
-  </style>
-  

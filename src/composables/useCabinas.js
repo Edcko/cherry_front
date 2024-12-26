@@ -32,14 +32,38 @@ export default function useCabinas() {
 
   const updateCabina = async (cabina) => {
     try {
+      // Realiza la solicitud de actualización al backend
       await apiService.updateCabina(cabina);
-      cabinas.value = await apiService.getCabinas();
-      app.appContext.config.globalProperties.$showAlert("La cabina se actualizo correctamente.", "success");
+  
+      // Encuentra el índice de la cabina en la lista local
+      const index = cabinas.value.findIndex((c) => c.id_cabina === cabina.id_cabina);
+  
+      // Si la cabina existe en la lista, actualiza sus datos localmente
+      if (index !== -1) {
+        cabinas.value[index] = { ...cabinas.value[index], ...cabina };
+      } else {
+        // Si no se encuentra la cabina en la lista local, maneja el caso
+        app.appContext.config.globalProperties.$showAlert(
+          "La cabina no se encontró en la lista local. Actualizando lista completa.",
+          "warning"
+        );
+        // Realiza una solicitud para obtener toda la lista de cabinas
+        cabinas.value = await apiService.getCabinas({ idSpa: idSpa });
+      }
+  
+      app.appContext.config.globalProperties.$showAlert(
+        "La cabina se actualizó correctamente.",
+        "success"
+      );
     } catch (error) {
       console.error(error);
-      app.appContext.config.globalProperties.$showAlert("La actualización de la cabina salió mal.", "error");
+      app.appContext.config.globalProperties.$showAlert(
+        "Hubo un error al actualizar la cabina.",
+        "error"
+      );
     }
   };
+  
 
   const deleteCabina = async (cabina) => {
     try {

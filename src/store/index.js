@@ -19,6 +19,10 @@ export default createStore({
       state.tipo_empleado = userData.tipo_empleado;
       state.id_empleado = userData.id_empleado;
       state.id_spa = userData.id_spa;
+      state.nombre_empleado = userData.nombre_empleado;
+      state.apellido_paterno = userData.apellido_paterno;
+      state.apellido_materno = userData.apellido_materno;
+      state.nombre_spa = userData.nombre_spa;
       localStorage.setItem('user', JSON.stringify(userData));
 
       // Aquí podrías actualizar el token en Axios
@@ -59,6 +63,16 @@ export default createStore({
 
   },
   getters: {
+    nombreSpa: state => {
+      console.log('Getter nombreSpa', state.nombre_spa);
+      return state.nombre_spa;
+    },
+    nombreCompleto: state => {
+      if (state.userData) {
+        return `${state.userData.nombre_empleado} ${state.userData.apellido_paterno} ${state.userData.apellido_materno}`;
+      }
+      return "Usuario";
+    },
     isLoggedIn: state => {
         console.log('Getter isLoggedIn:', !!state.userData);
         return !!state.userData;

@@ -4,6 +4,7 @@
     <div>
       <cita-calendar
         :citas="citas"
+        :citasCount="citasCountByDate"
         @citaClicked="handleCitaClicked"
         @dayClicked="handleDayClicked"
       />
@@ -152,6 +153,8 @@ export default {
       countCitasForDateColor,
       changeEstado,
       getHorasLibres,
+      getCitasCountByDate,
+      citasCountByDate,
     } = useCitas();
 
     const { filteredCitas, getCitasByCabina } = useCitasFilter(
@@ -159,7 +162,7 @@ export default {
       search,
       dateFilter,
       clientIdFilter,
-      newDateFilter
+      newDateFilter,
     );
 
     const { user, loadUser } = useUser();
@@ -172,55 +175,85 @@ export default {
       cabinas.value = [1, 2, 4];
     }
 
-    onMounted(async () => {
-      const currentDate = new Date();
-      selectedDate.value = currentDate; // Asigna la fecha actual como la predeterminada
-      const firstDayOfMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() - 1,
-        1
-      );
-      const lastDayOfSecondNextMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 3,
-        0
-      );
-      const today = new Date();
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
+  const loadCitasCountByDate = async () => {
+  const currentDate = new Date();
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
-      const format = (date) => date.toISOString().split("T")[0];
+  const format = (date) => date.toISOString().split("T")[0];
 
-      console.log("Fecha de hoy", format(today));
-      console.log("Fecha de maniana", format(tomorrow));
-      console.log("Fecha de inicio del mes", format(firstDayOfMonth));
+  try {
+    // Lógica del conteo de citas por fecha
+    await getCitasCountByDate(
+      idSpa,
+      format(firstDayOfMonth),
+      format(lastDayOfMonth)
+    );
+    console.log("Conteo de citas cargado exitosamente.");
+  } catch (error) {
+    console.error("Error al cargar el conteo de citas:", error);
+  }
+};
 
-      try {
-        citas.value = await apiService.getCitas({
-          idSpa: idSpa,
-          startDate: format(firstDayOfMonth),
-          endDate: format(lastDayOfSecondNextMonth),
-        });
 
-        console.log("Citas", citas.value);
 
-        citasTodayTomorrow.value = await apiService.getCitas({
-          idSpa: idSpa,
-          startDate: format(today),
-          endDate: format(tomorrow),
-        });
+onMounted(async () => {
+  const currentDate = new Date();
+  selectedDate.value = currentDate; // Asigna la fecha actual como la predeterminada
 
-        console.log("Citas hoy y maniana", citasTodayTomorrow.value);
+  // Definir las fechas necesarias
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+  const lastDayOfSecondNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, 0);
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-        await loadUser();
-      } catch (error) {
-        console.error(error);
-        this.$showAlert(
-          "Error al cargar las citas. Por favor, inténtalo de nuevo.",
-          "error"
-        );
-      }
-    });
+  const format = (date) => date.toISOString().split("T")[0];
+
+  console.log("Fecha de hoy", format(today));
+  console.log("Fecha de mañana", format(tomorrow));
+  console.log("Fecha de inicio del mes", format(firstDayOfMonth));
+
+  try {
+    // Ejecutar las llamadas a la API en paralelo
+    const [allCitas, todayTomorrowCitas] = await Promise.all([
+      // Cargar todas las citas del rango extendido
+      apiService.getCitas({
+        idSpa: idSpa,
+        startDate: format(firstDayOfMonth),
+        endDate: format(lastDayOfSecondNextMonth),
+      }),
+      // Cargar las citas de hoy y mañana
+      apiService.getCitas({
+        idSpa: idSpa,
+        startDate: format(today),
+        endDate: format(tomorrow),
+      }),
+    ]);
+
+    // Asignar las respuestas
+    citas.value = allCitas;
+    citasTodayTomorrow.value = todayTomorrowCitas;
+
+    console.log("Citas", citas.value);
+    console.log("Citas hoy y mañana", citasTodayTomorrow.value);
+
+    // Ejecutar las tareas restantes en paralelo
+    await Promise.all([
+      loadCitasCountByDate(), // Cargar el conteo de citas
+      loadUser(),             // Cargar el usuario
+    ]);
+
+    console.log("Carga completada exitosamente.");
+  } catch (error) {
+    console.error("Error en onMounted:", error);
+    this.$showAlert(
+      "Error al cargar las citas. Por favor, inténtalo de nuevo.",
+      "error"
+    );
+  }
+});
+
 
     const editCita = (cita) => {
       currentCita.value = cita;
@@ -323,6 +356,7 @@ export default {
       cabinas, // agregar cabinas al return
       handleDayClicked,
       selectedDate,
+      citasCountByDate
     };
   },
 };

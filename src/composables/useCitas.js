@@ -9,6 +9,7 @@ export default function useCitas() {
   const citasTodayTomorrow = ref([]);
   const valoraciones = ref([]);
   const app = getCurrentInstance();
+  const citasCountByDate = ref(new Map()); // Almacenar el conteo de citas por fecha
 
   const idSpa = store.getters.idSpa;
   
@@ -22,7 +23,28 @@ export default function useCitas() {
       console.error(error);
       throw new Error("Error al obtener citas");
     }
-  }
+  };
+
+
+  const getCitasCountByDate = async (idSpa, startDate, endDate) => {
+    try {
+      // Llamar al nuevo método getCitasCount del apiService
+      const response = await apiService.getCitasCount({ idSpa, startDate, endDate });
+
+      // Convertir la respuesta en un Map para acceso eficiente
+      const countMap = new Map();
+      response.forEach((item) => {
+        countMap.set(item.fecha, item.count);
+      });
+
+      citasCountByDate.value = countMap; // Actualizar el estado
+    } catch (error) {
+      console.error("Error fetching citas count by date:", error);
+      throw new Error("Error al obtener el conteo de citas.");
+    }
+  };
+  
+  
 
   const addCita = async (newCita) => {
     console.log("Nueva cita:", newCita);
@@ -158,5 +180,5 @@ export default function useCitas() {
   
 
 
-  return { citas, citasTodayTomorrow, valoraciones, getCitasWithParams ,addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
+  return { citas, citasTodayTomorrow, valoraciones,   citasCountByDate, getCitasCountByDate, getCitasWithParams ,addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
 }

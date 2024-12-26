@@ -1,16 +1,19 @@
 import { ref } from 'vue';
 import apiService from "@/services/apiServices";
 import { getCurrentInstance } from 'vue';
+import store from '@/store';
 
 export default function useValoraciones() {
   const valoraciones = ref([]);
   const app = getCurrentInstance();
   const searchQuery = ref("");
   const filteredValoraciones = ref([]);
+  const idSpa = store.getters.idSpa; // Obtener el idSpa
 
   const fetchValoraciones = async () => {
     try {
-      valoraciones.value = await apiService.getValoraciones();
+      // Pasar idSpa como parametro a la API
+      valoraciones.value = await apiService.getValoraciones({ idSpa });
       filteredValoraciones.value = valoraciones.value;
       console.log("Valoraciones:", valoraciones.value);
       console.log("Filtered:", filteredValoraciones.value);
@@ -24,40 +27,58 @@ export default function useValoraciones() {
     try {
       await apiService.addValoracion(newValoracion);
       app.appContext.config.globalProperties.$showAlert("La valoración se añadió correctamente.", "success");
-      await fetchValoraciones();
+      await fetchValoraciones({ idSpa });
     } catch (error) {
       console.error(error);
       app.appContext.config.globalProperties.$showAlert("Hubo un error al crear la valoración.", "error");
     }
   };
 
+ 
   const updateValoracion = async (valoracion) => {
     try {
       await apiService.updateValoracion(valoracion);
-      valoraciones.value = await apiService.getValoraciones();
-      app.appContext.config.globalProperties.$showAlert("La valoración se actualizó correctamente.", "success");
+      // Actualizar la valoración en el estado local
+      const index = valoraciones.value.findIndex(
+        (v) => v.id_valoracion === valoracion.id_valoracion
+      );
+      if (index !== -1) {
+        valoraciones.value[index] = { ...valoraciones.value[index], ...valoracion };
+      }
+      filteredValoraciones.value = [...valoraciones.value];
+      app.appContext.config.globalProperties.$showAlert(
+        "La valoración se actualizó correctamente.",
+        "success"
+      );
     } catch (error) {
-      console.error(error);
-      app.appContext.config.globalProperties.$showAlert("La actualización de valoración salió mal.", "error");
+      console.error("Error actualizando la valoración:", error);
+      app.appContext.config.globalProperties.$showAlert(
+        "La actualización de valoración salió mal.",
+        "error"
+      );
     }
   };
 
   const deleteValoracion = async (valoracion) => {
     try {
       await apiService.deleteValoracion(valoracion.id_valoracion);
-      app.appContext.config.globalProperties.$showAlert("La valoración se eliminó correctamente.", "success");
+      app.appContext.config.globalProperties.$showAlert(
+        "La valoración se eliminó correctamente.",
+        "success"
+      );
+      // Actualizar el estado local eliminando la valoración
+      valoraciones.value = valoraciones.value.filter(
+        (v) => v.id_valoracion !== valoracion.id_valoracion
+      );
+      filteredValoraciones.value = [...valoraciones.value];
     } catch (error) {
-      console.error("Error deleting valoracion:", error);
-      app.appContext.config.globalProperties.$showAlert("Algo salió mal al eliminar la valoración.", "error");
-    }
-    
-    try {
-      valoraciones.value = await apiService.getValoraciones();
-    } catch (error) {
-      console.error("Error getting valoraciones:", error);      
+      console.error("Error eliminando la valoración:", error);
+      app.appContext.config.globalProperties.$showAlert(
+        "Algo salió mal al eliminar la valoración.",
+        "error"
+      );
     }
   };
-
   const getSundays = (start, end) =>{
     let date = new Date(start);
     let sundays = [];

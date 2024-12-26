@@ -1,10 +1,13 @@
 import { ref } from "vue";
 import apiServices from "@/services/apiServices";
 import { getCurrentInstance } from "vue";
+import store from "@/store";
 
 export default function useClientes() {
   const clientes = ref([]);
   const app = getCurrentInstance();
+  const idSpa = store.getters.idSpa;
+
 
   const addCliente = async (newCliente) => {
     newCliente.created_at = new Date().toISOString();
@@ -18,7 +21,7 @@ export default function useClientes() {
     } catch (error) {
       console.error(error);
       app.appContext.config.globalProperties.$showAlert(
-        "Hubo un error al crear la cliente.",
+        "Hubo un error al crear el cliente.",
         "error"
       );
     }
@@ -26,13 +29,38 @@ export default function useClientes() {
 
   const updateCliente = async (cliente) => {
     try {
+      // Realiza la solicitud de actualización al backend
       await apiServices.updateCliente(cliente);
-      clientes.value = await apiServices.getClientes();
-      //app.appContext.config.globalProperties.$showAlert("La ")
+  
+      // Encuentra el índice del cliente en la lista local
+      const index = clientes.value.findIndex((c) => c.id_cliente === cliente.id_cliente);
+  
+       // Si el cliente existe en la lista, actualiza sus datos localmente
+    if (index !== -1) {
+      clientes.value[index] = { ...clientes.value[index], ...cliente };
+    } else {
+      // Si no se encuentra el cliente en la lista local, maneja el error
+      app.appContext.config.globalProperties.$showAlert(
+        "El cliente no se encontró en la lista local. Actualizando lista completa.",
+        "warning"
+      );
+      // Realiza una solicitud para obtener toda la lista de clientes
+      clientes.value = await apiServices.getClientes({ idSpa: idSpa });
+    }
+  
+      app.appContext.config.globalProperties.$showAlert(
+        "El cliente se actualizó correctamente.",
+        "success"
+      );
     } catch (error) {
       console.error(error);
+      app.appContext.config.globalProperties.$showAlert(
+        "Hubo un error al actualizar el cliente.",
+        "error"
+      );
     }
   };
+  
 
   const deleteCliente = async (cliente) => {
     try {
@@ -46,7 +74,7 @@ export default function useClientes() {
     }
 
     try {
-      clientes.value = await apiServices.getClientes();
+      clientes.value = await apiServices.getClientes({idSpa: idSpa});
     } catch (error) {
       console.error("Error getting clientes", error);
     }

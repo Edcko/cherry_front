@@ -20,7 +20,13 @@ import { useTheme } from 'vuetify'; // Importar useTheme para acceder al tema gl
 
 export default {
   name: "CitaCalendar",
-  props: ["citas"],
+  props: {
+  citas: Array,
+  citasCount: {
+    type: Object, // Map debería estar tipado como Object
+    required: true,
+  },
+},
   setup(props, { emit }) {
     const calendar = ref(null);
     const disabledDates = ref([]);
@@ -66,23 +72,26 @@ const isDarkTheme = computed(() => theme.global.name.value === 'dark');
 
       citasCountByDate.value = countMap;
     };
-
+    
     const calendarAttributes = computed(() => {
-      const attributes = [];
-      citasCountByDate.value.forEach((count, dateString) => {
-        const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal";
+  const attributes = [];
+  props.citasCount.forEach((count, dateString) => {
+    // Parsear la fecha y normalizar a la zona horaria local
+    const date = new Date(dateString + "T00:00:00"); // Asegura que sea a las 00:00 en local
+    const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal";
 
-        attributes.push({
-          key: dateString,
-          dates: new Date(dateString),
-          highlight: {
-            color: color,
-            fillMode: "light",
-          },
-        });
-      });
-      return attributes;
+    attributes.push({
+      key: dateString,
+      dates: date,
+      highlight: {
+        color: color,
+        fillMode: "light",
+      },
     });
+  });
+  return attributes;
+});
+
 
     onMounted(() => {
       precomputeCitasCount();

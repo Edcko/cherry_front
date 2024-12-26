@@ -86,7 +86,8 @@
       
       <script>
       import { ref, onMounted, computed } from "vue";
-      import apiService from "@/services/apiServices"
+      import apiService from "@/services/apiServices";
+      //import store from "@/store";
     
       export default {
         props: ["showDialog"],
@@ -106,6 +107,7 @@
           });
     
           const spas = ref([]);
+         // const idSpa = store.getters.idSpa;
     
         function toTitleCase(str) {
         return str.replace(/\w\S*/g, function(txt) {

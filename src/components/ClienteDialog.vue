@@ -29,23 +29,23 @@
           </v-col>
 
           <v-col cols="12" sm="6">
-    <!-- Campo editable al crear un cliente -->
+              <!-- Campo de solo lectura al editar -->
+    <v-text-field
+      v-if="clienteEdit"
+      label="Spa"
+      :value="getSpaText(cliente.id_spa)"
+      readonly
+    ></v-text-field>
+
+    <!-- Campo editable al crear -->
     <v-autocomplete
-      v-if="!clienteEdit"
+      v-else
       label="Spa"
       v-model="cliente.id_spa"
       :items="spaOptions"
       :rules="[rules.required]"
     ></v-autocomplete>
-
-    <!-- Campo de solo lectura al editar un cliente -->
-    <v-text-field
-      v-else
-      label="Spa"
-      :value="getSpaText(cliente.id_spa)"
-      readonly
-    ></v-text-field>
-  </v-col>
+          </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" sm="6">
@@ -96,12 +96,12 @@
 
 <script>
 import { ref, onMounted, computed, watch } from "vue";
-import apiService from "@/services/apiServices"
+import apiService from "@/services/apiServices";
 
 export default {
   props: {
     showDialog: Boolean,
-    clienteEdit: Object
+    clienteEdit: Object,
   },
   setup(props, { emit }) {
     const cliente = ref({
@@ -117,11 +117,9 @@ export default {
     });
 
     const spas = ref([]);
-    
+
     function toTitleCase(str) {
-      return str.replace(/\w\S*/g, function(txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-      });
+      return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
     }
 
     onMounted(async () => {
@@ -129,43 +127,54 @@ export default {
       console.log("Spas:", spas.value);
     });
 
-    const spaOptions = computed(() => {
-      return spas.value.map(spa => `${spa.nombre_spa} ${spa.ciudad}`);
-    });
+    // Opciones del autocomplete
+    const spaOptions = computed(() =>
+      spas.value.map((spa) => `${spa.nombre_spa} ${spa.ciudad}`)
+    );
 
+    // Convertir id_spa a texto para mostrar en campo de solo lectura
     const getSpaText = (id) => {
-      const spa = spas.value.find(spa => spa.id_spa === id);
+      const spa = spas.value.find((spa) => spa.id_spa === id);
       return spa ? `${spa.nombre_spa} ${spa.ciudad}` : "Spa no encontrado";
     };
 
     const generos = ["M", "F", "O"];
-    
+
     const rules = {
-      required: value => !!value || "Campo requerido.",
-      phone: value => {
+      required: (value) => !!value || "Campo requerido.",
+      phone: (value) => {
         const pattern = /^\d{10}$/;
         return pattern.test(value) || "Número de teléfono no válido.";
       },
-      email: value => {
+      email: (value) => {
         const pattern = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
         return pattern.test(value) || "E-mail no válido.";
-      }
+      },
     };
 
-    // Verifica si se recibió un cliente para edición y actualiza los datos
-    watch(() => props.clienteEdit, (newVal) => {
-      if (newVal) {
-        cliente.value = { ...newVal };
-      }
-    }, { immediate: true });
+    // Verificar si estamos en modo edición
+    watch(
+      () => props.clienteEdit,
+      (newVal) => {
+        if (newVal) {
+          cliente.value = { ...newVal };
+        }
+      },
+      { immediate: true }
+    );
 
     const onSubmit = () => {
       cliente.value.nombre_cliente = toTitleCase(cliente.value.nombre_cliente);
       cliente.value.apellido_paterno = toTitleCase(cliente.value.apellido_paterno);
       cliente.value.apellido_materno = toTitleCase(cliente.value.apellido_materno);
 
-      const spaSeleccionado = spas.value.find(spa => `${spa.nombre_spa} ${spa.ciudad}` === cliente.value.id_spa);
-      cliente.value.id_spa = spaSeleccionado ? spaSeleccionado.id_spa : "";
+      // Solo convertir id_spa cuando no sea edición
+      if (!props.clienteEdit) {
+        const spaSeleccionado = spas.value.find(
+          (spa) => `${spa.nombre_spa} ${spa.ciudad}` === cliente.value.id_spa
+        );
+        cliente.value.id_spa = spaSeleccionado ? spaSeleccionado.id_spa : "";
+      }
 
       if (props.clienteEdit) {
         console.log("Datos enviados al servidor para actualizar:", cliente.value);
@@ -173,7 +182,7 @@ export default {
       } else {
         emit("addCliente", cliente.value);
       }
-      
+
       emit("close");
     };
 
@@ -183,7 +192,7 @@ export default {
       getSpaText,
       onSubmit,
       generos,
-      rules
+      rules,
     };
   },
 };
