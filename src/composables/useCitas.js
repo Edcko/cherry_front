@@ -4,6 +4,7 @@ import helperServices from "@/services/helperServices.js";
 import { getCurrentInstance } from 'vue';
 import store from '@/store';
 
+
 export default function useCitas() {
   const citas = ref([]);
   const citasTodayTomorrow = ref([]);
@@ -13,8 +14,6 @@ export default function useCitas() {
 
   const idSpa = store.getters.idSpa;
   
-
-
   const getCitasWithParams = async (param1, param2) => {
     try{
       const response = await apiService.getCitas(param1, param2);
@@ -51,45 +50,86 @@ export default function useCitas() {
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
     const minutos = date.getMinutes();
-
-    // Fecha limite para agendar citas ( 14 de Diciembre del anio actual)
+  
+    // Fecha límite para agendar citas
     const fechaLimite = new Date(new Date().getFullYear() + 1, 0, 27, 23, 59, 59);
-
-    // Verifica si la fecha de la cita es mayor a la fecha limite
+  
     if (date > fechaLimite) {
-      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar hasta el 14 de Diciembre. Espera esa semana para que se abran los días posteriores.", "error");
+      app.appContext.config.globalProperties.$showAlert(
+        "Las citas solo se pueden agendar hasta el 14 de Diciembre. Espera esa semana para que se abran los días posteriores.",
+        "error"
+      );
       return;
     }
-    // Verifica si los minutos son 0 o 30
+  
     if (minutos !== 0 && minutos !== 30) {
-      app.appContext.config.globalProperties.$showAlert("Las citas solo se pueden agendar en intervalos de media hora.", "error");
+      app.appContext.config.globalProperties.$showAlert(
+        "Las citas solo se pueden agendar en intervalos de media hora.",
+        "error"
+      );
       return;
-  }
-  if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas, idSpa) >= 64) {
-    app.appContext.config.globalProperties.$showAlert("Ya se han programado 64 citas para este día.", "error");
-        return;
     }
-    
+  
+    if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas, idSpa) >= 64) {
+      app.appContext.config.globalProperties.$showAlert(
+        "Ya se han programado 64 citas para este día.",
+        "error"
+      );
+      return;
+    }
+
+    console.log("Citas antes del filtro:", citas.value);
+  
+    // Filtrar citas disponibles
+    const citasFiltradas = citas.value.filter(
+      (cita) => cita.estado !== "Reagendo cita"
+    );
+    console.log("Citas después del filtro:", citasFiltradas);
+
+  
+    // Verifica si ya existe una cita en la misma cabina y fecha
+    const citaExistente = citasFiltradas.some((cita) => {
+      const citaDate = new Date(cita.fecha);
+      return (
+        cita.Cabina.numero_cabina === newCita.numeroCabina &&
+        citaDate.getTime() === date.getTime()
+      );
+    });
+
+    console.log("¿Existe ya una cita en la misma cabina y horario?:", citaExistente);
+  
+    if (citaExistente) {
+      app.appContext.config.globalProperties.$showAlert(
+        "Ya existe una cita agendada para esa fecha y número de cabina. Por favor, selecciona otra cabina y fecha 1.",
+        "error"
+      );
+      return;
+    }
+  
     try {
-        await apiService.addCita(newCita);
-        console.log("Spa_id:", idSpa);
-        citas.value = await apiService.getCitas({idSpa: idSpa});
-        app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
+      await apiService.addCita(newCita);
+      console.log("Cita agregada correctamente.");
+      citas.value = await apiService.getCitas({ idSpa: idSpa });
+      app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
     } catch (error) {
-        if (error.response && error.response.status === 400 && error.response.data.message === 'Ya existe una cita agendada para esa fecha y número de cabina.') {
-            app.appContext.config.globalProperties.$showAlert(
-                "Ya existe una cita agendada para esa fecha y número de cabina. Por favor, selecciona otra cabina y fecha.",
-                "error"
-            );
-        } else {
-            app.appContext.config.globalProperties.$showAlert(
-                "Ha ocurrido un error al agregar la cita.",
-                "error"
-            );
-        }
-        console.error(error);
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data.message === "Ya existe una cita agendada para esa fecha y número de cabina 2."
+      ) {
+        app.appContext.config.globalProperties.$showAlert(
+          "Ya existe una cita agendada para esa fecha y número de cabina. Por favor, selecciona otra cabina y fecha.",
+          "error"
+        );
+      } else {
+        app.appContext.config.globalProperties.$showAlert(
+          "Ha ocurrido un error al agregar la cita.",
+          "error"
+        );
+      }
+      console.error(error);
     }
-};
+  };
 
 
   const updateCita = async (cita) => {
@@ -168,13 +208,16 @@ export default function useCitas() {
     horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
   }
 
-  
-    const horasOcupadas = citasDelDia.map(cita => {
-      const date = new Date(cita.fecha);
-      return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-    });
-    
-    return horasTrabajo.filter(hora => !horasOcupadas.includes(hora));
+  // Filtrar citas que no sean "Reagendo cita" para calcular horas ocupadas
+  const horasOcupadas = citasDelDia
+  .filter((cita) => cita.estado !== "Reagendo cita") // Excluir "Reagendo cita" de las horas ocupadas
+  .map((cita) => {
+    const date = new Date(cita.fecha);
+    return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+  });
+
+// Retornar horas disponibles
+return horasTrabajo.filter((hora) => !horasOcupadas.includes(hora));
   };
   
   

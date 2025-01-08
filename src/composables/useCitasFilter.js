@@ -14,6 +14,10 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
     [citas, search, dateFilter, clientIdFilter, newDateFilter],
     () => {
       let result = citas.value;
+
+       // Excluir citas reagendadas
+    //result = result.filter(cita => cita.estado !== "Reagendo cita");
+    
   
       // Filtro por cabina (sin cambios)
       if (search.value) {
