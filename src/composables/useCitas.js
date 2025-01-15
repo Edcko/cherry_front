@@ -11,7 +11,7 @@ export default function useCitas() {
   const valoraciones = ref([]);
   const app = getCurrentInstance();
   const citasCountByDate = ref(new Map()); // Almacenar el conteo de citas por fecha
-  const agendaCerrada = ref(true);
+  const agendaCerrada = ref(false);
 
   const idSpa = store.getters.idSpa;
   
