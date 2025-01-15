@@ -63,7 +63,7 @@ export default function useCitas() {
     const minutos = date.getMinutes();
   
     // Fecha límite para agendar citas
-    const fechaLimite = new Date(new Date().getFullYear() + 1, 0, 27, 23, 59, 59);
+    const fechaLimite = new Date(2025, 0, 25, 23, 59, 59); // 27 de enero de 2025
   
     if (date > fechaLimite) {
       app.appContext.config.globalProperties.$showAlert(

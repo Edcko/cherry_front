@@ -10,6 +10,13 @@
       >
         {{ agendaCerrada ? "Abrir Agenda" : "Cerrar Agenda" }}
       </v-btn>
+
+      <v-date-picker
+    v-model="agendaFechaReapertura"
+    label="Fecha de Reapertura"
+    :min="new Date().toISOString().split('T')[0]"
+    @change="setAgendaReaperturaFecha(agendaFechaReapertura)"
+  ></v-date-picker>
     </div>
 
     <div>
@@ -160,6 +167,8 @@ export default {
       citasTodayTomorrow,
       agendaCerrada,
       citasCountByDate,
+      agendaFechaReapertura,
+      setAgendaReaperturaFecha,
       addCita,
       updateCita,
       deleteCita,
@@ -377,7 +386,9 @@ onMounted(async () => {
       cabinas, // agregar cabinas al return
       handleDayClicked,
       selectedDate,
-      citasCountByDate
+      citasCountByDate,
+      setAgendaReaperturaFecha,
+      agendaFechaReapertura,
     };
   },
 };
