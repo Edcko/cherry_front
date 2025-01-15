@@ -1,6 +1,17 @@
 <template>
   <v-container v-if="user" fluid>
     <h1>Calendario de Citas</h1>
+
+        <div v-if="user.tipo_empleado === 'Administrador'" class="d-flex justify-center mb-4">
+      <v-btn
+        color="teal"
+        dark
+        @click="toggleAgendaEstado"
+      >
+        {{ agendaCerrada ? "Abrir Agenda" : "Cerrar Agenda" }}
+      </v-btn>
+    </div>
+
     <div>
       <cita-calendar
         :citas="citas"
