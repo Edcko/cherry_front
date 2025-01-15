@@ -319,7 +319,6 @@ onMounted(async () => {
   }
 };
 
-
     const changeEstadoWrapper = async (cita) => {
       try {
         await changeEstado(cita);
@@ -361,6 +360,7 @@ onMounted(async () => {
       countCitasForDateColor,
       handleDeleteCita,
       handleAgendarHoraLibre,
+      toggleAgendaEstado,
       getCitasByCabina,
       getHorasLibres,
       cabinas, // agregar cabinas al return
