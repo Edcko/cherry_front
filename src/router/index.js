@@ -74,7 +74,7 @@ const routes = [
         beforeEnter: requireRole(['Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
       },
       {
-        path: '/valoraciones',
+        path: '/evaluaciones',
         name: 'Valoracion',
         component: Valoracion,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación

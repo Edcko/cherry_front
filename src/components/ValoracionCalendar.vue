@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h1>Calendario de Valoraciones</h1>
+      <h1>Calendario de Evaluaciones</h1>
       <v-calendar
         :rows="1"
         ref="calendar"

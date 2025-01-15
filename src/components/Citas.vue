@@ -147,6 +147,8 @@ export default {
     const {
       citas,
       citasTodayTomorrow,
+      agendaCerrada,
+      citasCountByDate,
       addCita,
       updateCita,
       deleteCita,
@@ -154,7 +156,7 @@ export default {
       changeEstado,
       getHorasLibres,
       getCitasCountByDate,
-      citasCountByDate,
+      toggleAgendaEstado
     } = useCitas();
 
     const { filteredCitas, getCitasByCabina } = useCitasFilter(
@@ -293,6 +295,14 @@ onMounted(async () => {
 
     // eslint-disable-next-line
     const handleAgendarHoraLibre = (hora) => {
+      if (agendaCerrada.value) {
+        app.appContext.config.globalProperties.$showAlert(
+        "La agenda está cerrada temporalmente. No se pueden agendar citas.",
+        "error"
+        );
+        return;
+      }
+
   if (selectedDate.value) {
     const [horas, minutos] = hora.split(':');
     const fechaConHora = new Date(selectedDate.value);

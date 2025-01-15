@@ -36,7 +36,7 @@
             )} | Cliente: ${item.Cliente.nombre_cliente} ${
               item.Cliente.apellido_paterno
             } ${item.Cliente.apellido_materno}`"
-            :subtitle="`Valoradora: ${item.Empleado.nombre_empleado} ${item.Empleado.apellido_paterno} ${item.Empleado.apellido_materno} | Estado de valoración: ${item.estado}`"
+            :subtitle="`Valorador: ${item.Empleado.nombre_empleado} ${item.Empleado.apellido_paterno} ${item.Empleado.apellido_materno} | Estado de valoración: ${item.estado}`"
           >
             <template v-slot:prepend>
               <v-icon class="custom-button">mdi-star</v-icon>

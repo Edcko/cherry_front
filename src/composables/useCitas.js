@@ -11,6 +11,7 @@ export default function useCitas() {
   const valoraciones = ref([]);
   const app = getCurrentInstance();
   const citasCountByDate = ref(new Map()); // Almacenar el conteo de citas por fecha
+  const agendaCerrada = ref(true);
 
   const idSpa = store.getters.idSpa;
   
@@ -22,6 +23,16 @@ export default function useCitas() {
       console.error(error);
       throw new Error("Error al obtener citas");
     }
+  };
+
+  const toggleAgendaEstado = () => {
+    agendaCerrada.value = !agendaCerrada.value;
+    app.appContext.config.globalProperties.$showAlert(
+      agendaCerrada.value
+      ? "La agenda se ha cerrado temporalmente."
+      : "La agenda se ha reabierto",
+      "info"
+    );
   };
 
 
@@ -56,7 +67,7 @@ export default function useCitas() {
   
     if (date > fechaLimite) {
       app.appContext.config.globalProperties.$showAlert(
-        "Las citas solo se pueden agendar hasta el 14 de Diciembre. Espera esa semana para que se abran los días posteriores.",
+        "No se puede agendar citas hasta nuevo aviso",
         "error"
       );
       return;
@@ -223,5 +234,5 @@ return horasTrabajo.filter((hora) => !horasOcupadas.includes(hora));
   
 
 
-  return { citas, citasTodayTomorrow, valoraciones,   citasCountByDate, getCitasCountByDate, getCitasWithParams ,addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
+  return { citas, agendaCerrada, citasTodayTomorrow, valoraciones,  citasCountByDate, getCitasCountByDate, getCitasWithParams, toggleAgendaEstado, addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
 }
