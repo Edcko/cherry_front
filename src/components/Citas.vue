@@ -1,7 +1,7 @@
 <template>
   <v-container v-if="user" fluid>
     <h1>Calendario de Citas</h1>
-    <div v-if="user.tipo_empleado === 'Administrador'" class="d-flex justify-center mb-4">
+    <div v-if="user.tipo_empleado === 'Desarrollador'" class="d-flex justify-center mb-4">
       <v-btn
   color="teal"
   dark

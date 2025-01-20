@@ -69,10 +69,10 @@
     </v-btn>
     -->
 
-    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="error" @click="handleDeleteCita(cita)">
+    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente' || user.tipo_empleado === 'Desarrollador'" color="error" @click="handleDeleteCita(cita)">
     <v-icon>mdi-delete</v-icon>
     </v-btn>
-    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente'" color="success" @click="changeEstado(cita)">
+    <v-btn v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente' || user.tipo_empleado === 'Desarrollador'" color="success" @click="changeEstado(cita)">
     <v-icon>mdi-check</v-icon>
     </v-btn>
       </v-card-actions>

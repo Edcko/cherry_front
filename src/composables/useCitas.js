@@ -127,7 +127,7 @@ export default function useCitas() {
   
     if (date > fechaLimite) {
       app.appContext.config.globalProperties.$showAlert(
-        "No se puede agendar citas hasta nuevo aviso",
+        " La agenda estará cerrada a partir del 1 de febrero de 2025. No se aceptarán nuevas citas después de esta fecha.",
         "error"
       );
       return;

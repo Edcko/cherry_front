@@ -57,56 +57,56 @@ const routes = [
         name: "Paquete",
         component: Paquete,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
     },
     {
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora', 'Terapeuta']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora', 'Terapeuta']),
       },
       {
         path: '/nails',
         name: 'Nails',
         component: Nails,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
       },
       {
         path: '/evaluaciones',
         name: 'Valoracion',
         component: Valoracion,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente']),
       },
     {
         path: "/empleados",
         name: "Empleado",
         component: Empleado,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador']),
     },
     {
         path: "/cabinas",
         name: "Cabina",
         component: Cabina,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador']),
     },
     {
         path: "/clientes",
         name: "Cliente",
         component: Cliente,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador', 'Manager', 'Gerente']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador', 'Manager', 'Gerente']),
     },
     {
         path: "/sesiones",
         name: "Sesion",
         component: Sesion,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Administrador','Gerente']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente']),
     },
 /*    {
         path: "/perteneceA",
