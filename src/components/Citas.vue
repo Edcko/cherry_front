@@ -1,16 +1,24 @@
 <template>
   <v-container v-if="user" fluid>
     <h1>Calendario de Citas</h1>
-
-        <div v-if="user.tipo_empleado === 'Administrador'" class="d-flex justify-center mb-4">
+    <div v-if="user.tipo_empleado === 'Administrador'" class="d-flex justify-center mb-4">
       <v-btn
-        color="teal"
-        dark
-        @click="toggleAgendaEstado"
-      >
-        {{ agendaCerrada ? "Abrir Agenda" : "Cerrar Agenda" }}
-      </v-btn>
+  color="teal"
+  dark
+  @click="toggleAgendaEstado"
+>
+  {{ estadoAgenda ? "Cerrar Agenda" : "Abrir Agenda" }}
+</v-btn>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn color="primary" dark v-bind="attrs" v-on="on">
+            Modificar Fecha Apertura
+          </v-btn>
+        </template>
+        <v-date-picker v-model="fechaApertura" @input="updateFechaApertura" />
+      </v-menu>
     </div>
+
 
     <div>
       <cita-calendar
@@ -158,7 +166,10 @@ export default {
     const {
       citas,
       citasTodayTomorrow,
-      agendaCerrada,
+      estadoAgenda,
+      fechaApertura,
+      fetchFechaApertura,
+      fecthEstadoAgenda,
       citasCountByDate,
       addCita,
       updateCita,
@@ -167,7 +178,8 @@ export default {
       changeEstado,
       getHorasLibres,
       getCitasCountByDate,
-      toggleAgendaEstado
+      toggleAgendaEstado,
+      updateFechaApertura,
     } = useCitas();
 
     const { filteredCitas, getCitasByCabina } = useCitasFilter(
@@ -253,11 +265,17 @@ onMounted(async () => {
 
     // Ejecutar las tareas restantes en paralelo
     await Promise.all([
-      loadCitasCountByDate(), // Cargar el conteo de citas
-      loadUser(),             // Cargar el usuario
+    fecthEstadoAgenda(), // Cargar el estado de la agenda
+      fetchFechaApertura(), // Cargar la fecha de apertura
+      loadCitasCountByDate(), // Cargar conteo de citas
+      loadUser(), // Cargar el usuario
     ]);
 
     console.log("Carga completada exitosamente.");
+    console.log("Estado inicial de la agenda:", estadoAgenda.value);
+    console.log("Fecha inicial de apertura", fechaApertura.value);
+console.log("Nuevo estado después de actualizar:", estadoAgenda.value);
+
   } catch (error) {
     console.error("Error en onMounted:", error);
     this.$showAlert(
@@ -306,13 +324,6 @@ onMounted(async () => {
 
     // eslint-disable-next-line
     const handleAgendarHoraLibre = (hora) => {
-      if (agendaCerrada.value) {
-        app.appContext.config.globalProperties.$showAlert(
-        "La agenda está cerrada temporalmente. No se pueden agendar citas.",
-        "error"
-        );
-        return;
-      }
 
   if (selectedDate.value) {
     const [horas, minutos] = hora.split(':');
@@ -352,6 +363,8 @@ onMounted(async () => {
       citas,
       citasTodayTomorrow,
       showDialog,
+      estadoAgenda,
+      fechaApertura,
       horaPreseleccionada,
       showEditDialog,
       currentCita,
@@ -364,6 +377,7 @@ onMounted(async () => {
       addCita,
       deleteCita,
       updateCita,
+      updateFechaApertura,
       formatDate,
       changeEstado: changeEstadoWrapper,
       editCita,

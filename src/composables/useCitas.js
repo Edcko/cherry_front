@@ -11,7 +11,9 @@ export default function useCitas() {
   const valoraciones = ref([]);
   const app = getCurrentInstance();
   const citasCountByDate = ref(new Map()); // Almacenar el conteo de citas por fecha
-  const agendaCerrada = ref(false);
+  const estadoAgenda = ref(false);
+  const fechaApertura = ref("");
+
 
   const idSpa = store.getters.idSpa;
   
@@ -24,17 +26,65 @@ export default function useCitas() {
       throw new Error("Error al obtener citas");
     }
   };
-
-  const toggleAgendaEstado = () => {
-    agendaCerrada.value = !agendaCerrada.value;
-    app.appContext.config.globalProperties.$showAlert(
-      agendaCerrada.value
-      ? "La agenda se ha cerrado temporalmente."
-      : "La agenda se ha reabierto",
-      "info"
-    );
+  const fecthEstadoAgenda = async () => {
+    try {
+      const response = await apiService.getEstadoAgenda(idSpa); // Enviar el idSpa
+      if (response && response.estado !== undefined) {
+        estadoAgenda.value = response.estado;
+      } else {
+        console.error("Respuesta inesperada al obtener el estado de la agenda:", response);
+      }
+    } catch (error) {
+      console.error("Error al obtener el estado de la agenda:", error);
+    }
   };
 
+  const toggleAgendaEstado = async () => {
+    try {
+      const nuevoEstado = !estadoAgenda.value;
+      const response = await apiService.updateEstadoAgenda(nuevoEstado, idSpa);
+      if (response && response.message) {
+        estadoAgenda.value = nuevoEstado;
+        app.appContext.config.globalProperties.$showAlert(
+          nuevoEstado
+            ? "La agenda se ha reabierto"
+            : "La agenda se ha cerrado temporalmente.",
+          "info"
+        );
+      } else {
+        console.error("Respuesta inesperada al actualizar el estado de la agenda:", response);
+      }
+    } catch (error) {
+      console.error("Error al actualizar el estado de la agenda:", error);
+      app.appContext.config.globalProperties.$showAlert(
+        "Error al actualizar el estado de la agenda.",
+        "error"
+      );
+    }
+  };
+  
+
+  const fetchFechaApertura = async () => {
+    try {
+      const response = await apiService.getFechaApertura(idSpa); // Enviar el idSpa
+      fechaApertura.value = response.fecha_apertura;
+    } catch (error) {
+      console.error("Error al obtener la fecha de apertura:");
+    }
+  };
+
+  const updateFechaApertura = async (nuevaFecha) => {
+    try{
+      await apiService.updateFechaApertura(nuevaFecha);
+      fechaApertura.value = nuevaFecha;
+      app.appContext.config.globalProperties.$showAlert(
+        "La fecha de apertura de la agenda se ha actualizado correctamente",
+        "success"
+      );
+    }catch (error){
+      console.error("Error al actualizar la fecha de apertura")
+    }
+  };
 
   const getCitasCountByDate = async (idSpa, startDate, endDate) => {
     try {
@@ -62,8 +112,18 @@ export default function useCitas() {
     const date = new Date(newCita.fecha);
     const minutos = date.getMinutes();
   
-    // Fecha límite para agendar citas
-    const fechaLimite = new Date(2025, 0, 25, 23, 59, 59); // 27 de enero de 2025
+    try {
+      // Validar si la agenda está cerrada
+      if (!estadoAgenda.value) {
+        app.appContext.config.globalProperties.$showAlert(
+          "La agenda está cerrada temporalmente.",
+          "error"
+        );
+        return;
+      }
+  
+          // Fecha límite para agendar citas
+    const fechaLimite = new Date(2025, 1, 1, 23, 59, 59); // 27 de enero de 2025
   
     if (date > fechaLimite) {
       app.appContext.config.globalProperties.$showAlert(
@@ -72,61 +132,78 @@ export default function useCitas() {
       );
       return;
     }
+      /* Validar si la fecha de la cita es anterior a la fecha de apertura
+      if (date < fechaApertura.value) {
+        app.appContext.config.globalProperties.$showAlert(
+          `No puedes agendar citas antes del ${new Date(fechaApertura.value).toLocaleDateString()}`,
+          "error"
+        );
+        return;
+      }
+        */
   
-    if (minutos !== 0 && minutos !== 30) {
-      app.appContext.config.globalProperties.$showAlert(
-        "Las citas solo se pueden agendar en intervalos de media hora.",
-        "error"
+      // Validación de minutos (solo en intervalos de 30 minutos)
+      if (minutos !== 0 && minutos !== 30) {
+        app.appContext.config.globalProperties.$showAlert(
+          "Las citas solo se pueden agendar en intervalos de media hora.",
+          "error"
+        );
+        return;
+      }
+  
+      // Validación de límite de citas por día (64 máximo, excepto para cabina 4)
+      if (
+        newCita.numeroCabina !== 4 &&
+        helperServices.citaHelper.countCitasForDate(date, citas, idSpa) >= 64
+      ) {
+        app.appContext.config.globalProperties.$showAlert(
+          "Ya se han programado 64 citas para este día.",
+          "error"
+        );
+        return;
+      }
+  
+      console.log("Citas antes del filtro:", citas.value);
+  
+      // Filtrar citas disponibles
+      const citasFiltradas = citas.value.filter(
+        (cita) => cita.estado !== "Reagendo cita"
       );
-      return;
-    }
+      console.log("Citas después del filtro:", citasFiltradas);
   
-    if (newCita.numeroCabina !== 4 && helperServices.citaHelper.countCitasForDate(date, citas, idSpa) >= 64) {
-      app.appContext.config.globalProperties.$showAlert(
-        "Ya se han programado 64 citas para este día.",
-        "error"
-      );
-      return;
-    }
-
-    console.log("Citas antes del filtro:", citas.value);
+      // Validar si ya existe una cita en la misma cabina y fecha
+      const citaExistente = citasFiltradas.some((cita) => {
+        const citaDate = new Date(cita.fecha);
+        return (
+          cita.Cabina.numero_cabina === newCita.numeroCabina &&
+          citaDate.getTime() === date.getTime()
+        );
+      });
   
-    // Filtrar citas disponibles
-    const citasFiltradas = citas.value.filter(
-      (cita) => cita.estado !== "Reagendo cita"
-    );
-    console.log("Citas después del filtro:", citasFiltradas);
-
+      console.log("¿Existe ya una cita en la misma cabina y horario?:", citaExistente);
   
-    // Verifica si ya existe una cita en la misma cabina y fecha
-    const citaExistente = citasFiltradas.some((cita) => {
-      const citaDate = new Date(cita.fecha);
-      return (
-        cita.Cabina.numero_cabina === newCita.numeroCabina &&
-        citaDate.getTime() === date.getTime()
-      );
-    });
-
-    console.log("¿Existe ya una cita en la misma cabina y horario?:", citaExistente);
+      if (citaExistente) {
+        app.appContext.config.globalProperties.$showAlert(
+          "Ya existe una cita agendada para esa fecha y número de cabina. Por favor, selecciona otra cabina y fecha.",
+          "error"
+        );
+        return;
+      }
   
-    if (citaExistente) {
-      app.appContext.config.globalProperties.$showAlert(
-        "Ya existe una cita agendada para esa fecha y número de cabina. Por favor, selecciona otra cabina y fecha 1.",
-        "error"
-      );
-      return;
-    }
-  
-    try {
+      // Crear la nueva cita
       await apiService.addCita(newCita);
       console.log("Cita agregada correctamente.");
       citas.value = await apiService.getCitas({ idSpa: idSpa });
-      app.appContext.config.globalProperties.$showAlert("La cita se agendó correctamente.", "success");
+      app.appContext.config.globalProperties.$showAlert(
+        "La cita se agendó correctamente.",
+        "success"
+      );
     } catch (error) {
       if (
         error.response &&
         error.response.status === 400 &&
-        error.response.data.message === "Ya existe una cita agendada para esa fecha y número de cabina 2."
+        error.response.data.message ===
+          "Ya existe una cita agendada para esa fecha y número de cabina."
       ) {
         app.appContext.config.globalProperties.$showAlert(
           "Ya existe una cita agendada para esa fecha y número de cabina. Por favor, selecciona otra cabina y fecha.",
@@ -140,8 +217,7 @@ export default function useCitas() {
       }
       console.error(error);
     }
-  };
-
+  };  
 
   const updateCita = async (cita) => {
     try {
@@ -234,5 +310,5 @@ return horasTrabajo.filter((hora) => !horasOcupadas.includes(hora));
   
 
 
-  return { citas, agendaCerrada, citasTodayTomorrow, valoraciones,  citasCountByDate, getCitasCountByDate, getCitasWithParams, toggleAgendaEstado, addCita, updateCita, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
+  return { citas, citasTodayTomorrow, valoraciones,  citasCountByDate, estadoAgenda, fechaApertura, getCitasCountByDate, getCitasWithParams,fecthEstadoAgenda, fetchFechaApertura, toggleAgendaEstado, addCita, updateCita, updateFechaApertura, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
 }

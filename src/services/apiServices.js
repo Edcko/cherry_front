@@ -133,6 +133,23 @@ const getValoraciones = async (params) => {
   return response.data;
 };
 
+const getEstadoAgenda = async (idSpa) => {
+  const response = await api.get(API_URL + "estado-agenda", {
+    headers: authHeader(),
+    params: { idSpa }, // Enviar el idSpa como parámetro
+  });
+  return response.data;
+};
+
+const getFechaApertura = async (idSpa) => {
+  const response = await api.get(API_URL + "fecha-apertura", {
+    headers: authHeader(),
+    params: { idSpa }, // Enviar el idSpa como parámetro
+  });
+  return response.data;
+};
+
+
 //------------ Add -----------//
 
 const addPerteneceA = async (perteneceA) => {
@@ -258,6 +275,26 @@ const updateValoracion = async (valoracion) => {
   return response.data;
 };
 
+const updateEstadoAgenda = async (estado, idSpa) => {
+  const response = await api.put(
+    API_URL + "estado-agenda",
+    { estado }, // Enviar el estado en el cuerpo
+    {
+      headers: authHeader(),
+      params: { idSpa }, // Enviar el idSpa como parámetro en la URL
+    }
+  );
+  return response.data;
+};
+
+const updateFechaApertura = async (fecha_apertura) => {
+  const response = await api.put(API_URL +
+    "fecha-apertura",
+    { fecha_apertura },
+    { headers: authHeader() }
+  );
+  return response.data;
+};
 //------------ Delete -----------//
 
 const deltePterneceA = async (spaId, paqueteId) => {
@@ -332,6 +369,8 @@ export default {
   getPerteneceA,
   getPerteneceABySpa,
   getValoraciones,
+  getEstadoAgenda,
+  getFechaApertura,
   addPerteneceA,
   addCliente,
   addEmpleado,
@@ -349,6 +388,8 @@ export default {
   updatePaquete,
   updateCabina,
   updateValoracion,
+  updateEstadoAgenda,
+  updateFechaApertura,
   deltePterneceA,
   deleteCliente,
   deleteEmpleado,
