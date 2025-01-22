@@ -287,11 +287,13 @@ const updateEstadoAgenda = async (estado, idSpa) => {
   return response.data;
 };
 
-const updateFechaApertura = async (fecha_apertura) => {
+const updateFechaApertura = async (fecha_apertura, idSpa) => {
   const response = await api.put(API_URL +
     "fecha-apertura",
     { fecha_apertura },
-    { headers: authHeader() }
+    { headers: authHeader(),
+      params: { idSpa }, // 
+     }
   );
   return response.data;
 };

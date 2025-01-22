@@ -4,33 +4,28 @@ import helperServices from "@/services/helperServices.js";
 import { getCurrentInstance } from 'vue';
 import store from '@/store';
 
-
 export default function useCitas() {
+  const app = getCurrentInstance();
+
+  // === ESTADOS REACTIVOS PRINCIPALES ===
   const citas = ref([]);
   const citasTodayTomorrow = ref([]);
   const valoraciones = ref([]);
-  const app = getCurrentInstance();
-  const citasCountByDate = ref(new Map()); // Almacenar el conteo de citas por fecha
+  const citasCountByDate = ref(new Map()); 
   const estadoAgenda = ref(false);
-  const fechaApertura = ref("");
 
+  // Fecha de apertura obtenida desde backend
+  const fechaApertura = ref(null);
 
+  // ID del SPA actual
   const idSpa = store.getters.idSpa;
-  
-  const getCitasWithParams = async (param1, param2) => {
-    try{
-      const response = await apiService.getCitas(param1, param2);
-      return response.data;
-    }catch(error){
-      console.error(error);
-      throw new Error("Error al obtener citas");
-    }
-  };
+
+  // === OBTENER & ACTUALIZAR ESTADO AGENDA ===
   const fecthEstadoAgenda = async () => {
     try {
-      const response = await apiService.getEstadoAgenda(idSpa); // Enviar el idSpa
+      const response = await apiService.getEstadoAgenda(idSpa);
       if (response && response.estado !== undefined) {
-        estadoAgenda.value = response.estado;
+        estadoAgenda.value = response.estado === "true"; 
       } else {
         console.error("Respuesta inesperada al obtener el estado de la agenda:", response);
       }
@@ -44,7 +39,8 @@ export default function useCitas() {
       const nuevoEstado = !estadoAgenda.value;
       const response = await apiService.updateEstadoAgenda(nuevoEstado, idSpa);
       if (response && response.message) {
-        estadoAgenda.value = nuevoEstado;
+        // Sincronizar con el backend
+        await fecthEstadoAgenda();
         app.appContext.config.globalProperties.$showAlert(
           nuevoEstado
             ? "La agenda se ha reabierto"
@@ -62,50 +58,61 @@ export default function useCitas() {
       );
     }
   };
-  
 
+  // === OBTENER & ACTUALIZAR FECHA DE APERTURA ===
   const fetchFechaApertura = async () => {
     try {
-      const response = await apiService.getFechaApertura(idSpa); // Enviar el idSpa
-      fechaApertura.value = response.fecha_apertura;
+      const response = await apiService.getFechaApertura(idSpa);
+      if (response.fecha_apertura) {
+        // Guardamos la fecha en formato YYYY-MM-DD
+        fechaApertura.value = new Date(response.fecha_apertura).toISOString().split("T")[0];
+      }
     } catch (error) {
-      console.error("Error al obtener la fecha de apertura:");
+      console.error("Error al obtener la fecha de apertura:", error);
     }
   };
 
   const updateFechaApertura = async (nuevaFecha) => {
-    try{
-      await apiService.updateFechaApertura(nuevaFecha);
-      fechaApertura.value = nuevaFecha;
-      app.appContext.config.globalProperties.$showAlert(
-        "La fecha de apertura de la agenda se ha actualizado correctamente",
-        "success"
-      );
-    }catch (error){
-      console.error("Error al actualizar la fecha de apertura")
+    // Asegurarnos de formatear la fecha a YYYY-MM-DD para cumplir con el backend
+    const fechaFormateada = nuevaFecha.toISOString().split("T")[0]; 
+    console.log("Fecha formateada y idSpa:", fechaFormateada, idSpa);
+
+    try {
+      const response = await apiService.updateFechaApertura(fechaFormateada, idSpa);
+
+      // Verificamos que el backend devuelva un objeto con `configuracion`
+      if (response.configuracion) {
+        fechaApertura.value = nuevaFecha;  // Actualizamos estado local
+        app.appContext.config.globalProperties.$showAlert(
+          "La fecha de apertura ha sido actualizada correctamente.",
+          "success"
+        );
+      } else {
+        console.error("Respuesta inesperada al actualizar la fecha de apertura:", response);
+      }
+    } catch (error) {
+      console.error("Error al actualizar la fecha de apertura:", error);
+      throw new Error("No se pudo actualizar la fecha de apertura.");
     }
   };
 
+  // === OBTENER EL CONTEO DE CITAS POR FECHA ===
   const getCitasCountByDate = async (idSpa, startDate, endDate) => {
     try {
-      // Llamar al nuevo método getCitasCount del apiService
       const response = await apiService.getCitasCount({ idSpa, startDate, endDate });
-
-      // Convertir la respuesta en un Map para acceso eficiente
+      // Convertir la respuesta en un Map
       const countMap = new Map();
       response.forEach((item) => {
         countMap.set(item.fecha, item.count);
       });
-
-      citasCountByDate.value = countMap; // Actualizar el estado
+      citasCountByDate.value = countMap;
     } catch (error) {
       console.error("Error fetching citas count by date:", error);
       throw new Error("Error al obtener el conteo de citas.");
     }
   };
-  
-  
 
+    // === LÓGICA PARA CREAR/ACTUALIZAR/ELIMINAR CITAS ===
   const addCita = async (newCita) => {
     console.log("Nueva cita:", newCita);
     newCita.created_at = new Date().toISOString();
@@ -123,25 +130,15 @@ export default function useCitas() {
       }
   
           // Fecha límite para agendar citas
-    const fechaLimite = new Date(2025, 1, 1, 23, 59, 59); // 27 de enero de 2025
+    //const fechaLimite = new Date(2025, 1, 1, 23, 59, 59); // 27 de enero de 2025
   
-    if (date > fechaLimite) {
+    if (date > new Date(fechaApertura.value)) {
       app.appContext.config.globalProperties.$showAlert(
         " La agenda estará cerrada a partir del 1 de febrero de 2025. No se aceptarán nuevas citas después de esta fecha.",
         "error"
       );
       return;
     }
-      /* Validar si la fecha de la cita es anterior a la fecha de apertura
-      if (date < fechaApertura.value) {
-        app.appContext.config.globalProperties.$showAlert(
-          `No puedes agendar citas antes del ${new Date(fechaApertura.value).toLocaleDateString()}`,
-          "error"
-        );
-        return;
-      }
-        */
-  
       // Validación de minutos (solo en intervalos de 30 minutos)
       if (minutos !== 0 && minutos !== 30) {
         app.appContext.config.globalProperties.$showAlert(
@@ -241,74 +238,123 @@ export default function useCitas() {
     }
   };
   
+ // === OTRAS UTILIDADES ===
+const countCitasForDateColor = (dateString) => {
+  return citas.value.filter((cita) => {
+    const citaDate = new Date(cita.fecha);
+    return (
+      citaDate.toDateString() === new Date(dateString).toDateString()
+    );
+  }).length;
+};
 
-  const countCitasForDateColor = (dateString) => {
-    return citas.value.filter((cita) => {
-      const citaDate = new Date(cita.fecha);
-      return citaDate.toDateString() === new Date(dateString).toDateString();
-    }).length;
-  };
-
-  
-
-  const changeEstado = async (cita) => {
-    const estados = [
+const changeEstado = async (cita) => {
+  const estados = [
     'Por confirmar',
     'Cita programada',
     'Cita realizada',
     'Cita perdida',
     'Cita cancelada',
     'Reagendo cita',
-    'Adeudo',];
-    const currentIndex = estados.indexOf(cita.estado);
-    const newEstado = estados[(currentIndex + 1) % estados.length];
-    cita.estado = newEstado;
-    await updateCita(cita);
-  };
+    'Adeudo',
+  ];
+  const currentIndex = estados.indexOf(cita.estado);
+  const newEstado = estados[(currentIndex + 1) % estados.length];
+  cita.estado = newEstado;
+  await updateCita(cita);
+};
 
-  const getSundays = (start, end) =>{
-    let date = new Date(start);
-    let sundays = [];
-  
-    // Avanza hasta el primer domingo
-    while (date.getDay() !== 0) {
-      date.setDate(date.getDate() + 1);
-    }
-  
-    // Agrega todos los domingos hasta la fecha de finalización
-    while (date <= end) {
-      sundays.push(new Date(date));
-      date.setDate(date.getDate() + 7);
-    }
-  
-    return sundays;
+const getSundays = (start, end) => {
+  let date = new Date(start);
+  let sundays = [];
+
+  // Avanza hasta el primer domingo
+  while (date.getDay() !== 0) {
+    date.setDate(date.getDate() + 1);
   }
+  // Agrega todos los domingos hasta la fecha de finalización
+  while (date <= end) {
+    sundays.push(new Date(date));
+    date.setDate(date.getDate() + 7);
+  }
+  return sundays;
+};
 
-    const getHorasLibres = (citasDelDia, numeroCabina) => {
-    let horasTrabajo;
-
-     // Si es la cabina 4, ajustamos las horas de trabajo de 13:00 a 17:00 (01:00 pm a 05:00 pm)
+const getHorasLibres = (citasDelDia, numeroCabina) => {
+  // Cabina 4: 13:00 a 17:00
+  let horasTrabajo;
   if (numeroCabina === 4) {
-    horasTrabajo = ["13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+    horasTrabajo = [
+      "13:00",
+      "13:30",
+      "14:00",
+      "14:30",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00"
+    ];
   } else {
     // Horarios estándar para otras cabinas
-    horasTrabajo = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
+    horasTrabajo = [
+      "08:00",
+      "09:00",
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00",
+      "18:00",
+      "19:00",
+      "20:00"
+    ];
   }
-
-  // Filtrar citas que no sean "Reagendo cita" para calcular horas ocupadas
+  // Filtrar citas que no sean "Reagendo cita"
   const horasOcupadas = citasDelDia
-  .filter((cita) => cita.estado !== "Reagendo cita") // Excluir "Reagendo cita" de las horas ocupadas
-  .map((cita) => {
-    const date = new Date(cita.fecha);
-    return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
-  });
+    .filter((cita) => cita.estado !== "Reagendo cita")
+    .map((cita) => {
+      const date = new Date(cita.fecha);
+      return `${date
+        .getHours()
+        .toString()
+        .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+    });
 
-// Retornar horas disponibles
-return horasTrabajo.filter((hora) => !horasOcupadas.includes(hora));
-  };
-  
-  
+  return horasTrabajo.filter((hora) => !horasOcupadas.includes(hora));
+};
 
+// === DEVOLVEMOS LAS PROPIEDADES Y MÉTODOS QUE USARÁN TUS COMPONENTES ===
+return {
+  // Estados
+  citas,
+  citasTodayTomorrow,
+  valoraciones,
+  citasCountByDate,
+  estadoAgenda,
+  fechaApertura,
 
-  return { citas, citasTodayTomorrow, valoraciones,  citasCountByDate, estadoAgenda, fechaApertura, getCitasCountByDate, getCitasWithParams,fecthEstadoAgenda, fetchFechaApertura, toggleAgendaEstado, addCita, updateCita, updateFechaApertura, deleteCita, countCitasForDateColor, changeEstado, getSundays, getHorasLibres };
+  // Métodos de Agenda
+  fecthEstadoAgenda,
+  toggleAgendaEstado,
+
+  // Métodos de Fecha Apertura
+  fetchFechaApertura,
+  updateFechaApertura,
+
+  // Métodos para Citas
+  addCita,
+  updateCita,
+  deleteCita,
+
+  // Funciones Auxiliares
+  countCitasForDateColor,
+  changeEstado,
+  getSundays,
+  getHorasLibres,
+  getCitasCountByDate,
+};
 }

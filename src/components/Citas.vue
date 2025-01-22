@@ -9,15 +9,22 @@
 >
   {{ estadoAgenda ? "Cerrar Agenda" : "Abrir Agenda" }}
 </v-btn>
-      <v-menu offset-y>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn color="primary" dark v-bind="attrs" v-on="on">
-            Modificar Fecha Apertura
-          </v-btn>
-        </template>
-        <v-date-picker v-model="fechaApertura" @input="updateFechaApertura" />
-      </v-menu>
     </div>
+
+    <div v-if="user.tipo_empleado === 'Desarrollador'" class="d-flex flex-column align-center mb-4">
+  <v-date-picker
+    v-model="nuevaFechaApertura"
+    label="Selecciona la nueva fecha de apertura"
+    :min="new Date().toISOString().split('T')[0]"
+  ></v-date-picker>
+  <v-btn
+    color="primary"
+    class="mt-2"
+    @click="actualizarFechaApertura"
+  >
+    Actualizar Fecha de Apertura
+  </v-btn>
+</div>
 
 
     <div>
@@ -158,6 +165,7 @@ export default {
     const app = getCurrentInstance();
     const newDateFilter = ref(null);
     const selectedDate = ref(null);
+    const nuevaFechaApertura = ref(null);
 
     const horaPreseleccionada = ref(null);
 
@@ -284,6 +292,30 @@ console.log("Nuevo estado después de actualizar:", estadoAgenda.value);
     );
   }
 });
+const actualizarFechaApertura = async () => {
+  if (!nuevaFechaApertura.value) {
+    app.appContext.config.globalProperties.$showAlert(
+      "Por favor, selecciona una fecha válida.",
+      "error"
+    );
+    return;
+  }
+
+  try {
+    await updateFechaApertura(nuevaFechaApertura.value);
+    app.appContext.config.globalProperties.$showAlert(
+      "Fecha de apertura actualizada correctamente.",
+      "success"
+    );
+  } catch (error) {
+    app.appContext.config.globalProperties.$showAlert(
+      "Error al actualizar la fecha de apertura.",
+      "error"
+    );
+    console.error(error);
+  }
+};
+
 
 
     const editCita = (cita) => {
@@ -391,7 +423,9 @@ console.log("Nuevo estado después de actualizar:", estadoAgenda.value);
       cabinas, // agregar cabinas al return
       handleDayClicked,
       selectedDate,
-      citasCountByDate
+      citasCountByDate,
+      actualizarFechaApertura, 
+      nuevaFechaApertura
     };
   },
 };
