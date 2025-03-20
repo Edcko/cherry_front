@@ -11,6 +11,7 @@ import Empleado from '../views/Empleado.vue';
 import Cliente from '../views/Cliente.vue';
 import Sesion from '../views/Sesion.vue';
 import NotFound from '../views/NotFound.vue';
+import LandingPage from '../views/LandingPage.vue'
 import store from '../store';
 import { computed } from 'vue';
 
@@ -37,6 +38,12 @@ const routes = [
         name: "Home",
         component: Home,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
+    },
+    {
+        path: "/landing",
+        name: "Landing",
+        component: LandingPage,
+        meta: { requiresAuth: false }, // Indicar que requiere autenticación
     },
     {
         path: "/login",

@@ -1,90 +1,90 @@
-import { ref, watch } from "vue";
+import { computed } from "vue";
 import { adjustDateForTimezone } from "@/utils/dateUtils";
 
-const initialDate = new Date();
-
 export default function useCitasFilter(citas, search, dateFilter, clientIdFilter, newDateFilter) {
-  const filteredCitas = ref([]);
-
+  // Si no hay fecha definida, se asigna la fecha actual.
   if (!newDateFilter.value) {
-    newDateFilter.value = initialDate;
+    newDateFilter.value = new Date();
   }
 
-  watch(
-    [citas, search, dateFilter, clientIdFilter, newDateFilter],
-    () => {
-      let result = citas.value;
+  // Computed que filtra las citas según los filtros activos.
+  const filteredCitas = computed(() => {
+    let result = citas.value;
 
-       // Excluir citas reagendadas
-    //result = result.filter(cita => cita.estado !== "Reagendo cita");
-    
-  
-      // Filtro por cabina (sin cambios)
-      if (search.value) {
-        result = result.filter((cita) =>
-          cita.Cabina.numero_cabina.toString().includes(search.value.toString())
+    // Filtro por búsqueda en número de cabina
+    if (search.value) {
+      result = result.filter((cita) =>
+        cita.Cabina.numero_cabina.toString().includes(search.value.toString())
+      );
+    }
+
+    // Filtro por fecha exacta (solo si no hay filtro de cliente)
+    if (dateFilter.value && !clientIdFilter.value) {
+      result = result.filter(
+        (cita) =>
+          new Date(cita.fecha).getTime() === new Date(dateFilter.value).getTime()
+      );
+    }
+
+    // Filtro por fecha específica (sin filtro de cliente)
+    if (newDateFilter.value && !clientIdFilter.value) {
+      result = result.filter((cita) => {
+        const citaDate = new Date(cita.fecha);
+        const filterDate = adjustDateForTimezone(newDateFilter.value);
+        return (
+          citaDate.getFullYear() === filterDate.getFullYear() &&
+          citaDate.getMonth() === filterDate.getMonth() &&
+          citaDate.getDate() === filterDate.getDate()
         );
-      }
-  
-      // Filtro por fecha exacta (solo si no hay filtro de cliente activo)
-      if (dateFilter.value && !clientIdFilter.value) {
-        result = result.filter(
-          (cita) =>
-            new Date(cita.fecha).getTime() ===
-            new Date(dateFilter.value).getTime()
+      });
+    }
+
+    // Filtro por cliente (con rango de fechas: mes anterior, actual y siguiente)
+    if (clientIdFilter.value) {
+      const now = new Date();
+      const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+
+      result = result.filter((cita) => {
+        const citaDate = new Date(cita.fecha);
+        const fullClientName = `${cita.Cliente.nombre_cliente} ${cita.Cliente.apellido_paterno} ${cita.Cliente.apellido_materno}`.toLowerCase();
+        return (
+          fullClientName.includes(clientIdFilter.value.toLowerCase()) &&
+          citaDate >= startDate &&
+          citaDate <= endDate
         );
+      });
+    }
+
+    // Ordenar las citas según 'fecha'
+    result = sortCitas(result, 'fecha');
+    return result;
+  });
+
+  // Agrupar las citas filtradas por el número de cabina (memoización)
+  const citasPorCabina = computed(() => {
+    const grouped = {};
+    filteredCitas.value.forEach((cita) => {
+      const numero = cita.Cabina.numero_cabina;
+      if (!grouped[numero]) {
+        grouped[numero] = [];
       }
-  
-      // Filtro por fecha específica (mantener si no hay filtro de cliente)
-      if (newDateFilter.value && !clientIdFilter.value) {
-        result = result.filter((cita) => {
-            const citaDate = new Date(cita.fecha);
-            const filterDate = adjustDateForTimezone(newDateFilter.value);
-            return citaDate.getFullYear() === filterDate.getFullYear() &&
-                    citaDate.getMonth() === filterDate.getMonth() &&
-                    citaDate.getDate() === filterDate.getDate();
-        });
-      }
+      grouped[numero].push(cita);
+    });7
+    return grouped;
+  });
 
-      // Filtro por cliente con rango de fechas (mes anterior, actual y siguiente)
-      if (clientIdFilter.value) {
-        const now = new Date();
-        
-        // Calcular el primer día del mes anterior
-        const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        
-        // Calcular el último día del mes siguiente
-        const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
-
-        result = result.filter((cita) => {
-          const citaDate = new Date(cita.fecha);
-          const fullClientName = `${cita.Cliente.nombre_cliente} ${cita.Cliente.apellido_paterno} ${cita.Cliente.apellido_materno}`.toLowerCase();
-          
-          // Filtro por cliente y por rango de fechas (mes anterior, actual y posterior)
-          return fullClientName.includes(clientIdFilter.value.toLowerCase()) &&
-                citaDate >= startDate && citaDate <= endDate;
-        });
-      }
-
-      result = sortCitas(result, 'fecha');
-  
-      filteredCitas.value = result;
-    },
-    { immediate: true }
-  );
-
+  // Función que retorna las citas de una cabina (ya agrupadas)
   const getCitasByCabina = (numeroCabina) => {
-    return filteredCitas.value.filter(cita => cita.Cabina.numero_cabina === numeroCabina);
+    return citasPorCabina.value[numeroCabina] || [];
   };
-  
+
   return { filteredCitas, getCitasByCabina };
 }
 
-// Función para ordenar citas (sin cambios)
+// Función para ordenar citas
 const sortCitas = (citas, sortBy) => {
-  if (!sortBy) {
-    return citas;
-  }
+  if (!sortBy) return citas;
 
   const today = new Date();
 
@@ -101,13 +101,8 @@ const sortCitas = (citas, sortBy) => {
     if (sortBy === 'id_cita') {
       return a.id_cita - b.id_cita;
     } else if (sortBy === 'fecha') {
-      if(dateA < today) {
-        return 1;
-      }
-      if(dateB < today) {
-        return -1;
-      }
-
+      if (dateA < today) return 1;
+      if (dateB < today) return -1;
       return dateA - dateB;
     }
 

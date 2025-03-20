@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import apiService from "@/services/apiServices";
-import helperServices from "@/services/helperServices.js";
+//import helperServices from "@/services/helperServices.js";
 import { getCurrentInstance } from 'vue';
 import store from '@/store';
 
@@ -148,7 +148,7 @@ export default function useCitas() {
         return;
       }
   
-      // Validación de límite de citas por día (64 máximo, excepto para cabina 4)
+      /* Validación de límite de citas por día (64 máximo, excepto para cabina 4)
       if (
         newCita.numeroCabina !== 4 &&
         helperServices.citaHelper.countCitasForDate(date, citas, idSpa) >= 64
@@ -159,6 +159,7 @@ export default function useCitas() {
         );
         return;
       }
+      */
   
       console.log("Citas antes del filtro:", citas.value);
   
@@ -189,8 +190,28 @@ export default function useCitas() {
   
       // Crear la nueva cita
       await apiService.addCita(newCita);
-      console.log("Cita agregada correctamente.");
-      citas.value = await apiService.getCitas({ idSpa: idSpa });
+
+      // Definir el rango de una semana a partir de hoy
+      const currentDate = new Date();
+      const startDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate()
+      );
+      const endDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate() + 15
+      );
+      const format = (date) => date.toISOString().split("T")[0];
+      
+      // Solicitar solo las citas dentro de ese rango
+      citas.value = await apiService.getCitas({
+        idSpa: idSpa,
+        startDate: format(startDate),
+        endDate: format(endDate)
+      });
+      
       app.appContext.config.globalProperties.$showAlert(
         "La cita se agendó correctamente.",
         "success"
@@ -230,7 +251,12 @@ export default function useCitas() {
   const deleteCita = async (cita) => {
     try {
       await apiService.deleteCita(cita.id_cita);
-      citas.value = await apiService.getCitas({idSpa: idSpa});
+      // Eliminación parcial en el front-end
+const index = citas.value.findIndex((c) => c.id_cita === cita.id_cita);
+if (index !== -1) {
+  citas.value.splice(index, 1);
+}     
+  //citas.value = await apiService.getCitas({idSpa: idSpa});
       app.appContext.config.globalProperties.$showAlert("La cita se eliminó correctamente.", "success");
     } catch (error) {
       console.error("Error deleting cita:", error);

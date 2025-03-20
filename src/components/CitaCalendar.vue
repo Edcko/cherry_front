@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Componente VCalendar que ahora está sincronizado con el tema global -->
+    <!-- Componente VCalendar sincronizado con el tema global -->
     <v-calendar
       :is-dark="isDarkTheme"
       :rows="1"
@@ -13,78 +13,49 @@
   </div>
 </template>
 
-<script>
+<script setup>
+/* eslint-disable */
+import { ref, computed, onMounted } from "vue";
+import { useTheme } from "vuetify";
 import useCitas from "@/composables/useCitas.js";
-import { ref, onMounted, computed } from "vue";
-import { useTheme } from 'vuetify'; // Importar useTheme para acceder al tema global
 
-export default {
-  name: "CitaCalendar",
-  props: {
+// Definición de props y emits
+const props = defineProps({
   citas: Array,
   citasCount: {
-    type: Object, // Map debería estar tipado como Object
+    type: Object, // Se espera un Map, por ejemplo
     required: true,
   },
-},
-  setup(props, { emit }) {
-    const calendar = ref(null);
-    const disabledDates = ref([]);
-    
-     // Acceso al tema global de Vuetify
+});
+const emit = defineEmits(["dayClicked"]);
+
+// Referencia al componente calendario y fechas deshabilitadas
+const calendar = ref(null);
+const disabledDates = ref([]);
+
+// Acceso al tema global de Vuetify
 const theme = useTheme();
+const isDarkTheme = computed(() => theme.global.name.value === "dark");
 
-// Computed para verificar si el tema es oscuro
-const isDarkTheme = computed(() => theme.global.name.value === 'dark');
+// Uso del composable para obtener los domingos
+const { getSundays } = useCitas();
+const startDate = new Date(2025, 0, 1);
+const endDate = new Date(2025, 11, 31);
+disabledDates.value = getSundays(startDate, endDate);
 
-
-    const { getSundays } = useCitas();
-    const startDate = new Date(2024, 0, 1);
-    const endDate = new Date(2024, 11, 31);
-
-    // Deshabilitar los domingos
-    disabledDates.value = getSundays(startDate, endDate);
-
-    // Crear un mapa de fechas con el número de citas para el mes presente
-    const citasCountByDate = ref(new Map());
-
-    const getCurrentMonthRange = () => {
-      const currentDate = new Date();
-      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-      return { firstDayOfMonth, lastDayOfMonth };
-    };
-
-    const precomputeCitasCount = () => {
-      const countMap = new Map();
-      const { firstDayOfMonth, lastDayOfMonth } = getCurrentMonthRange();
-
-      props.citas.forEach((cita) => {
-        const citaDate = new Date(cita.fecha);
-        if (citaDate >= firstDayOfMonth && citaDate <= lastDayOfMonth) {
-          const dateString = citaDate.toDateString();
-          if (!countMap.has(dateString)) {
-            countMap.set(dateString, 0);
-          }
-          countMap.set(dateString, countMap.get(dateString) + 1);
-        }
-      });
-
-      citasCountByDate.value = countMap;
-    };
-    
-    const calendarAttributes = computed(() => {
+// Computed que genera los atributos del calendario basado en citasCount (fuente única de verdad)
+const calendarAttributes = computed(() => {
   const attributes = [];
   props.citasCount.forEach((count, dateString) => {
-    // Parsear la fecha y normalizar a la zona horaria local
-    const date = new Date(dateString + "T00:00:00"); // Asegura que sea a las 00:00 en local
+    // Convertir la fecha a formato local a las 00:00
+    const date = new Date(dateString + "T00:00:00");
     const color = count >= 26 ? "red" : count >= 10 ? "orange" : "teal";
 
     attributes.push({
       key: dateString,
       dates: date,
       highlight: {
-        color: color,
+        color,
         fillMode: "light",
       },
     });
@@ -92,26 +63,15 @@ const isDarkTheme = computed(() => theme.global.name.value === 'dark');
   return attributes;
 });
 
+// Mover el calendario a la fecha actual al montarse
+onMounted(() => {
+  if (calendar.value) {
+    calendar.value.move(new Date());
+  }
+});
 
-    onMounted(() => {
-      precomputeCitasCount();
-      if (calendar.value) {
-        calendar.value.move(new Date());
-      }
-    });
-
-    const onDayClick = (day) => {
-      const dayDate = day.date;
-      emit("dayClicked", { date: dayDate });
-    };
-
-    return {
-      calendar,
-      onDayClick,
-      disabledDates,
-      calendarAttributes,
-      isDarkTheme, // Retorna el estado de tema global
-    };
-  },
+// Manejo del clic en un día
+const onDayClick = (day) => {
+  emit("dayClicked", { date: day.date });
 };
 </script>

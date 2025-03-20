@@ -57,7 +57,7 @@
               color: valoracionesCount >= 39 ? "red" : "teal",
             },
             popover: {
-              label: `Valoración: ${fechaFormateada} || Cliente: ${valoracion.Cliente?.nombre_cliente ?? "Desconocido"} ${
+              label: `Evaluación: ${fechaFormateada} || Cliente: ${valoracion.Cliente?.nombre_cliente ?? "Desconocido"} ${
                 valoracion.Cliente?.apellido_paterno ?? ""
               } ${valoracion.Cliente?.apellido_materno ?? ""}`,
               slots: [

@@ -49,7 +49,7 @@
           label="Estado de la Compra"
           v-model="compra.estado_compra"
           :rules="[rules.required]"
-          :items="['Completado','Adeudo', 'Cancelado']"
+          :items="['Completado','Adeudo']"
           variant="filled"
           color="teal"
           class="mb-4"

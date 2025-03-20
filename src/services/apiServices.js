@@ -79,7 +79,14 @@ const getCitas = async (params) => {
         params
     });
     return response.data;
-}
+};
+
+const getCitaById = async (id) => {
+  const response = await api.get(API_URL + 'cita/' + id, {
+    headers: authHeader()
+  });
+  return response.data;
+};
 
 const getCitasCount = async (params) => {
   const response = await api.get(API_URL + 'citas/count', {
@@ -362,6 +369,7 @@ export default {
   getEmpleados,
   getEmpleadosActivos,
   getCitas,
+  getCitaById,
   getCitasCount,
   getCompras,
   getSesiones,
