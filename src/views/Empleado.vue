@@ -40,7 +40,7 @@
                   <div class="switch-section">
                   <!-- Switch solo visible para Administradores -->
                   <v-switch
-                    v-if="user.tipo_empleado === 'Administrador'"
+                    v-if="user.tipo_empleado === 'Desarrollador'"
                     v-model="item.activo"
                     @change="toggleActivo(item)"
                     inset

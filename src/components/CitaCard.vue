@@ -80,7 +80,7 @@
             <v-icon>mdi-delete</v-icon>
           </v-btn>
           <v-btn
-            v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente' || user.tipo_empleado === 'Desarrollador'"
+            v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente' || user.tipo_empleado === 'Desarrollador' || user.tipo_empleado === 'Manager'"
             color="success"
             @click="changeEstado(cita)"
           >
