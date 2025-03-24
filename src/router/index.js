@@ -106,7 +106,7 @@ const routes = [
         name: "Cliente",
         component: Cliente,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Desarrollador', 'Administrador', 'Manager', 'Gerente']),
+        beforeEnter: requireRole(['Desarrollador', 'Administrador', 'Manager', 'Gerente', 'Manager']),
     },
     {
         path: "/sesiones",
