@@ -1,7 +1,7 @@
 <template>
   <v-app>
 
-    <navbar :user="state.user" />
+    <navbar v-if="$route.name !== 'Login'" :user="state.user" />
   
     <v-main app>
       <router-view/>
@@ -61,9 +61,3 @@ export default {
   },
 };
 </script>
-
-<style>
-  .main-background {
-    background-color: #ffffff;
-  }
-</style>

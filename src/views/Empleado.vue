@@ -1,91 +1,121 @@
 <template>
-  <div class="employee-container">
-    <!-- Progress circular cuando los datos están cargando -->
-    <v-row v-if="isLoading" justify="center" align="center" class="full-height">
+  <!-- Contenedor principal a pantalla completa -->
+  <v-container fluid class="full-screen d-flex flex-column">
+    <!-- Muestra el spinner mientras carga -->
+    <v-row
+      v-if="isLoading"
+      align="center"
+      justify="center"
+      class="flex-grow-1"
+    >
       <v-progress-circular indeterminate color="teal"></v-progress-circular>
     </v-row>
 
-    <v-row v-else>
-      <v-col cols="12">
-        <v-card class="mx-auto my-4" max-width="1000" elevation="10">
+    <!-- Contenido cuando ya cargó -->
+    <v-row
+      v-else
+      class="flex-grow-1"
+    >
+      <v-col cols="12" class="d-flex flex-column">
+        <!-- Card que llena todo el espacio vertical disponible -->
+        <v-card class="d-flex flex-column fill-height" elevation="10">
+          <!-- Encabezado: Título y Botón Agregar en la misma línea -->
           <v-card-title class="custom-button">
-            Lista de Empleados
-            <v-spacer></v-spacer>
-            <!-- Campo de búsqueda -->
+            <div style="display: flex; align-items: center; width: 100%;">
+              <span>Lista de Empleados</span>
+              <v-spacer></v-spacer>
+              <!-- Botón para agregar empleado en la esquina contraria al título -->
+              <v-dialog v-model="showDialog" persistent width="1024">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    elevation="0"
+                    rounded
+                    size="x-large"
+                    class="custom-button"
+                    v-bind="props"
+                    @click="openAddDialog"
+                  >
+                    <v-icon>mdi-account-plus</v-icon>
+                  </v-btn>
+                </template>
+                <empleado-dialog
+                  v-model:showDialog="showDialog"
+                  @close="showDialog = false"
+                  @addEmpleado="addEmpleado"
+                  @updateEmpleado="updateEmpleado"
+                  :empleadoEdit="empleadoToEdit"
+                />
+              </v-dialog>
+            </div>
+          </v-card-title>
+
+          <!-- Campo de búsqueda debajo del título -->
+          <v-card-text>
             <v-text-field
               v-model="searchQuery"
               append-icon="mdi-magnify"
-              label="Buscar empleados"
+              label="Buscar empleados..."
               single-line
               hide-details
             ></v-text-field>
-          </v-card-title>
+          </v-card-text>
+
           <v-divider></v-divider>
 
-          <!-- Lista de empleados con scroll virtual -->
-          <v-virtual-scroll :items="filteredEmpleados" height="400" item-height="48">
-            <template v-slot:default="{ item }">
-              <v-list-item
-                :title="`${item.nombre_empleado} ${item.apellido_paterno} ${item.apellido_materno}`"
-              >
-                <template v-slot:subtitle>
-                  <div>
-                    Email: {{ item.email }} | Teléfono: {{ item.telefono_empleado }} | Puesto: {{ item.tipo_empleado }}
-                  </div>
-                </template>
-                <template v-slot:prepend>
-                  <v-icon class="custom-button">mdi-account</v-icon>
-                </template>
-                <template v-slot:append>
-                  <div class="switch-section">
-                  <!-- Switch solo visible para Administradores -->
-                  <v-switch
-                    v-if="user.tipo_empleado === 'Desarrollador'"
-                    v-model="item.activo"
-                    @change="toggleActivo(item)"
-                    inset
-                    color="teal"
-                    label="Activo"
-                  ></v-switch>
-                </div>
-                  <v-btn class="custom-button mx-1" icon @click="openEditDialog(item)">
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn class="custom-button mx-1" icon @click="openDeleteDialog(item)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-              </v-list-item>
-
-
-            </template>
-          </v-virtual-scroll>
-
-          <!-- Botón para agregar empleado -->
-          <v-row justify="center" class="my-2">
-            <v-dialog v-model="showDialog" persistent width="1024">
-  <template v-slot:activator="{ props }">
-    <v-btn
-      elevation="8"
-      rounded
-      :large="true"
-      class="custom-button"
-      v-bind="props"
-      @click="openAddDialog"
-      icon="mdi-account-plus"
-    >
-    </v-btn>
-  </template>
-  <empleado-dialog
-    v-model:showDialog="showDialog"
-    @close="showDialog = false"
-    @addEmpleado="addEmpleado"
-    @updateEmpleado="updateEmpleado"
-    :empleadoEdit="empleadoToEdit"
-  />
-</v-dialog>
-
-          </v-row>
+          <!-- Contenedor flexible para la lista -->
+          <div class="employee-list flex-grow-1 d-flex flex-column">
+            <!-- Lista de empleados con scroll virtual -->
+            <v-virtual-scroll
+              class="flex-grow-1"
+              style="overflow-y: auto;"
+              :items="filteredEmpleados"
+              item-height="48"
+            >
+              <template v-slot:default="{ item }">
+                <v-list-item
+                  :title="`${item.nombre_empleado} ${item.apellido_paterno} ${item.apellido_materno}`"
+                >
+                  <template v-slot:subtitle>
+                    <div>
+                      Email: {{ item.email }} |
+                      Teléfono: {{ item.telefono_empleado }} |
+                      Puesto: {{ item.tipo_empleado }}
+                    </div>
+                  </template>
+                  <template v-slot:prepend>
+                    <v-icon class="custom-button">mdi-account</v-icon>
+                  </template>
+                  <template v-slot:append>
+                    <div class="switch-section">
+                      <!-- Switch solo visible para Administradores -->
+                      <v-switch
+                        v-if="user.tipo_empleado === 'Desarrollador'"
+                        v-model="item.activo"
+                        @change="toggleActivo(item)"
+                        inset
+                        color="teal"
+                        label="Activo"
+                      ></v-switch>
+                    </div>
+                    <v-btn
+                      class="custom-button mx-1"
+                      icon
+                      @click="openEditDialog(item)"
+                    >
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                    <v-btn
+                      class="custom-button mx-1"
+                      icon
+                      @click="openDeleteDialog(item)"
+                    >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-virtual-scroll>
+          </div>
         </v-card>
       </v-col>
     </v-row>
@@ -95,16 +125,21 @@
       <v-card>
         <v-card-title class="headline">Confirmación de eliminación</v-card-title>
         <v-card-text>
-          ¿Estás seguro de que deseas eliminar al empleado con ID {{ empleadoToDelete?.id_empleado }}?
+          ¿Estás seguro de que deseas eliminar al empleado con ID
+          {{ empleadoToDelete?.id_empleado }}?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="deleteDialog = false">No</v-btn>
-          <v-btn color="red darken-1" text @click="confirmDelete">Sí</v-btn>
+          <v-btn color="blue darken-1" text @click="deleteDialog = false"
+            >No</v-btn
+          >
+          <v-btn color="red darken-1" text @click="confirmDelete"
+            >Sí</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -134,7 +169,7 @@ export default {
       try {
         await fetchEmpleados();
         await loadUser();
-        filteredEmpleados.value = empleados.value; // Copia inicial de los empleados
+        filteredEmpleados.value = empleados.value; // Copia inicial
         isLoading.value = false;
       } catch (error) {
         console.error(error);
@@ -142,39 +177,38 @@ export default {
       }
     });
 
-    // Actualizar lista filtrada según la búsqueda
+    // Filtrar al cambiar la búsqueda
     watch(searchQuery, (newValue) => {
-      if (newValue === "") {
+      if (!newValue) {
         filteredEmpleados.value = empleados.value;
       } else {
         filteredEmpleados.value = empleados.value.filter((empleado) =>
-          `${empleado.nombre_empleado} ${empleado.apellido_paterno} ${empleado.apellido_materno}`.toLowerCase().includes(newValue.toLowerCase())
+          `${empleado.nombre_empleado} ${empleado.apellido_paterno} ${empleado.apellido_materno}`
+            .toLowerCase()
+            .includes(newValue.toLowerCase())
         );
       }
     });
 
     const openEditDialog = (empleado) => {
-  empleadoToEdit.value = { ...empleado }; // Clona el empleado a editar
-  console.log("Editando empleado:", empleadoToEdit.value); // Verificar los datos
-  showDialog.value = true;
-};
+      empleadoToEdit.value = { ...empleado }; // Clona el empleado a editar
+      showDialog.value = true;
+    };
 
-const openAddDialog = () => {
-  empleadoToEdit.value = null; // Limpia el empleado a editar para modo creación
-  showDialog.value = true;
-};
+    const openAddDialog = () => {
+      empleadoToEdit.value = null; // Limpia para modo creación
+      showDialog.value = true;
+    };
 
-const toggleActivo = async (empleado) => {
-  console.log("Empleado:", empleado);
-  console.log("Tipo de empleado:", user.tipo_empleado);
-  try {
-    await updateEmpleado({ ...empleado, activo: empleado.activo });
-    helperServices.showAlert("Estado actualizado correctamente.", "success");
-  } catch (error) {
-    console.error("Error actualizando el estado activo:", error);
-    helperServices.showAlert("Error al actualizar el estado.", "error");
-  }
-};
+    const toggleActivo = async (empleado) => {
+      try {
+        await updateEmpleado({ ...empleado, activo: empleado.activo });
+        helperServices.showAlert("Estado actualizado correctamente.", "success");
+      } catch (error) {
+        console.error("Error actualizando el estado activo:", error);
+        helperServices.showAlert("Error al actualizar el estado.", "error");
+      }
+    };
 
     const openDeleteDialog = (empleado) => {
       empleadoToDelete.value = empleado;
@@ -184,7 +218,9 @@ const toggleActivo = async (empleado) => {
     const confirmDelete = async () => {
       try {
         await deleteEmpleado(empleadoToDelete.value);
-        const index = empleados.value.findIndex((e) => e.id_empleado === empleadoToDelete.value.id_empleado);
+        const index = empleados.value.findIndex(
+          (e) => e.id_empleado === empleadoToDelete.value.id_empleado
+        );
         if (index !== -1) {
           empleados.value.splice(index, 1);
         }
@@ -219,17 +255,20 @@ const toggleActivo = async (empleado) => {
 </script>
 
 <style scoped>
-.employee-container {
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+/* Contenedor principal a pantalla completa */
+.full-screen {
+  height: 100vh;      /* Ocupa todo el alto de la ventana */
+  width: 100%;        /* Ocupa todo el ancho */
+  margin: 0;
+  padding: 0;
 }
 
-.button-spacing {
-  padding-top: 30px;
-  text-align: center;
+/* Permite que el card ocupe todo el espacio vertical */
+.fill-height {
+  height: 100%;
 }
 
+/* Botón de la parte superior */
 .custom-button {
   color: teal;
   margin-right: 8px;
@@ -239,25 +278,18 @@ const toggleActivo = async (empleado) => {
   margin-right: 0;
 }
 
-.full-height {
-  height: 80vh;
+/* Contenedor que hará crecer el scroll vertical de la lista 
+.employee-list {
+  flex-grow-1 se asigna en el template
 }
+   */
 
-.activo {
-  color: green;
-  font-weight: bold;
-}
-
-.inactivo {
-  color: red;
-  font-weight: bold;
-}
-
+/* Estilos del switch */
 .switch-section {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-right: 40px; /* Espacio entre el switch y los botones */
-  margin-top: 0px; /* Ajusta según sea necesario */
+  margin-right: 40px;
+  margin-top: 0px;
 }
 </style>

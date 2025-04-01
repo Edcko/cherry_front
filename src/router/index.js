@@ -37,7 +37,9 @@ const routes = [
         path: "/",
         name: "Home",
         component: Home,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true,
+            navbarTitle: 'Inicio'
+         }, // Indicar que requiere autenticación
     },
     {
         path: "/landing",
@@ -49,28 +51,36 @@ const routes = [
         path: "/login",
         name: "Login",
         component: Login,
-        meta: { requiresAuth: false }, // Ruta pública
+        meta: { requiresAuth: false,
+            navbarTitle: 'Login'
+         }, // Ruta pública
     },
 
     {
         path: "/perfil",
         name: "Perfil",
         component: Perfil,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true, 
+              navbarTitle: 'Mi Perfil'
+        }, // Indicar que requiere autenticación
     },
 
     {
         path: "/paquetes",
         name: "Paquete",
         component: Paquete,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true,
+            navbarTitle: 'Catálogo de Paquetes'
+         }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
     },
     {
         path: '/agenda',
         name: 'Agenda',
         component: Agenda,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true,
+            navbarTitle: 'Portal de Agenda'
+         }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora', 'Terapeuta']),
       },
       {
@@ -84,28 +94,36 @@ const routes = [
         path: '/evaluaciones',
         name: 'Valoracion',
         component: Valoracion,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true,
+            navbarTitle: 'Portal de Valoraciones'
+         }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente']),
       },
     {
         path: "/empleados",
         name: "Empleado",
         component: Empleado,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true,
+                navbarTitle: 'Portal de Empleados'
+         }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Desarrollador', 'Administrador']),
     },
     {
         path: "/cabinas",
         name: "Cabina",
         component: Cabina,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true,
+            navbarTitle: 'Gestión de Cabinas'
+         }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Desarrollador', 'Administrador']),
     },
     {
         path: "/clientes",
         name: "Cliente",
         component: Cliente,
-        meta: { requiresAuth: true }, // Indicar que requiere autenticación
+        meta: { requiresAuth: true,
+            navbarTitle: 'Portal de Clientes'
+         }, // Indicar que requiere autenticación
         beforeEnter: requireRole(['Desarrollador', 'Administrador', 'Manager', 'Gerente', 'Manager']),
     },
     {
