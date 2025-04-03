@@ -16,7 +16,7 @@
   </v-navigation-drawer>
 
   <transition name="fade">
-    <v-app-bar app :elevation="6" rounded v-show="showNavbar" color="transparent">
+    <v-app-bar app :elevation="6" rounded v-show="showNavbar">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       
       <!-- Título dinámico -->
@@ -148,17 +148,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.v-app-bar {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-::v-deep .v-app-bar {
-  background: transparent !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  --v-theme-surface: transparent !important;
-}
-</style>

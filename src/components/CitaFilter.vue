@@ -1,58 +1,24 @@
 <template>
-  <v-container fluid>
-    <v-card>
-      <v-toolbar color="teal" dark>
-        <v-toolbar-title class="white--text">Búsqueda</v-toolbar-title>
-      </v-toolbar>
+  <v-container fluid class="d-flex flex-column align-center py-6">
+    <!-- Título centrado -->
+    <h1 class="text-center mb-4">Gestión de Citas</h1>
 
-      <v-card-text>
-        <v-container>
-          <v-row justify="center"> <!-- Centrar los filtros -->
-            <v-col v-for="(filter, index) in filters" :key="index" cols="12" md="6" class="mb-3 d-flex justify-center">
-              <v-autocomplete
-                v-if="filter.label === 'Buscar nombre del cliente'"
-                outlined
-                v-model="filter.value"
-                :items="clienteOptions"
-                :label="filter.label"
-                class="cliente-filter"
-              ></v-autocomplete>
-              <v-text-field
-                v-else
-                outlined
-                v-model="filter.value"
-                :type="filter.type || 'text'"
-                :label="filter.label"
-                class="input-field"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card-text>
-
-      <v-card-actions class="justify-center button-row">
-        <v-btn
-          color="teal"
-          elevation="4"
-          rounded
-          class="mx-3"
-          @click="applyFilters"
-        >Aplicar</v-btn>
-
-        <v-btn
-          color="teal"
-          elevation="4"
-          rounded
-          class="mx-3"
-          @click="resetFilters"
-        >Restablecer</v-btn>
-      </v-card-actions>
-    </v-card>
+    <!-- Campo de búsqueda centrado -->
+    <v-autocomplete
+      v-model="filters[0].value"
+      :items="clienteOptions"
+      :label="filters[0].label"
+      prepend-inner-icon="mdi-magnify"
+      outlined
+      dense
+      class="search-input"
+      @keyup.enter="applyFilters"
+    ></v-autocomplete>
   </v-container>
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import apiService from "@/services/apiServices";
 import store from "@/store";
 
@@ -62,36 +28,49 @@ export default {
     const idSpa = store.getters.idSpa;
 
     onMounted(async () => {
-      clientes.value = await apiService.getClientes({
-        idSpa: idSpa,
-      });
+      clientes.value = await apiService.getClientes({ idSpa });
     });
 
+    // Opciones para el autocomplete
     const clienteOptions = computed(() => {
-      return clientes.value.map(
-        cliente => `${cliente.nombre_cliente} ${cliente.apellido_paterno} ${cliente.apellido_materno}`
+      return clientes.value.map(cliente =>
+        `${cliente.nombre_cliente} ${cliente.apellido_paterno} ${cliente.apellido_materno}`
       );
     });
 
+    // Filtros reactivos
     const filters = reactive([
-      { value: ref(''), label: 'Buscar nombre del cliente', type: 'autocomplete', emitOnApply: 'clientIdFilterChange' },
+      { 
+        value: ref(''), 
+        label: 'Buscar por cliente, fecha, terapeuta, paquete o estado...', 
+        type: 'autocomplete', 
+        emitOnApply: 'clientIdFilterChange' 
+      },
     ]);
 
+    // Aplica los filtros (se invoca al presionar Enter)
     const applyFilters = () => {
       filters.forEach(filter => {
         emit(filter.emitOnApply, filter.value);
       });
     };
 
+    // Restablece los filtros y emite el filtro para las citas del día
     const resetFilters = () => {
       filters.forEach(filter => {
         filter.value = filter.type === 'autocomplete' ? '' : filter.value;
       });
-
       const today = new Date();
       emit('newDateFilterChange', today);
       applyFilters();
     };
+
+    // Observa si el campo de búsqueda queda vacío para resetear automáticamente
+    watch(filters[0].value, (newVal) => {
+      if (!newVal) {
+        resetFilters();
+      }
+    });
 
     return {
       filters,
@@ -104,32 +83,21 @@ export default {
 </script>
 
 <style scoped>
-.v-card {
-  border-radius: 15px;
-}
-.v-toolbar {
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+/* Contenedor principal centrado */
+.d-flex.flex-column.align-center {
+  /* Puedes ajustar el margen o padding para separarlo del resto de la página */
+  margin-top: 24px;
 }
 
-.input-field {
-  max-width: 300px;
-  width: 100%;
-  margin-left: 10px;
+/* Título */
+h2 {
+  font-weight: 600;
+  /* Ajusta el tamaño a tu gusto */
 }
 
-.button-row {
-  margin-top: 0px;  
-  margin-bottom: 15px;  
-}
-
-.cliente-filter {
-  max-width: 400px; /* Aumentar el tamaño del filtro */
-  width: 100%;
-  font-size: 16px; /* Hacer el texto más grande */
-}
-
-.v-row {
-  justify-content: center; /* Asegurar que el contenido esté centrado */
+/* Campo de búsqueda */
+.search-input {
+  width: 400px; /* Un ancho razonable para hacerlo más pequeño */
+  max-width: 90%; /* Para que sea responsive en pantallas pequeñas */
 }
 </style>
