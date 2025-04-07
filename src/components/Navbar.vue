@@ -23,21 +23,25 @@
       <v-toolbar-title>{{ navbarTitle }}</v-toolbar-title>
       
       <v-spacer>
-
-<!--  
-<v-img
-  src="../assets/logo_1.png"
-  max-height="250"
-  max-width="250"
-  contain
-  ></v-img>
-  -->
-
-</v-spacer>
+        <!-- Puedes descomentar o agregar tu logo aquí -->
+        <!-- <v-img src="../assets/logo_1.png" max-height="250" max-width="250" contain></v-img> -->
+      </v-spacer>
+      
       <v-btn @click="toggleTheme" icon>
-        <v-icon>{{ isDarkTheme ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
+        <v-icon>
+          {{ isDarkTheme ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}
+        </v-icon>
       </v-btn>
-      <v-btn v-if="isLogged" text @click="logout">Cerrar Sesión</v-btn>
+
+      <!-- Botón de Logout con ícono y tooltip -->
+      <v-tooltip bottom v-if="isLogged">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on" @click="logout">
+            <v-icon>mdi-logout</v-icon>
+          </v-btn>
+        </template>
+        <span>Cerrar Sesión</span>
+      </v-tooltip>
     </v-app-bar>
   </transition>
 </template>
@@ -93,8 +97,8 @@ export default {
       if (route.meta && route.meta.navbarTitle) {
         return route.meta.navbarTitle;
       }
-      // Si no se definió, se puede implementar una lógica personalizada:
-      switch(route.path) {
+      // Si no se definió, se implementa una lógica personalizada:
+      switch (route.path) {
         case '/agenda':
           return 'Portal de Agenda';
         case '/clientes':

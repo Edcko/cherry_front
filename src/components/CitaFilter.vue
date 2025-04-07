@@ -11,6 +11,7 @@
       prepend-inner-icon="mdi-magnify"
       outlined
       dense
+      rounded="lg"
       class="search-input"
       @keyup.enter="applyFilters"
     ></v-autocomplete>
@@ -83,21 +84,14 @@ export default {
 </script>
 
 <style scoped>
-/* Contenedor principal centrado */
 .d-flex.flex-column.align-center {
-  /* Puedes ajustar el margen o padding para separarlo del resto de la página */
   margin-top: 24px;
 }
 
-/* Título */
-h2 {
-  font-weight: 600;
-  /* Ajusta el tamaño a tu gusto */
-}
-
-/* Campo de búsqueda */
 .search-input {
-  width: 400px; /* Un ancho razonable para hacerlo más pequeño */
-  max-width: 90%; /* Para que sea responsive en pantallas pequeñas */
+  width: 400px;
+  max-width: 90%;
+  border-radius: 20px !important; /* Redondeo de esquinas */
+  overflow: hidden; /* Asegura que las esquinas se apliquen correctamente */
 }
 </style>

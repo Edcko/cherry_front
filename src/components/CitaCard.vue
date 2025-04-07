@@ -1,92 +1,105 @@
 <template>
   <v-container v-if="user" fluid>
     <v-col>
-      <v-card>
-        <v-card-title class="headline">
-          Fecha: {{ truncateName(formattedFecha) }}
-          <v-tooltip activator="parent" location="bottom">
-            {{ formattedFecha }}
-          </v-tooltip>
+      <v-card class="custom-card">
+        <!-- Título con fecha -->
+        <v-card-title class="card-header">
+          <v-icon small class="mr-2">mdi-calendar-clock</v-icon>
+          {{ formattedFecha }}
         </v-card-title>
-        <v-card-subtitle>
-          <div class="title-text">
-            <strong>Cliente: </strong>
-            <span class="truncate">
-              {{ truncateName(clientFullName) }}
-              <v-tooltip activator="parent" location="bottom">
-                {{ clientFullName }}
-              </v-tooltip>
+
+        <v-card-text>
+          <!-- Cliente -->
+          <div class="info-row">
+            <span class="info-label">
+              <v-icon small class="mr-1">mdi-account</v-icon>
+              Cliente:
+            </span>
+            <span class="info-value truncate" :title="clientFullName">
+              {{ clientFullName }}
             </span>
           </div>
-        </v-card-subtitle>
-        <v-card-text>
-          <p>
-            <strong>Agendó: </strong>
-            <span class="truncate">
-              {{ truncateName(agendoFullName) }}
-              <v-tooltip activator="parent" location="bottom">
-                {{ agendoFullName }}
-              </v-tooltip>
+
+          <!-- Agendó -->
+          <div class="info-row">
+            <span class="info-label">
+              <v-icon small class="mr-1">mdi-calendar-check</v-icon>
+              Agendó:
             </span>
-          </p>
-          <p>
-            <strong>Cabina:</strong>
-            {{ cita.Cabina.turno }} - {{ cita.Cabina.estado_cabina }}
-          </p>
-          <p>
-            <strong>Terapeuta: </strong>
-            <span class="truncate">
-              {{ truncateName(terapeutaFullName) }}
-              <v-tooltip activator="parent" location="bottom">
-                {{ terapeutaFullName }}
-              </v-tooltip>
+            <span class="info-value truncate" :title="agendoFullName">
+              {{ agendoFullName }}
             </span>
-          </p>
-          <p>
-            <strong>Paquete: </strong>
-            <span class="truncate">
-              {{ truncateName(paqueteName) }}
-              <v-tooltip activator="parent" location="bottom">
-                {{ paqueteName }}
-              </v-tooltip>
+          </div>
+
+          <!-- Cabina -->
+          <div class="info-row">
+            <span class="info-label">
+              <v-icon small class="mr-1">mdi-hospital-building</v-icon>
+              Cabina:
             </span>
-          </p>
-          <p>
-            <strong>No. de cita: </strong>
-            <span class="truncate">
-              {{ truncateName(numeroCita) }}
-              <v-tooltip activator="parent" location="bottom">
-                {{ numeroCita }}
-              </v-tooltip>
+            <span class="info-value">
+              {{ cita.Cabina.turno }} - {{ cita.Cabina.estado_cabina }}
             </span>
-          </p>
-          <p
-            :style="{
-              backgroundColor: estadoColor,
-              color: 'white',
-              padding: '5px',
-              borderRadius: '5px'
-            }"
-          >
-            <strong>Estado:</strong> {{ cita.estado }}
-          </p>
+          </div>
+
+          <!-- Terapeuta -->
+          <div class="info-row">
+            <span class="info-label">
+              <v-icon small class="mr-1">mdi-account-heart</v-icon>
+              Terapeuta:
+            </span>
+            <span class="info-value truncate" :title="terapeutaFullName">
+              {{ terapeutaFullName }}
+            </span>
+          </div>
+
+          <!-- Paquete -->
+          <div class="info-row">
+            <span class="info-label">
+              <v-icon small class="mr-1">mdi-package-variant-closed</v-icon>
+              Paquete:
+            </span>
+            <span class="info-value truncate" :title="paqueteName">
+              {{ paqueteName }}
+            </span>
+          </div>
+
+          <!-- Número de cita -->
+          <div class="info-row">
+            <span class="info-label">
+              <v-icon small class="mr-1">mdi-pound</v-icon>
+              No. de cita:
+            </span>
+            <span class="info-value">{{ numeroCita }}</span>
+          </div>
+
+          <!-- Estado de la cita (chip) -->
+          <div class="status-chip" :style="{ backgroundColor: estadoColor }">
+            {{ cita.estado }}
+          </div>
         </v-card-text>
-        <v-card-actions class="actions">
+
+        <!-- Botones de acciones -->
+        <v-card-actions class="justify-center">
           <v-btn
-            v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente' || user.tipo_empleado === 'Desarrollador'"
+            v-if="['Administrador', 'Gerente', 'Desarrollador'].includes(user.tipo_empleado)"
+            icon
             color="error"
             @click="handleDeleteCita(cita)"
           >
             <v-icon>mdi-delete</v-icon>
           </v-btn>
           <v-btn
-            v-if="user.tipo_empleado === 'Administrador' || user.tipo_empleado === 'Gerente' || user.tipo_empleado === 'Desarrollador' || user.tipo_empleado === 'Manager'"
+            v-if="['Administrador', 'Gerente', 'Desarrollador', 'Manager'].includes(user.tipo_empleado)"
+            icon
             color="success"
             @click="changeEstado(cita)"
           >
-            <v-icon>mdi-check</v-icon>
+            <v-icon>mdi-check-circle-outline</v-icon>
           </v-btn>
         </v-card-actions>
+
+        <!-- Diálogo para editar cita -->
         <cita-edit-dialog
           v-model="showEditDialog"
           :cita="currentCita"
@@ -95,20 +108,17 @@
         />
       </v-card>
 
+      <!-- Diálogo de confirmación para eliminar cita -->
       <v-dialog v-model="confirmDeleteDialog" max-width="400px">
         <v-card>
-          <v-card-title class="text-h5">Confirmar Eliminación</v-card-title>
+          <v-card-title class="text-h6">Confirmar Eliminación</v-card-title>
           <v-card-text>
-            ¿Está seguro de eliminar la cita {{ citaToDelete.id_cita }}?
+            ¿Está seguro de eliminar la cita #{{ citaToDelete.id_cita }}?
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="confirmDeleteDialog = false">
-              Cancelar
-            </v-btn>
-            <v-btn color="red darken-1" text @click="deleteCita">
-              Eliminar
-            </v-btn>
+            <v-btn color="grey" text @click="confirmDeleteDialog = false">Cancelar</v-btn>
+            <v-btn color="red" text @click="deleteCita">Eliminar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -144,39 +154,32 @@ export default {
 
     const { changeEstado } = useCitas();
 
-    // Computed: formatea la fecha y almacena el resultado para evitar recalculaciones
     const formattedFecha = computed(() => {
       return format(new Date(props.cita.fecha), "EE dd/MMM/yy HH:mm", { locale: es });
     });
 
-    // Computed: nombre completo del cliente
     const clientFullName = computed(() => {
       return `${props.cita.Cliente.nombre_cliente} ${props.cita.Cliente.apellido_paterno} ${props.cita.Cliente.apellido_materno}`;
     });
 
-    // Computed: nombre completo de quien agendó la cita
     const agendoFullName = computed(() => {
       return props.cita.Empleado
         ? `${props.cita.Empleado.nombre_empleado} ${props.cita.Empleado.apellido_paterno} ${props.cita.Empleado.apellido_materno}`
         : "";
     });
 
-    // Computed: nombre completo del terapeuta asignado a la cabina
     const terapeutaFullName = computed(() => {
       return `${props.cita.Cabina.Empleado.nombre_empleado} ${props.cita.Cabina.Empleado.apellido_paterno} ${props.cita.Cabina.Empleado.apellido_materno}`;
     });
 
-    // Computed: nombre del paquete
     const paqueteName = computed(() => {
       return props.cita.Paquete.nombre_paquete;
     });
 
-    // Computed: número de cita
     const numeroCita = computed(() => {
       return props.cita.numero_visita;
     });
 
-    // Computed: color para el estado de la cita, usando chroma para normalizar el valor
     const estadoColor = computed(() => {
       const colors = {
         "por confirmar": "#f18933",
@@ -190,7 +193,6 @@ export default {
       return chroma(color).hex();
     });
 
-    // Métodos para eliminar y editar citas
     const handleDeleteCita = (cita) => {
       citaToDelete.value = cita;
       confirmDeleteDialog.value = true;
@@ -231,7 +233,6 @@ export default {
     };
   },
   methods: {
-    // Función simple para truncar cadenas
     truncateName(name, limit = 30) {
       return name.length > limit ? name.substring(0, limit) + "..." : name;
     },
@@ -240,17 +241,43 @@ export default {
 </script>
 
 <style scoped>
-.actions {
-  justify-content: center;
-  margin-top: -10px;
+.custom-card {
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
 }
-
-.title-text {
-  font-size: 1rem;
-  font-weight: bold;
+.card-header {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #424242;
 }
-
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+.info-label {
+  font-weight: 500;
+  color: #616161;
+  display: flex;
+  align-items: center;
+}
+.info-value {
+  color: #424242;
+}
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 10px;
+  text-transform: capitalize;
+}
 .truncate {
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
