@@ -1,22 +1,21 @@
 <template>
-  <!-- Replicamos la estructura de CitaCard: un v-container con v-col y un v-card dentro -->
   <v-container fluid>
     <v-col>
-      <v-card class="hora-libre-card">
-        <!-- Título de la card -->
-        <v-card-title class="hora-libre-header">
+      <v-card class="hora-card">
+        <v-card-title class="hora-card-header">
           <v-icon small class="mr-2">mdi-clock-outline</v-icon>
           Hora Disponible:
           <span class="hora-text">{{ hora }}</span>
         </v-card-title>
-
         <v-divider></v-divider>
-
-        <!-- Botón de acción -->
         <v-card-actions class="actions">
           <v-btn color="success" dark @click="agendarCita">
             <v-icon left>mdi-plus-circle</v-icon>
             Agregar Cita
+          </v-btn>
+          <v-btn color="error" dark @click="abrirCerrarCabinaDialog">
+            <v-icon left>mdi-close-circle</v-icon>
+            Cerrar Cabina
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -30,54 +29,68 @@ export default {
   props: ["hora"],
   methods: {
     agendarCita() {
-      // Emitimos el evento para que el padre maneje la lógica de agendar
       this.$emit("agendar", this.hora);
     },
+    abrirCerrarCabinaDialog() {
+      this.$emit("cerrarCabina", this.hora);
+    }
   },
 };
 </script>
 
 <style scoped>
-/* Card con un estilo similar a CitaCard, pero con un degradado */
-.hora-libre-card {
+.hora-card {
   border-radius: 15px;
-  /* Sombra suave */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* Margen inferior para separar cards entre sí */
   margin-bottom: 15px;
-  /* Fondo degradado */
   background: linear-gradient(135deg, #e0f7fa, #80deea);
-  /* Borde punteado */
   border: 1px dashed #0097a7;
-  /* Animación de hover */
   transition: transform 0.2s ease-in-out;
+  padding: 8px;
+  /* Establece un ancho mínimo para mantener coherencia */
+  min-width: 250px;
+  max-width: 350px;
 }
-
-.hora-libre-card:hover {
+.hora-card:hover {
   transform: scale(1.02);
 }
-
-/* Título con tipografía y color similares a CitaCard */
-.hora-libre-header {
+.hora-card-header {
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #424242;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 }
-
-/* Texto específico para la hora */
 .hora-text {
   font-weight: 700;
   color: #004d40;
   margin-left: 4px;
 }
-
-/* Acciones centradas, con un poco de espacio */
 .actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  padding: 16px;
-  margin-top: 8px;
+  padding: 8px;
+  gap: 8px;
+}
+
+/* Adaptaciones para pantallas pequeñas */
+@media (max-width: 600px) {
+  .hora-card {
+    font-size: 0.9rem;
+    padding: 4px;
+    min-width: 200px;
+    max-width: 300px;
+  }
+  .actions {
+    padding: 4px;
+    gap: 4px;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hora-card-header {
+    font-size: 0.9rem;
+  }
 }
 </style>

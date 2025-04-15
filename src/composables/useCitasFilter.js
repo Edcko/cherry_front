@@ -85,27 +85,11 @@ export default function useCitasFilter(citas, search, dateFilter, clientIdFilter
 // Función para ordenar citas
 const sortCitas = (citas, sortBy) => {
   if (!sortBy) return citas;
-
-  const today = new Date();
-
+  
+  // Ordenamos las citas ascendentemente según su fecha (hora incluida)
   return citas.slice().sort((a, b) => {
     const dateA = new Date(a.fecha);
     const dateB = new Date(b.fecha);
-
-    if (dateA.getTime() === today.getTime() && dateB.getTime() !== today.getTime()) {
-      return -1;
-    } else if (dateA.getTime() !== today.getTime() && dateB.getTime() === today.getTime()) {
-      return 1;
-    }
-
-    if (sortBy === 'id_cita') {
-      return a.id_cita - b.id_cita;
-    } else if (sortBy === 'fecha') {
-      if (dateA < today) return 1;
-      if (dateB < today) return -1;
-      return dateA - dateB;
-    }
-
-    return 0;
+    return dateA - dateB;  // Orden ascendente: la cita con fecha menor (más temprana) aparece primero.
   });
 };

@@ -20,17 +20,22 @@ const API_URL = 'http://198.199.68.78:3000/cherry/';
   api.interceptors.response.use(
     (response) => {
       return response;
-     },
-     error => {
-      if(error.response.status === 401) {
+    },
+    (error) => {
+      // Verificamos si error.response existe
+      if (error.response && error.response.status === 401) {
         console.log('Error 401');
         store.dispatch('logout');
         router.push('/login');
         showAlert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.', 'error');
+      } else if (!error.response) {
+        // Error de red o conexión rechazada
+        console.error("Error de conexión:", error);
+        showAlert('Error de conexión. Por favor, verifique su conexión o intente más tarde.', 'error');
       }
       return Promise.reject(error);
-     }
-  )
+    }
+  );
 
 //------------ Get -----------//
 
@@ -156,6 +161,25 @@ const getFechaApertura = async (idSpa) => {
   return response.data;
 };
 
+// Obtener bloqueos por spa (usando el parámetro idSpa)
+const getBloqueos = async (params) => {
+  const response = await api.get(API_URL + 'bloqueos', {
+    headers: authHeader(),
+    params, // Por ejemplo, { idSpa: 1 }
+  });
+  return response.data;
+};
+
+const getBloqueosByDateRange = async (params) => {
+  const response = await api.get(API_URL + 'bloqueos/daterange', {
+    headers: authHeader(),
+    params,
+  });
+  return response.data;
+};
+
+
+
 
 //------------ Add -----------//
 
@@ -221,6 +245,14 @@ const generateClientDocument = async (clienteId) => {
     headers: authHeader(),
   });
   return response.data; // Retorna la respuesta, que incluye el `filePath`
+};
+
+// Crear un nuevo bloqueo
+const addBloqueo = async (bloqueo) => {
+  const response = await api.post(API_URL + 'bloqueo', bloqueo, {
+    headers: authHeader(),
+  });
+  return response.data;
 };
 
 //------------ Update -----------//
@@ -304,6 +336,15 @@ const updateFechaApertura = async (fecha_apertura, idSpa) => {
   );
   return response.data;
 };
+
+// Actualizar bloqueo (por id)
+const updateBloqueo = async (bloqueo) => {
+  const response = await api.put(API_URL + 'bloqueo/' + bloqueo.id_bloqueo, bloqueo, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
+
 //------------ Delete -----------//
 
 const deltePterneceA = async (spaId, paqueteId) => {
@@ -364,6 +405,14 @@ const deleteValoracion = async (id_valoracion) => {
   return response.data;
 };
 
+// Eliminar bloqueo (por id)
+const deleteBloqueo = async (id_bloqueo) => {
+  const response = await api.delete(API_URL + 'bloqueo/' + id_bloqueo, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
+
 export default {
   getClientes,
   getEmpleados,
@@ -381,6 +430,8 @@ export default {
   getValoraciones,
   getEstadoAgenda,
   getFechaApertura,
+  getBloqueos,
+  getBloqueosByDateRange,
   addPerteneceA,
   addCliente,
   addEmpleado,
@@ -389,6 +440,7 @@ export default {
   addCabina,
   addPaquete,
   addValoracion,
+  addBloqueo,
   generateClientDocument,
   updatePerteneceA,
   updateCliente,
@@ -400,6 +452,7 @@ export default {
   updateValoracion,
   updateEstadoAgenda,
   updateFechaApertura,
+  updateBloqueo,
   deltePterneceA,
   deleteCliente,
   deleteEmpleado,
@@ -407,6 +460,7 @@ export default {
   deleteCompra,
   deletePaquete,
   deleteCabina,
-  deleteValoracion
+  deleteValoracion,
+  deleteBloqueo
   // Exporta las otras solicitudes API aquí
 };

@@ -43,7 +43,7 @@ export default {
     const filters = reactive([
       { 
         value: ref(''), 
-        label: 'Buscar por cliente, fecha, terapeuta, paquete o estado...', 
+        label: 'Buscar por cliente...', 
         type: 'autocomplete', 
         emitOnApply: 'clientIdFilterChange' 
       },
