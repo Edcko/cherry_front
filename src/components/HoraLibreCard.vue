@@ -13,10 +13,10 @@
             <v-icon left>mdi-plus-circle</v-icon>
             Agregar Cita
           </v-btn>
-          <v-btn color="error" dark @click="abrirCerrarCabinaDialog">
+         <!-- <v-btn color="error" dark @click="abrirCerrarCabinaDialog">
             <v-icon left>mdi-close-circle</v-icon>
             Cerrar Cabina
-          </v-btn>
+          </v-btn>-->
         </v-card-actions>
       </v-card>
     </v-col>
