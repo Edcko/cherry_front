@@ -81,9 +81,12 @@
             <v-container fluid>
               <div
                 v-for="evento in getEventosPorCabina(numeroCabina)"
-                :key="evento.tipo === 'cita' ? `cita-${evento.id_cita}` : (evento.tipo === 'bloqueo' ? `bloqueo-${evento.id_bloqueo}` : `libre-${evento.horaStr}`)"
+                :key="evento.tipo === 'cita'
+                  ? `cita-${evento.id_cita}`
+                  : evento.tipo === 'bloqueo'
+                    ? `bloqueo-${evento.id_bloqueo}`
+                    : `libre-${evento.horaStr}`"
               >
-                <!-- Renderizado condicional según el tipo de evento -->
                 <cita-card
                   v-if="evento.tipo === 'cita'"
                   :cita="evento"
@@ -199,209 +202,184 @@ export default {
     // Ref para la cabina a cerrar
     const cabinaParaCerrar = ref(null);
 
-    // Función para formatear la hora (HH:MM)
+    // Formateo de hora
     const formatHora = (fechaBloqueo) => {
       const date = new Date(fechaBloqueo);
       return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     };
 
-    // Función para obtener las citas por cabina usando el filtro
     const getCitasByCabina = (numeroCabina) => {
       return getCitasByCabinaFilter(numeroCabina) || [];
     };
 
-    // Función para combinar eventos (citas, bloqueos y horas libres) sin clonar los objetos reactivos
+    // COMBINACIÓN DE EVENTOS: excluye horas bloqueadas de las libres
     const getEventosPorCabina = (numeroCabina) => {
-      // Asignar propiedades a las citas sin clonarlas
+      // 1) Citas: mutar en sitio para reactividad
       const citasCabina = getCitasByCabina(numeroCabina).map((cita) => {
         if (cita.tipo !== "cita") {
           cita.tipo = "cita";
           cita.fechaEvento = cita.fecha;
+          cita.hora = new Date(cita.fecha);
         }
         return cita;
       });
 
-      // Para bloqueos, asignar directamente en el objeto reactivo
+      // 2) Bloqueos: mutar en sitio
       const bloqueosCabina = bloqueos.value
         .filter((bloqueo) => {
-          const bloqueoDate = new Date(bloqueo.fecha_bloqueo);
-          const selectedDateLocal = new Date(selectedDate.value);
+          const d = new Date(bloqueo.fecha_bloqueo);
+          const sel = new Date(selectedDate.value);
           return (
             bloqueo.Cabina.numero_cabina === numeroCabina &&
-            bloqueoDate.getFullYear() === selectedDateLocal.getFullYear() &&
-            bloqueoDate.getMonth() === selectedDateLocal.getMonth() &&
-            bloqueoDate.getDate() === selectedDateLocal.getDate()
+            d.getFullYear() === sel.getFullYear() &&
+            d.getMonth() === sel.getMonth() &&
+            d.getDate() === sel.getDate()
           );
         })
         .map((bloqueo) => {
           if (bloqueo.tipo !== "bloqueo") {
             bloqueo.tipo = "bloqueo";
             bloqueo.fechaEvento = bloqueo.fecha_bloqueo;
+            bloqueo.hora = new Date(bloqueo.fecha_bloqueo);
           }
           return bloqueo;
         });
 
-      // Generamos las horas libres (se crean nuevos objetos para visualización)
-      const horasLibres = getHorasLibres(getCitasByCabina(numeroCabina), numeroCabina).map((horaStr) => {
-        const [hrs, mins] = horaStr.split(":");
-        const freeDate = new Date(selectedDate.value);
-        freeDate.setHours(parseInt(hrs, 10), parseInt(mins, 10), 0, 0);
-        return {
-          tipo: "libre",
-          hora: freeDate,
-          horaStr: horaStr,
-        };
+      // 3) Calcular horas libres excluyendo bloqueos:
+      const todasHorasLibres = getHorasLibres(getCitasByCabina(numeroCabina), numeroCabina);
+      // obtener strings bloqueados "HH:MM"
+      const bloqueadasStr = bloqueosCabina.map(b => {
+        const hrs = String(b.hora.getHours()).padStart(2, "0");
+        const mins = String(b.hora.getMinutes()).padStart(2, "0");
+        return `${hrs}:${mins}`;
       });
+      const horasLibres = todasHorasLibres
+        .filter(hs => !bloqueadasStr.includes(hs))
+        .map((horaStr) => {
+          const [hrs, mins] = horaStr.split(":");
+          const freeDate = new Date(selectedDate.value);
+          freeDate.setHours(parseInt(hrs, 10), parseInt(mins, 10), 0, 0);
+          return { tipo: "libre", hora: freeDate, horaStr };
+        });
 
+      // 4) Combinar y ordenar por Date
       const eventos = [...citasCabina, ...bloqueosCabina, ...horasLibres];
-      eventos.sort((a, b) => new Date(a.fechaEvento) - new Date(b.fechaEvento));
+      eventos.sort((a, b) => a.hora - b.hora);
       return eventos;
     };
 
-    // Computed para mantener una versión combinada para el calendario (si es necesario)
+    // Para el calendario: eventos de la primera cabina
     const eventosCombinadosLocal = computed(() => {
-      // Si deseas que el calendario reciba la versión combinada de eventos,
-      // puedes usar getEventosPorCabina aplicándolo para cada cabina y combinar (o directamente pasarlo según corresponda)
-      // En este ejemplo, simplemente devolvemos los eventos de la primera cabina para ilustrar.
       return getEventosPorCabina(cabinas.value[0]) || [];
     });
 
-    // Función para cargar el conteo de citas por fecha
     const loadCitasCountByDate = async () => {
-      const currentDate = new Date();
-      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-      const format = (date) => date.toISOString().split("T")[0];
-
-      try {
-        await getCitasCountByDate(
-          store.getters.idSpa,
-          format(firstDayOfMonth),
-          format(lastDayOfMonth)
-        );
-        console.log("Conteo de citas cargado exitosamente.");
-      } catch (error) {
-        console.error("Error al cargar el conteo de citas:", error);
-      }
+      const now = new Date();
+      const f = (d) => d.toISOString().split("T")[0];
+      await getCitasCountByDate(
+        store.getters.idSpa,
+        f(new Date(now.getFullYear(), now.getMonth(), 1)),
+        f(new Date(now.getFullYear(), now.getMonth() + 1, 0))
+      );
     };
 
     onMounted(async () => {
-      const currentDate = new Date();
-      selectedDate.value = currentDate;
-
-      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-      const lastDayOfSecondNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, 0);
-      const today = currentDate;
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const format = (date) => date.toISOString().split("T")[0];
-
+      const now = new Date();
+      selectedDate.value = now;
+      const f = (d) => d.toISOString().split("T")[0];
       try {
-        const [allCitas, todayTomorrowCitas] = await Promise.all([
+        const [allC, todayT] = await Promise.all([
           apiService.getCitas({
             idSpa: store.getters.idSpa,
-            startDate: format(firstDayOfMonth),
-            endDate: format(lastDayOfSecondNextMonth),
+            startDate: f(new Date(now.getFullYear(), now.getMonth() - 1, 1)),
+            endDate: f(new Date(now.getFullYear(), now.getMonth() + 3, 0)),
           }),
           apiService.getCitas({
             idSpa: store.getters.idSpa,
-            startDate: format(today),
-            endDate: format(tomorrow),
+            startDate: f(now),
+            endDate: f(new Date(now.getTime() + 86400000)),
           }),
         ]);
-        citas.value = allCitas;
-        citasTodayTomorrow.value = todayTomorrowCitas;
-        // Cargar bloqueos por rango
-        await fetchBloqueosByDateRange(format(firstDayOfMonth), format(lastDayOfSecondNextMonth));
-        console.log("Bloqueos:", bloqueos.value);
+        citas.value = allC;
+        citasTodayTomorrow.value = todayT;
+        await fetchBloqueosByDateRange(
+          f(new Date(now.getFullYear(), now.getMonth() - 1, 1)),
+          f(new Date(now.getFullYear(), now.getMonth() + 3, 0))
+        );
         await Promise.all([
           fecthEstadoAgenda(),
           fetchFechaApertura(),
           loadCitasCountByDate(),
           loadUser(),
         ]);
-        horaPreseleccionada.value = currentDate.toISOString().slice(0, 16);
-      } catch (error) {
-        console.error("Error en onMounted:", error);
-        appContext.config.globalProperties.$showAlert(
-          "Error al cargar las citas. Por favor, inténtalo de nuevo.",
-          "error"
-        );
+        horaPreseleccionada.value = now.toISOString().slice(0, 16);
+      } catch (err) {
+        console.error(err);
+        appContext.config.globalProperties.$showAlert("Error al cargar las citas.", "error");
       }
     });
 
-    watch(
-      citas,
-      async () => {
-        await loadCitasCountByDate();
-      },
-      { deep: true }
-    );
+    watch(citas, loadCitasCountByDate, { deep: true });
 
     const actualizarFechaApertura = async () => {
       if (!nuevaFechaApertura.value) {
-        appContext.config.globalProperties.$showAlert("Por favor, selecciona una fecha válida.", "error");
-        return;
+        return appContext.config.globalProperties.$showAlert("Selecciona una fecha válida.", "error");
       }
       try {
         await updateFechaApertura(nuevaFechaApertura.value);
-        appContext.config.globalProperties.$showAlert("Fecha de apertura actualizada correctamente.", "success");
-      } catch (error) {
-        appContext.config.globalProperties.$showAlert("Error al actualizar la fecha de apertura.", "error");
-        console.error(error);
+        appContext.config.globalProperties.$showAlert("Fecha actualizada.", "success");
+      } catch (err) {
+        console.error(err);
+        appContext.config.globalProperties.$showAlert("Error al actualizar fecha.", "error");
       }
     };
 
     const handleDeleteCita = async (cita) => {
       try {
         await deleteCita(cita);
-        const index = citas.value.findIndex((c) => c.id_cita === cita.id_cita);
-        if (index !== -1) {
-          citas.value.splice(index, 1);
-        }
-      } catch (error) {
-        appContext.config.globalProperties.$showAlert("Ha ocurrido un error al eliminar la cita.", "error");
-        console.error(error);
+        const idx = citas.value.findIndex(c => c.id_cita === cita.id_cita);
+        if (idx !== -1) citas.value.splice(idx, 1);
+      } catch (err) {
+        console.error(err);
+        appContext.config.globalProperties.$showAlert("Error al eliminar cita.", "error");
       }
     };
 
     const handleAgendarHoraLibre = (hora) => {
-      if (selectedDate.value) {
-        const [hrs, mins] = hora.split(":");
-        const fechaConHora = new Date(selectedDate.value);
-        fechaConHora.setHours(parseInt(hrs, 10), parseInt(mins, 10), 0);
-        const fechaFormatoLocal = `${fechaConHora.getFullYear()}-${(fechaConHora.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}-${fechaConHora.getDate().toString().padStart(2, "0")}T${hrs}:${mins}`;
-        horaPreseleccionada.value = fechaFormatoLocal;
-        showDialog.value = true;
-      } else {
-        console.warn("No se ha seleccionado una fecha en el calendario.");
-      }
+      if (!selectedDate.value) return;
+      const [hrs, mins] = hora.split(":");
+      const dt = new Date(selectedDate.value);
+      dt.setHours(+hrs, +mins, 0);
+      const pad = (n) => n.toString().padStart(2, "0");
+      horaPreseleccionada.value = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${hrs}:${mins}`;
+      showDialog.value = true;
     };
 
     const changeEstadoWrapper = async (cita) => {
-      const estadoPrevio = cita.estado;
-      cita.estado = !estadoPrevio;
+      const prev = cita.estado;
+      cita.estado = !prev;
       try {
         await changeEstado(cita);
-      } catch (error) {
-        cita.estado = estadoPrevio;
-        appContext.config.globalProperties.$showAlert("Ha ocurrido un error al cambiar el estado de la cita.", "error");
-        console.error(error);
+      } catch (err) {
+        cita.estado = prev;
+        console.error(err);
+        appContext.config.globalProperties.$showAlert("Error al cambiar estado.", "error");
       }
     };
 
-  // Aseguramos que el día seleccionado se convierta en objeto Date
-  const handleDayClicked = (day) => {
-      selectedDate.value = day.date;
+    const handleCitaClicked = (cita) => {
+      console.log("Cita clickeada:", cita);
+    };
+
+    const handleDayClicked = (day) => {
+      selectedDate.value = new Date(day.date);
       newDateFilter.value = day.date;
     };
 
-    // Funciones para cerrar cabina
     const handleCerrarCabina = (hora) => {
-      // Actualiza la hora preseleccionada para el cierre usando el día seleccionado y la hora recibida
-      horaPreseleccionada.value = selectedDate.value.toISOString().slice(0, 10) + "T" + hora;
+      const d = new Date(selectedDate.value);
+      const pad = (n) => n.toString().padStart(2, "0");
+      horaPreseleccionada.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${hora}`;
       showCerrarCabinaDialog.value = true;
     };
 
@@ -414,11 +392,12 @@ export default {
           motivo: formData.motivo,
         });
         await fetchBloqueos();
+        // refrezcar selectedDate para reactivar cálculo
         selectedDate.value = new Date(selectedDate.value);
-        appContext.config.globalProperties.$showAlert("La cabina se cerró correctamente.", "success");
-      } catch (error) {
-        console.error("Error al cerrar la cabina:", error);
-        appContext.config.globalProperties.$showAlert("Error al cerrar la cabina.", "error");
+        appContext.config.globalProperties.$showAlert("Cabina cerrada.", "success");
+      } catch (err) {
+        console.error(err);
+        appContext.config.globalProperties.$showAlert("Error al cerrar cabina.", "error");
       }
     };
 
@@ -426,6 +405,7 @@ export default {
       citas,
       citasTodayTomorrow,
       showDialog,
+      showCerrarCabinaDialog,
       estadoAgenda,
       fechaApertura,
       horaPreseleccionada,
@@ -436,8 +416,8 @@ export default {
       user,
       newDateFilter,
       addCita,
-      deleteCita,
       updateCita,
+      deleteCita,
       updateFechaApertura,
       changeEstado: changeEstadoWrapper,
       getCitasByCabina,
@@ -446,6 +426,7 @@ export default {
       handleDeleteCita,
       handleAgendarHoraLibre,
       toggleAgendaEstado,
+      handleCitaClicked,
       handleDayClicked,
       selectedDate,
       citasCountByDate,
@@ -453,16 +434,11 @@ export default {
       nuevaFechaApertura,
       isDeveloper,
       minDate,
-      // Funciones para cerrar cabina
-      showCerrarCabinaDialog,
       cabinaParaCerrar,
       handleCerrarCabina,
       cerrarCabina,
-      // Función para formatear horas
       formatHora,
-      // Función para obtener eventos combinados (citas, bloqueos y horas libres)
       getEventosPorCabina,
-      // En este ejemplo, pasamos al calendario una versión combinada de los eventos de la primera cabina.
       eventosCombinadosLocal,
     };
   },
@@ -474,23 +450,19 @@ table {
   border-collapse: collapse;
   width: 100%;
 }
-
 th,
 td {
   border: 1px solid black;
   padding: 8px;
   text-align: left;
 }
-
 th {
   background-color: #f2f2f2;
 }
-
 h1 {
   text-align: center;
   margin-bottom: 1rem;
 }
-
 .custom-button {
   color: teal;
 }
