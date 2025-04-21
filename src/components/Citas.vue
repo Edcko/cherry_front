@@ -97,8 +97,11 @@
                 />
                 <hora-bloqueada-card
                   v-else-if="evento.tipo === 'bloqueo'"
+                  :idBloqueo="evento.id_bloqueo"
                   :hora="formatHora(evento.hora)"
                   :motivoBloqueo="evento.motivo"
+                  :canLiberar="isPrivilegedRole"
+                  @liberar="liberarHora"
                 />
                 <hora-libre-card
                   v-else
@@ -401,6 +404,36 @@ export default {
       }
     };
 
+    const liberarHora = async (idBloqueo) => {
+      try {
+        // Llamada a tu API para eliminar el bloqueo
+        await apiService.deleteBloqueo(idBloqueo);
+
+        // Recargamos los bloqueos desde el servidor
+        await fetchBloqueos();
+
+        // Forzamos la recomputación de eventos re-asignando selectedDate
+        selectedDate.value = new Date(selectedDate.value);
+
+        appContext.config.globalProperties.$showAlert(
+          "Hora liberada correctamente.",
+          "success"
+        );
+      } catch (error) {
+        console.error("Error al liberar hora:", error);
+        appContext.config.globalProperties.$showAlert(
+          "No se pudo liberar la hora.",
+          "error"
+        );
+      }
+    };
+
+    const isPrivilegedRole = computed(() =>
+  ["Administrador", "Desarrollador", "Gerente", "Generente", "Manager"]
+    .includes(user.value?.tipo_empleado)
+);
+
+
     return {
       citas,
       citasTodayTomorrow,
@@ -440,6 +473,8 @@ export default {
       formatHora,
       getEventosPorCabina,
       eventosCombinadosLocal,
+      liberarHora,
+      isPrivilegedRole,
     };
   },
 };

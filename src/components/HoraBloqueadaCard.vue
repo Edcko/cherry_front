@@ -6,6 +6,12 @@
           <v-icon small class="mr-2">mdi-lock</v-icon>
           Hora Cerrada:
           <span class="hora-text">{{ hora }}</span>
+
+          <!-- NUEVO: botón para liberar -->
+          <v-spacer />
+          <v-btn icon small color="green" @click="$emit('liberar', idBloqueo)">
+            <v-icon>mdi-lock-open</v-icon>
+          </v-btn>
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="bloqueo-text">
@@ -20,6 +26,10 @@
 export default {
   name: "HoraBloqueadaCard",
   props: {
+    idBloqueo: {
+      type: Number,
+      required: true,
+    },
     hora: {
       type: String,
       required: true,
@@ -27,6 +37,10 @@ export default {
     motivoBloqueo: {
       type: String,
       default: "Bloqueo",
+    },
+    canLiberar: {
+      type: Boolean,
+      default: false,
     },
   },
 };
