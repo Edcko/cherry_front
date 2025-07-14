@@ -130,7 +130,6 @@
 import { ref, computed, onMounted } from "vue";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import useCitas from "@/composables/useCitas";
 import useUser from "@/composables/useUser";
 import CitaEditDialog from "@/components/CitaEditDialog.vue";
 import chroma from "chroma-js";
@@ -140,7 +139,7 @@ export default {
   components: {
     CitaEditDialog,
   },
-  props: ["cita"],
+  props: ["cita", "changeEstado"],
   setup(props, { emit }) {
     const showEditDialog = ref(false);
     const currentCita = ref({});
@@ -152,7 +151,7 @@ export default {
       await loadUser();
     });
 
-    const { changeEstado } = useCitas();
+
 
     const formattedFecha = computed(() => {
       return format(new Date(props.cita.fecha), "EE dd/MMM/yy HH:mm", { locale: es });
@@ -223,13 +222,14 @@ export default {
       showEditDialog,
       currentCita,
       updateCitaFromForm,
-      changeEstado,
       handleDeleteCita,
       confirmDeleteDialog,
       citaToDelete,
       deleteCita,
       editCita,
       user,
+      // eslint-disable-next-line
+      changeEstado: props.changeEstado
     };
   },
   methods: {

@@ -94,6 +94,7 @@
                   @updateCita="updateCita"
                   @deleteCita="handleDeleteCita"
                   @updateEstado="updateCita"
+                  :changeEstado="handleChangeEstado"
                 />
                 <hora-bloqueada-card
                   v-else-if="evento.tipo === 'bloqueo'"
@@ -457,17 +458,23 @@ export default {
       showDialog.value = true;
     };
 
-    const changeEstadoWrapper = async (cita) => {
-      const prev = cita.estado;
-      cita.estado = !prev;
+    // Función wrapper para cambiar estado que actualiza el estado local
+    const handleChangeEstado = async (cita) => {
       try {
         await changeEstado(cita);
-      } catch (err) {
-        cita.estado = prev;
-        console.error(err);
-        appContext.config.globalProperties.$showAlert("Error al cambiar estado.", "error");
+        // Forzar la reactividad actualizando el array de citas
+        const index = citas.value.findIndex(c => c.id_cita === cita.id_cita);
+        if (index !== -1) {
+          // Crear un nuevo array para forzar la reactividad
+          citas.value = [...citas.value];
+        }
+      } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        appContext.config.globalProperties.$showAlert("Error al cambiar el estado de la cita.", "error");
       }
     };
+
+
 
     const handleCitaClicked = (cita) => {
       console.log("Cita clickeada:", cita);
@@ -599,7 +606,8 @@ export default {
       updateCita,
       deleteCita,
       updateFechaApertura,
-      changeEstado: changeEstadoWrapper,
+      changeEstado,
+      handleChangeEstado,
       getCitasByCabina,
       getHorasLibres,
       cabinas,

@@ -258,11 +258,18 @@ export default function useCitas() {
   const updateCita = async (cita) => {
     try {
       await apiService.updateCita(cita);
- //     citas.value = await apiService.getCitas();
-      app.appContext.config.globalProperties.$showAlert("La cita se actualizo correctamente.", "success");
+      
+      // Actualizar el estado local después de la actualización exitosa
+      const index = citas.value.findIndex(c => c.id_cita === cita.id_cita);
+      if (index !== -1) {
+        // Actualizar la cita en el array local con los nuevos datos
+        citas.value[index] = { ...citas.value[index], ...cita };
+      }
+      
+      app.appContext.config.globalProperties.$showAlert("La cita se actualizó correctamente.", "success");
     } catch (error) {
       console.error(error);
-      app.appContext.config.globalProperties.$showAlert("La actualizacion de cita salio mal.", "error");
+      app.appContext.config.globalProperties.$showAlert("La actualización de cita salió mal.", "error");
     }
   };
 
@@ -304,8 +311,18 @@ const changeEstado = async (cita) => {
   ];
   const currentIndex = estados.indexOf(cita.estado);
   const newEstado = estados[(currentIndex + 1) % estados.length];
-  cita.estado = newEstado;
-  await updateCita(cita);
+  
+  // Crear una copia de la cita con el nuevo estado
+  const citaActualizada = { ...cita, estado: newEstado };
+  
+  try {
+    await updateCita(citaActualizada);
+    // La función updateCita ya actualiza el estado local
+  } catch (error) {
+    console.error('Error al cambiar estado:', error);
+    // Revertir el cambio si hay error
+    cita.estado = estados[currentIndex];
+  }
 };
 
 const getSundays = (start, end) => {
