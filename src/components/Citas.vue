@@ -1,6 +1,19 @@
 <template>
   <v-container fluid>
-    <!-- Si el usuario ya se cargó -->
+    <!-- Mini-dashboard 
+    <div class="mini-dashboard">
+      <div class="dashboard-card">
+        <v-icon color="primary" size="32">mdi-calendar-multiselect</v-icon>
+        <div class="dashboard-label">Total citas</div>
+        <div class="dashboard-value">{{ citas.length }}</div>
+      </div>
+      <div class="dashboard-card" v-for="(count, estado) in resumenEstados" :key="estado">
+        <v-icon :color="estadoIconColor(estado)" size="28">{{ estadoIcon(estado) }}</v-icon>
+        <div class="dashboard-label">{{ estado }}</div>
+        <div class="dashboard-value">{{ count }}</div>
+      </div>
+    </div>
+  Si el usuario ya se cargó -->
     <template v-if="user">
       <h1 class="text-center mb-4">Calendario de Citas</h1>
 
@@ -74,10 +87,10 @@
             md="4"
             lg="4"
           >
-            <v-divider :key="'divider-' + numeroCabina" />
-            <h3 class="text-center mt-4">
+            <div class="cabina-header">
               {{ numeroCabina === 4 ? "Depilación" : "Cabina " + numeroCabina }}
-            </h3>
+            </div>
+            <div class="cabina-divider"></div>
             <v-container fluid>
               <div
                 v-for="evento in getEventosPorCabina(numeroCabina)"
@@ -588,6 +601,39 @@ export default {
     .includes(user.value?.tipo_empleado)
 );
 
+    const resumenEstados = computed(() => {
+      const counts = {};
+      citas.value.forEach(cita => {
+        const estado = cita.estado || "Sin estado";
+        counts[estado] = (counts[estado] || 0) + 1;
+      });
+      return counts;
+    });
+    function estadoIcon(estado) {
+      const icons = {
+        "Por confirmar": "mdi-clock-outline",
+        "Cita programada": "mdi-calendar-check",
+        "Cita realizada": "mdi-check-circle-outline",
+        "Cita perdida": "mdi-calendar-remove",
+        "Cita cancelada": "mdi-cancel",
+        "Reagendo cita": "mdi-calendar-refresh",
+        "Adeudo": "mdi-currency-usd",
+      };
+      return icons[estado] || "mdi-help-circle-outline";
+    }
+    function estadoIconColor(estado) {
+      const colors = {
+        "Por confirmar": "orange",
+        "Cita programada": "purple",
+        "Cita realizada": "green",
+        "Cita perdida": "blue",
+        "Cita cancelada": "red",
+        "Reagendo cita": "yellow darken-2",
+        "Adeudo": "red darken-3",
+      };
+      return colors[estado] || "grey";
+    }
+
     return {
       citas,
       citasTodayTomorrow,
@@ -632,30 +678,142 @@ export default {
       isPrivilegedRole,
       cabinasDisponibles,
       cargarCabinasDisponibles,
+      resumenEstados,
+      estadoIcon,
+      estadoIconColor,
     };
   },
 };
 </script>
 
-<style>
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-th,
-td {
-  border: 1px solid black;
-  padding: 8px;
-  text-align: left;
-}
-th {
-  background-color: #f2f2f2;
-}
-h1 {
+<style scoped>
+.cabina-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 2px 12px rgba(31,38,135,0.07);
+  padding: 12px 0 8px 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: var(--v-primary-base, #3b3b3b);
+  letter-spacing: 0.5px;
   text-align: center;
-  margin-bottom: 1rem;
+  transition: background 0.3s;
 }
-.custom-button {
-  color: teal;
+
+.cabina-divider {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #7f9cf5 0%, #5eead4 100%);
+  border-radius: 2px;
+  margin: 0.5rem 0 1rem 0;
+  opacity: 0.7;
+  animation: dividerGrow 1s cubic-bezier(.23,1.01,.32,1) both;
+}
+@keyframes dividerGrow {
+  0% { width: 0; opacity: 0; }
+  100% { width: 100%; opacity: 0.7; }
+}
+
+.v-row {
+  gap: 24px 0;
+}
+
+.v-col {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.v-col:hover {
+  transform: translateY(-4px) scale(1.01);
+  z-index: 1;
+}
+
+@media (max-width: 900px) {
+  .v-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    gap: 0 18px;
+    padding-bottom: 12px;
+  }
+  .v-col {
+    min-width: 320px;
+    max-width: 90vw;
+    flex: 0 0 85vw;
+  }
+}
+
+@media (max-width: 600px) {
+  .cabina-header {
+    font-size: 1.05rem;
+    padding: 8px 0 6px 0;
+  }
+  .v-col {
+    min-width: 260px;
+    max-width: 98vw;
+    flex: 0 0 98vw;
+  }
+}
+
+.mini-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  align-items: stretch;
+  margin-bottom: 32px;
+  margin-top: 8px;
+}
+.dashboard-card {
+  background: rgba(255,255,255,0.18);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(31,38,135,0.08);
+  padding: 18px 24px 12px 24px;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+  position: relative;
+}
+.dashboard-card:hover {
+  box-shadow: 0 6px 24px rgba(31,38,135,0.16);
+  transform: translateY(-2px) scale(1.03);
+}
+.dashboard-label {
+  font-size: 0.98rem;
+  color: #64748b;
+  margin-top: 6px;
+  margin-bottom: 2px;
+  font-weight: 600;
+  text-align: center;
+}
+.dashboard-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--v-primary-base, #3b3b3b);
+  text-align: center;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+@media (max-width: 600px) {
+  .mini-dashboard {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .dashboard-card {
+    padding: 10px 10px 8px 10px;
+    min-width: 90px;
+  }
+  .dashboard-label {
+    font-size: 0.92rem;
+  }
+  .dashboard-value {
+    font-size: 1.08rem;
+  }
 }
 </style>
