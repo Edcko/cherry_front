@@ -31,7 +31,7 @@ export default function useEmpezarEvaluacionWizard({ clientes }) {
     {
       title: "Confirmación",
       description:
-        "Revisa la información y presiona 'Comenzar Evaluación' para finalizar.",
+        "Revisa la información y presiona 'Finalizar Evaluación' para concluir.",
     },
   ];
 

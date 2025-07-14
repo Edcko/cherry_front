@@ -3,6 +3,7 @@ import apiService from "@/services/apiServices";
 //import helperServices from "@/services/helperServices.js";
 import { getCurrentInstance } from 'vue';
 import store from '@/store';
+import useBloqueoCabina from './useBloqueoCabina';
 
 export default function useCitas() {
   const app = getCurrentInstance();
@@ -13,6 +14,7 @@ export default function useCitas() {
   const valoraciones = ref([]);
   const citasCountByDate = ref(new Map()); 
   const estadoAgenda = ref(false);
+  const { bloqueos } = useBloqueoCabina(); 
 
   // Fecha de apertura obtenida desde backend
   const fechaApertura = ref(null);
@@ -118,6 +120,22 @@ export default function useCitas() {
     newCita.created_at = new Date().toISOString();
     const date = new Date(newCita.fecha);
     const minutos = date.getMinutes();
+    
+    // ③ chequeo de bloqueo
+    const yaBloqueada = bloqueos.value.some(b => {
+      const fechaBloq = new Date(b.fecha_bloqueo).getTime();
+      return (
+        fechaBloq === date.getTime() &&
+        b.Cabina.numero_cabina === newCita.numeroCabina
+      );
+    });
+    if (yaBloqueada) {
+      app.appContext.config.globalProperties.$showAlert(
+        "No puedes agendar en una hora bloqueada.",
+        "error"
+      );
+      return;
+    }
   
     try {
       // Validar si la agenda está cerrada
@@ -307,6 +325,11 @@ const getSundays = (start, end) => {
 };
 
 const getHorasLibres = (citasDelDia, numeroCabina) => {
+  // Validar parámetros
+  if (!citasDelDia || !Array.isArray(citasDelDia) || !numeroCabina) {
+    return [];
+  }
+
   // Cabina 4: 13:00 a 17:00
   let horasTrabajo;
   if (numeroCabina === 4) {
@@ -356,16 +379,19 @@ const getHorasLibres = (citasDelDia, numeroCabina) => {
       "20:00"
     ];
   }
+  
   // Filtrar citas que no sean "Reagendo cita"
   const horasOcupadas = citasDelDia
-    .filter((cita) => cita.estado !== "Reagendo cita")
+    .filter((cita) => cita && cita.estado && cita.estado !== "Reagendo cita")
     .map((cita) => {
+      if (!cita || !cita.fecha) return null;
       const date = new Date(cita.fecha);
       return `${date
         .getHours()
         .toString()
         .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
-    });
+    })
+    .filter(Boolean);
 
   return horasTrabajo.filter((hora) => !horasOcupadas.includes(hora));
 };

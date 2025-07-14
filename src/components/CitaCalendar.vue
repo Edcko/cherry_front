@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Componente VCalendar sincronizado con el tema global -->
-    <v-calendar
+    <vcal-calendar
       :is-dark="isDarkTheme"
       :rows="1"
       ref="calendar"

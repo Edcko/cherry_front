@@ -40,7 +40,22 @@ export default function useBloqueoCabina() {
         startDate,
         endDate,
       });
-      bloqueos.value = response;
+      
+      // Comparar arrays de manera más eficiente usando deep comparison
+      const currentBloqueos = bloqueos.value || [];
+      const hasChanges = response.length !== currentBloqueos.length || 
+        response.some((newBloqueo, index) => {
+          const currentBloqueo = currentBloqueos[index];
+          return !currentBloqueo || 
+                 newBloqueo.id_bloqueo !== currentBloqueo.id_bloqueo ||
+                 newBloqueo.fecha_bloqueo !== currentBloqueo.fecha_bloqueo ||
+                 newBloqueo.motivo !== currentBloqueo.motivo;
+        });
+      
+      // Solo actualizar si realmente hay cambios
+      if (hasChanges) {
+        bloqueos.value = response;
+      }
     } catch (error) {
       console.error("Error al obtener bloqueos por rango de fecha:", error);
     }

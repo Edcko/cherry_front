@@ -1,7 +1,7 @@
 <template>
     <div>
-      <h1>Calendario de Evaluaciones</h1>
-      <v-calendar
+    
+      <vcal-calendar
         :rows="1"
         ref="calendar"
         expanded

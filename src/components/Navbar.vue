@@ -35,13 +35,14 @@
 
       <!-- Botón de Logout con ícono y tooltip -->
       <v-tooltip bottom v-if="isLogged">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on" @click="logout">
-            <v-icon>mdi-logout</v-icon>
-          </v-btn>
-        </template>
-        <span>Cerrar Sesión</span>
-      </v-tooltip>
+  <template #activator="{ props }">
+    <v-btn icon v-bind="props" @click="logout">
+      <v-icon>mdi-logout</v-icon>
+    </v-btn>
+  </template>
+  <span>Cerrar Sesión</span>
+</v-tooltip>
+
     </v-app-bar>
   </transition>
 </template>

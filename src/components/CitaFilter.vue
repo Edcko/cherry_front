@@ -67,12 +67,12 @@ export default {
     };
 
     // Observa si el campo de búsqueda queda vacío para resetear automáticamente
-    watch(filters[0].value, (newVal) => {
-      if (!newVal) {
-        resetFilters();
-      }
-    });
-
+   watch(
+  () => filters[0].value,    // <-- aquí es un getter, Vue lo acepta
+  (newVal) => {
+    if (!newVal) resetFilters();
+  }
+);
     return {
       filters,
       applyFilters,

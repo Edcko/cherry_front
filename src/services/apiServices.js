@@ -178,8 +178,39 @@ const getBloqueosByDateRange = async (params) => {
   return response.data;
 };
 
+// Obtener ventas por rango de fechas
+const getVentasPorRango = async ({ inicio, fin}) => {
+  const response = await api.get(API_URL + 'ventas/rango', {
+    headers: authHeader(),
+    params: { inicio, fin }, // Enviar las fechas de inicio y fin como parámetros
+  });
+  return response.data;
+};
 
+// Obtiene detalle diario de ventas entre dos fechas.
+const getVentasDetallePorRango = async ({ inicio, fin }) => {
+  const response = await api.get(API_URL + 'ventas/detalle', {
+    headers: authHeader(),
+    params: { inicio, fin }, // Enviar las fechas de inicio y fin como parámetros
+  });
+  return response.data;
+};
 
+const getVentasDetalleCompradores = async ({ inicio, fin }) => {
+  const response = await api.get(API_URL + 'ventas/detalle-compradores', {
+    headers: authHeader(),
+    params: { inicio, fin }
+  });
+  return response.data;
+};
+
+// Obtener datos completos de una compra (cliente y paquete incluidos)
+const getCompraCompleta = async (id_compra) => {
+  const response = await api.get(API_URL + 'compra/' + id_compra + '/completa', {
+    headers: authHeader(),
+  });
+  return response.data;
+};
 
 //------------ Add -----------//
 
@@ -421,6 +452,7 @@ export default {
   getCitaById,
   getCitasCount,
   getCompras,
+  getCompraCompleta,
   getSesiones,
   getCabinas,
   getSpas,
@@ -432,6 +464,9 @@ export default {
   getFechaApertura,
   getBloqueos,
   getBloqueosByDateRange,
+  getVentasPorRango,
+  getVentasDetallePorRango,
+  getVentasDetalleCompradores,
   addPerteneceA,
   addCliente,
   addEmpleado,

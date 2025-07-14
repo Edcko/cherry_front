@@ -1,95 +1,106 @@
 import { computed } from "vue";
-import { adjustDateForTimezone } from "@/utils/dateUtils";
+// import { adjustDateForTimezone } from "@/utils/dateUtils";  // ya no lo necesitamos
 
 export default function useCitasFilter(citas, search, dateFilter, clientIdFilter, newDateFilter) {
-  // Si no hay fecha definida, se asigna la fecha actual.
-  if (!newDateFilter.value) {
-    newDateFilter.value = new Date();
+  // 1) Inicializar newDateFilter a medianoche de hoy solo una vez
+  if (newDateFilter && !newDateFilter.value) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    newDateFilter.value = today;
   }
 
-  // Computed que filtra las citas según los filtros activos.
   const filteredCitas = computed(() => {
-    let result = citas.value;
+    // Validar que citas.value existe y es un array
+    if (!citas.value || !Array.isArray(citas.value)) {
+      return [];
+    }
+    
+    let result = citas.value.slice();
+    console.log(`useCitasFilter: Total citas iniciales: ${result.length}`);
 
-    // Filtro por búsqueda en número de cabina
+    // 2) filtro por número de cabina
     if (search.value) {
-      result = result.filter((cita) =>
-        cita.Cabina.numero_cabina.toString().includes(search.value.toString())
+      result = result.filter(c =>
+        c && c.Cabina && c.Cabina.numero_cabina && 
+        c.Cabina.numero_cabina.toString().includes(search.value)
       );
+      console.log(`useCitasFilter: Después de filtro por búsqueda: ${result.length}`);
     }
 
-    // Filtro por fecha exacta (solo si no hay filtro de cliente)
-    if (dateFilter.value && !clientIdFilter.value) {
-      result = result.filter(
-        (cita) =>
-          new Date(cita.fecha).getTime() === new Date(dateFilter.value).getTime()
-      );
-    }
+   // 3) filtro unificado por fecha (solo si no buscás por cliente)
+   if (!clientIdFilter.value && newDateFilter && newDateFilter.value) {
+     // normalizamos a medianoche
+     const filterDate = new Date(newDateFilter.value);
+     filterDate.setHours(0, 0, 0, 0);
+     console.log(`useCitasFilter: Filtrando por fecha: ${filterDate.toISOString()}`);
+     
+     result = result.filter(cita => {
+       if (!cita || !cita.fecha) return false;
+       const cd = new Date(cita.fecha);
+       const matches = (
+         cd.getFullYear() === filterDate.getFullYear() &&
+         cd.getMonth()    === filterDate.getMonth()    &&
+         cd.getDate()     === filterDate.getDate()
+       );
+       return matches;
+     });
+     console.log(`useCitasFilter: Después de filtro por fecha: ${result.length}`);
+   }
 
-    // Filtro por fecha específica (sin filtro de cliente)
-    if (newDateFilter.value && !clientIdFilter.value) {
-      result = result.filter((cita) => {
-        const citaDate = new Date(cita.fecha);
-        const filterDate = adjustDateForTimezone(newDateFilter.value);
-        return (
-          citaDate.getFullYear() === filterDate.getFullYear() &&
-          citaDate.getMonth() === filterDate.getMonth() &&
-          citaDate.getDate() === filterDate.getDate()
-        );
-      });
-    }
-
-    // Filtro por cliente (con rango de fechas: mes anterior, actual y siguiente)
+    // 4) filtro por cliente (si aplica)
     if (clientIdFilter.value) {
-      const now = new Date();
+      const now       = new Date();
       const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+      const endDate   = new Date(now.getFullYear(), now.getMonth() + 2, 0);
 
-      result = result.filter((cita) => {
-        const citaDate = new Date(cita.fecha);
-        const fullClientName = `${cita.Cliente.nombre_cliente} ${cita.Cliente.apellido_paterno} ${cita.Cliente.apellido_materno}`.toLowerCase();
+      result = result.filter(cita => {
+        if (!cita || !cita.fecha || !cita.Cliente) return false;
+        const cd = new Date(cita.fecha);
+        const fullName = `${cita.Cliente.nombre_cliente || ''} ${cita.Cliente.apellido_paterno || ''} ${cita.Cliente.apellido_materno || ''}`.toLowerCase();
         return (
-          fullClientName.includes(clientIdFilter.value.toLowerCase()) &&
-          citaDate >= startDate &&
-          citaDate <= endDate
+          fullName.includes(clientIdFilter.value.toLowerCase()) &&
+          cd >= startDate &&
+          cd <= endDate
         );
       });
     }
 
-    // Ordenar las citas según 'fecha'
-    result = sortCitas(result, 'fecha');
-    return result;
+    // 5) ordenar ascendente
+    return result.slice().sort((a, b) => {
+      if (!a || !b || !a.fecha || !b.fecha) return 0;
+      return new Date(a.fecha) - new Date(b.fecha);
+    });
   });
 
-  // Agrupar las citas filtradas por el número de cabina (memoización)
   const citasPorCabina = computed(() => {
     const grouped = {};
-    filteredCitas.value.forEach((cita) => {
-      const numero = cita.Cabina.numero_cabina;
-      if (!grouped[numero]) {
-        grouped[numero] = [];
+    if (!filteredCitas.value || !Array.isArray(filteredCitas.value)) {
+      return grouped;
+    }
+    
+    // Reducir los console.log para mejorar el rendimiento
+    // console.log(`useCitasFilter: Total citas filtradas: ${filteredCitas.value.length}`);
+    
+    filteredCitas.value.forEach(cita => {
+      if (!cita || !cita.Cabina || !cita.Cabina.numero_cabina) {
+        // console.log('Cita sin cabina válida:', cita);
+        return;
       }
+      const numero = cita.Cabina.numero_cabina;
+      // console.log(`Agrupando cita ${cita.id_cita} en cabina ${numero}`);
+      if (!grouped[numero]) grouped[numero] = [];
       grouped[numero].push(cita);
-    });7
+    });
+    
+    // console.log('Citas agrupadas por cabina:', Object.keys(grouped).map(k => `${k}: ${grouped[k].length}`));
     return grouped;
   });
 
-  // Función que retorna las citas de una cabina (ya agrupadas)
-  const getCitasByCabina = (numeroCabina) => {
-    return citasPorCabina.value[numeroCabina] || [];
+  const getCitasByCabina = numeroCabina => {
+    const result = citasPorCabina.value[numeroCabina] || [];
+    // console.log(`useCitasFilter: getCitasByCabina(${numeroCabina}) = ${result.length} citas`);
+    return result;
   };
 
   return { filteredCitas, getCitasByCabina };
 }
-
-// Función para ordenar citas
-const sortCitas = (citas, sortBy) => {
-  if (!sortBy) return citas;
-  
-  // Ordenamos las citas ascendentemente según su fecha (hora incluida)
-  return citas.slice().sort((a, b) => {
-    const dateA = new Date(a.fecha);
-    const dateB = new Date(b.fecha);
-    return dateA - dateB;  // Orden ascendente: la cita con fecha menor (más temprana) aparece primero.
-  });
-};

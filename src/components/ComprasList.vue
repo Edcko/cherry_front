@@ -39,10 +39,22 @@
     </v-list-item-subtitle>
   </v-list-item>
   <v-list-item-action class="button-actions">
-    <v-btn icon @click="handleAbonarCompra(item)" class="mr-2">
-      <v-icon color="teal">mdi-cash-plus</v-icon>
+    <v-btn icon @click="handleGeneratePDF(item)" class="mr-2" :loading="isGeneratingPDF">
+      <v-tooltip activator="parent" location="top">Generar ticket PDF</v-tooltip>
+      <v-icon color="teal">mdi-file-pdf-box</v-icon>
+    </v-btn>
+    <v-btn 
+      icon 
+      @click="handleAbonarCompra(item)" 
+      class="mr-2"
+      :disabled="item.estado_compra === 'Completado'"
+      :color="item.estado_compra === 'Completado' ? 'grey' : 'teal'"
+    >
+      <v-tooltip activator="parent" location="top">Abonar o liquidar compra</v-tooltip>
+      <v-icon>{{ item.estado_compra === 'Completado' ? 'mdi-check-circle' : 'mdi-cash-plus' }}</v-icon>
     </v-btn>
     <v-btn icon @click="handleDeleteCompra(item)">
+      <v-tooltip activator="parent" location="top">Eliminar compra</v-tooltip>
       <v-icon color="teal">mdi-delete</v-icon>
     </v-btn>
   </v-list-item-action>
@@ -69,6 +81,7 @@
 
   </v-card>
 
+  <!-- Diálogo de confirmación de eliminación -->
   <v-dialog v-model="confirmDeleteDialog" max-width="400px">
       <v-card>
         <v-card-title class="text-h5">Confirmar Eliminación</v-card-title>
@@ -83,6 +96,13 @@
       </v-card>
     </v-dialog>
 
+  <!-- Diálogo de abono -->
+  <abonar-compra-dialog 
+    :show="showAbonarDialog" 
+    :compra="compraToAbonar" 
+    @close="showAbonarDialog = false" 
+    @abonado="handleAbonado" 
+  />
 
 </template>
 
@@ -90,11 +110,15 @@
 <script>
 import { ref, computed } from "vue";
 import CompraDialog from "@/components/CompraDialog.vue";
+import AbonarCompraDialog from "@/components/AbonarCompraDialog.vue";
+import usePDF from "@/composables/usePDF.js";
+import useCompras from "@/composables/useCompras.js";
 
 export default {
   name: "ComprasList",
   components: {
     CompraDialog,
+    AbonarCompraDialog,
   },
   props: {
     compras: {
@@ -106,13 +130,18 @@ export default {
       default: false
     }, 
   },
-  emits: ['addCompra', 'deleteCompra'],
+  emits: ['addCompra', 'deleteCompra', 'compraUpdated'],
   setup(props, { emit }) { //Aqui desestructuras 'emit'
     const localSearchQuery = ref('');
     const showCompraDialog = ref(false);
     const confirmDeleteDialog = ref(false);
     const compraToDelete = ref(null);
+    const showAbonarDialog = ref(false);
+    const compraToAbonar = ref(null);
 
+    // Importar composables
+    const { isGeneratingPDF, generateTicketPDF } = usePDF();
+    const { abonarCompra } = useCompras();
 
     // Se define una función de búsqueda que actualizará el filtro cada vez que el usuario escriba en el campo de búsqueda.
     // eslint-disable-next-line
@@ -135,11 +164,34 @@ export default {
       confirmDeleteDialog.value = false;
     };
 
-const handleAbonarCompra = (compra) => {
-  // Aquí va la lógica para abonar a la compra
-  console.log("Abonar a compra", compra);
-};
+    const handleAbonarCompra = (compra) => {
+      // Solo permitir abonar si la compra no está completada
+      if (compra.estado_compra === 'Completado') {
+        return;
+      }
+      
+      compraToAbonar.value = compra;
+      showAbonarDialog.value = true;
+    };
 
+    const handleAbonado = async (datosAbono) => {
+      try {
+        await abonarCompra(datosAbono);
+        // Emitir evento para actualizar la lista en el componente padre
+        emit('compraUpdated');
+      } catch (error) {
+        console.error('Error al procesar el abono:', error);
+      }
+    };
+
+    // Método para generar PDF del ticket
+    const handleGeneratePDF = async (compra) => {
+      try {
+        await generateTicketPDF(compra);
+      } catch (error) {
+        console.error('Error al generar PDF:', error);
+      }
+    };
 
     const filteredCompras = computed(() => {
       if (localSearchQuery.value === '') {
@@ -166,9 +218,14 @@ const handleAbonarCompra = (compra) => {
       handleAddCompra,
       handleDeleteCompra,
       handleAbonarCompra,
+      handleAbonado,
+      handleGeneratePDF,
       confirmDeleteDialog,
       compraToDelete,
-      deleteCompra
+      deleteCompra,
+      isGeneratingPDF,
+      showAbonarDialog,
+      compraToAbonar
     };
   }
 };

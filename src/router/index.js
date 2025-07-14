@@ -88,7 +88,7 @@ const routes = [
         name: 'Nails',
         component: Nails,
         meta: { requiresAuth: true }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
+        beforeEnter: requireRole(['Desarrollador','Gerente', 'Manager', 'Recepcionista', 'Recepción', 'Valoradora']),
       },
       {
         path: '/evaluaciones',
@@ -97,7 +97,7 @@ const routes = [
         meta: { requiresAuth: true,
             navbarTitle: 'Portal de Valoraciones'
          }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Desarrollador', 'Administrador','Gerente']),
+        beforeEnter: requireRole(['Desarrollador']),
       },
     {
         path: "/empleados",
@@ -115,7 +115,7 @@ const routes = [
         meta: { requiresAuth: true,
             navbarTitle: 'Gestión de Cabinas'
          }, // Indicar que requiere autenticación
-        beforeEnter: requireRole(['Desarrollador', 'Administrador']),
+        beforeEnter: requireRole(['Desarrollador']),
     },
     {
         path: "/clientes",
