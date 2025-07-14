@@ -7,7 +7,7 @@ import store from '../store/index.js'
 import { ref } from 'vue';
 import  useGlobalAlert  from '@/composables/useGlobalAlert.js';
 
-const API_URL = 'http://localhost:3000/cherry/';
+const API_URL = 'http://198.199.68.78:3000/cherry/';
 
 // Crear una nueva instancia de Axios 
 
