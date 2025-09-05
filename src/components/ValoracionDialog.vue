@@ -136,7 +136,7 @@ export default {
         clientes.value = await apiService.getClientes({
           idSpa: idSpa,
         });
-        empleados.value = await apiService.getEmpleados();
+        empleados.value = await apiService.getEmpleadosByCurrentSpa();
       } catch (error) {
         console.error("Error al cargar datos iniciales:", error);
       }

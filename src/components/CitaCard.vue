@@ -1,109 +1,114 @@
 <template>
-  <v-card class="custom-card" :class="{ 'highlight-estado': highlight }">
-    <!-- Cabecera con icono grande y gradiente de estado -->
-    <div class="card-header-gradient" :style="{ background: estadoGradient }">
-      <v-icon class="header-icon" size="38">mdi-calendar-clock</v-icon>
-      <div class="header-info">
-        <div class="header-estado">{{ cita.estado }}</div>
-        <div class="header-fecha">{{ formattedFecha }}</div>
+  <v-card class="modern-card" :class="{ 'status-changed': highlight }">
+    <!-- Header con estado y fecha -->
+    <div class="card-header" :style="{ borderLeftColor: estadoColor }">
+      <div class="status-badge" :style="{ backgroundColor: estadoColor }">
+        <v-icon size="16" color="white">mdi-circle</v-icon>
+        <span>{{ cita.estado.toUpperCase() }}</span>
+      </div>
+      <div class="date-time">
+        <v-icon size="18" color="grey">mdi-clock-outline</v-icon>
+        <span>{{ formattedFecha }}</span>
       </div>
     </div>
 
-    <v-card-text>
-      <div class="info-list">
-        <!-- Cliente -->
-        <div class="info-row">
-          <span class="info-label">
-            <v-icon small class="mr-1">mdi-account</v-icon>
-            Cliente:
-          </span>
-          <span class="info-value truncate" :title="clientFullName">
-            {{ clientFullName }}
-          </span>
+    <!-- Contenido principal -->
+    <v-card-text class="card-content">
+      <!-- Información del cliente destacada -->
+      <div class="client-section">
+        <div class="avatar-placeholder">
+          <v-icon size="24" color="primary">mdi-account-circle</v-icon>
         </div>
-        <!-- Agendó -->
-        <div class="info-row">
-          <span class="info-label">
-            <v-icon small class="mr-1">mdi-calendar-check</v-icon>
-            Agendó:
-          </span>
-          <span class="info-value truncate" :title="agendoFullName">
-            {{ agendoFullName }}
-          </span>
+        <div class="client-info">
+          <h3 class="client-name">{{ clientFullName }}</h3>
+          <p class="client-detail">Paciente</p>
         </div>
-        <!-- Turno y estado cabina -->
-        <div class="info-row">
-          <span class="info-label">
-            <v-icon small class="mr-1">mdi-hospital-building</v-icon>
-            Turno:
-          </span>
-          <span class="info-value">
-            {{ cita.Cabina.turno }} - {{ cita.Cabina.estado_cabina }}
-          </span>
+      </div>
+
+      <!-- Grid de información -->
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-icon">
+            <v-icon size="18" color="primary">mdi-calendar-check</v-icon>
+          </div>
+          <div class="info-content">
+            <label>Agendó</label>
+            <span>{{ agendoFullName }}</span>
+          </div>
         </div>
-        <!-- Terapeuta -->
-        <div class="info-row">
-          <span class="info-label">
-            <v-icon small class="mr-1">mdi-account-heart</v-icon>
-            Terapeuta:
-          </span>
-          <span class="info-value truncate" :title="terapeutaFullName">
-            {{ terapeutaFullName }}
-          </span>
+
+        <div class="info-item">
+          <div class="info-icon">
+            <v-icon size="18" color="secondary">mdi-hospital-building</v-icon>
+          </div>
+          <div class="info-content">
+            <label>Turno</label>
+            <span>{{ cita.Cabina.turno }} - {{ cita.Cabina.estado_cabina }}</span>
+          </div>
         </div>
-        <!-- Paquete -->
-        <div class="info-row">
-          <span class="info-label">
-            <v-icon small class="mr-1">mdi-package-variant-closed</v-icon>
-            Paquete:
-          </span>
-          <span class="info-value truncate" :title="paqueteName">
-            {{ paqueteName }}
-          </span>
+
+        <div class="info-item">
+          <div class="info-icon">
+            <v-icon size="18" color="success">mdi-account-heart</v-icon>
+          </div>
+          <div class="info-content">
+            <label>Terapeuta</label>
+            <span>{{ terapeutaFullName }}</span>
+          </div>
         </div>
-        <!-- Número de cita -->
-        <div class="info-row">
-          <span class="info-label">
-            <v-icon small class="mr-1">mdi-pound</v-icon>
-            No. de cita:
-          </span>
-          <span class="info-value">{{ numeroCita }}</span>
+
+        <div class="info-item">
+          <div class="info-icon">
+            <v-icon size="18" color="warning">mdi-package-variant-closed</v-icon>
+          </div>
+          <div class="info-content">
+            <label>Paquete</label>
+            <span>{{ paqueteName }}</span>
+          </div>
         </div>
+      </div>
+
+      <!-- Número de cita -->
+      <div class="cita-number">
+        <v-chip
+          size="small"
+          color="primary"
+          variant="outlined"
+          class="cita-chip"
+        >
+          <v-icon size="16" class="mr-1">mdi-pound</v-icon>
+          Cita #{{ numeroCita }}
+        </v-chip>
       </div>
     </v-card-text>
 
-    <!-- Acciones flotantes -->
-    <v-card-actions class="card-actions-float">
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
-          <v-btn
-            v-if="['Administrador', 'Gerente', 'Desarrollador'].includes(user.tipo_empleado)"
-            icon
-            color="error"
-            v-bind="attrs"
-            v-on="on"
-            @click="handleDeleteCita(cita)"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </template>
-        <span>Eliminar cita</span>
-      </v-tooltip>
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
-          <v-btn
-            v-if="['Administrador', 'Gerente', 'Desarrollador', 'Manager'].includes(user.tipo_empleado)"
-            icon
-            color="success"
-            v-bind="attrs"
-            v-on="on"
-            @click="changeEstado(cita)"
-          >
-            <v-icon>mdi-check-circle-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>Cambiar estado</span>
-      </v-tooltip>
+    <!-- Acciones en la parte inferior -->
+    <v-card-actions class="card-actions">
+      <div class="action-buttons">
+        <v-btn
+          v-show="user && ['Administrador', 'Gerente', 'Desarrollador'].includes(user.tipo_empleado)"
+          variant="text"
+          color="error"
+          size="small"
+          @click="handleDeleteCita(cita)"
+          class="action-btn"
+        >
+          <v-icon size="18">mdi-delete-outline</v-icon>
+          <span class="btn-text">Eliminar</span>
+        </v-btn>
+
+        <v-btn
+          v-show="user && ['Administrador', 'Gerente', 'Desarrollador', 'Manager'].includes(user.tipo_empleado)"
+          variant="text"
+          color="success"
+          size="small"
+          @click="changeEstado(cita)"
+          class="action-btn"
+        >
+          <v-icon size="18">mdi-check-circle-outline</v-icon>
+          <span class="btn-text">Cambiar Estado</span>
+        </v-btn>
+      </div>
     </v-card-actions>
 
     <!-- Diálogo para editar cita -->
@@ -113,6 +118,7 @@
       @update="updateCitaFromForm"
       @closeDialog="showEditDialog = false"
     />
+
     <!-- Diálogo de confirmación para eliminar cita -->
     <v-dialog v-model="confirmDeleteDialog" max-width="400px">
       <v-card>
@@ -136,7 +142,6 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import useUser from "@/composables/useUser";
 import CitaEditDialog from "@/components/CitaEditDialog.vue";
-import chroma from "chroma-js";
 
 export default {
   name: "CitaCard",
@@ -149,7 +154,7 @@ export default {
     const currentCita = ref({});
     const confirmDeleteDialog = ref(false);
     const citaToDelete = ref(null);
-    const { user, loadUser } = useUser();
+    const { user } = useUser();
     const highlight = ref(false);
 
     // Detectar cambio de estado y activar animación highlight
@@ -159,14 +164,24 @@ export default {
       setTimeout(() => { highlight.value = false; }, 400);
     });
 
-    onMounted(async () => {
-      await loadUser();
+    onMounted(() => {
+      console.log('🔍 CitaCard: Componente montado, usuario:', user.value);
     });
 
-
-
     const formattedFecha = computed(() => {
-      return format(new Date(props.cita.fecha), "EE dd/MMM/yy HH:mm", { locale: es });
+      const fecha = new Date(props.cita.fecha);
+      const dia = format(fecha, "EEEE dd 'de' MMMM", { locale: es });
+      
+      // Formatear hora en formato 12 horas (AM/PM)
+      const hours = fecha.getHours();
+      const minutes = fecha.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hours12 = hours % 12;
+      const hoursDisplay = hours12 === 0 ? 12 : hours12;
+      const minutesDisplay = minutes.toString().padStart(2, '0');
+      const horaFormateada = `${hoursDisplay}:${minutesDisplay} ${ampm}`;
+      
+      return `${dia} a las ${horaFormateada}`;
     });
 
     const clientFullName = computed(() => {
@@ -193,31 +208,16 @@ export default {
 
     const estadoColor = computed(() => {
       const colors = {
-        "por confirmar": "#f18933",
-        "cita programada": "#9754af",
-        "cita realizada": "#77dd77",
-        "cita perdida": "#84b6f4",
-        "reagendo cita": "#eeca06",
-        adeudo: "#a62520",
+        "por confirmar": "#ff9800",
+        "cita programada": "#9c27b0",
+        "cita realizada": "#87CEEB", // Azul cielo
+        "cita perdida": "#E91E63", // Rosa mexicano
+        "reagendo cita": "#ffc107",
+        "adeudo": "#f44336",
+        "cancelada": "#9e9e9e",
       };
-      const color = colors[props.cita.estado.toLowerCase()] || "#9e9e9e";
-      return chroma(color).hex();
+      return colors[props.cita.estado.toLowerCase()] || "#9e9e9e";
     });
-
-    function getEstadoGradient(estado) {
-      const gradients = {
-        "por confirmar": "linear-gradient(90deg, #f18933 0%, #fbbf24 100%)",
-        "cita programada": "linear-gradient(90deg, #9754af 0%, #7f9cf5 100%)",
-        "cita realizada": "linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)",
-        "cita perdida": "linear-gradient(90deg, #84b6f4 0%, #60a5fa 100%)",
-        "cita cancelada": "linear-gradient(90deg, #bdbdbd 0%, #e0e0e0 100%)",
-        "reagendo cita": "linear-gradient(90deg, #eeca06 0%, #fbbf24 100%)",
-        "adeudo": "linear-gradient(90deg, #a62520 0%, #f43f5e 100%)",
-      };
-      return gradients[estado.toLowerCase()] || "linear-gradient(90deg, #9e9e9e 0%, #cbd5e1 100%)";
-    }
-
-    const estadoGradient = computed(() => getEstadoGradient(props.cita.estado));
 
     const handleDeleteCita = (cita) => {
       citaToDelete.value = cita;
@@ -255,9 +255,6 @@ export default {
       deleteCita,
       editCita,
       user,
-      // eslint-disable-next-line
-      changeEstado: props.changeEstado,
-      estadoGradient,
       highlight,
     };
   },
@@ -270,170 +267,265 @@ export default {
 </script>
 
 <style scoped>
-.custom-card {
-  border-radius: 22px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-  margin-bottom: 28px;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255,255,255,0.18);
-  transition: transform 0.18s, box-shadow 0.18s, border 0.18s;
-  animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
-  position: relative;
+.modern-card {
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  background: white;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-}
-.custom-card:hover {
-  transform: translateY(-6px) scale(1.025);
-  box-shadow: 0 16px 40px 0 rgba(31, 38, 135, 0.22);
-  border: 1.5px solid #7f9cf5;
-}
-
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: none; }
-}
-
-.card-header-gradient {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 18px 24px 12px 24px;
-  border-radius: 22px 22px 0 0;
-  box-shadow: 0 2px 12px rgba(31,38,135,0.08);
-  color: white;
-  min-height: 70px;
   position: relative;
-  margin-bottom: 8px;
-  background-blend-mode: multiply;
-}
-.header-icon {
-  background: rgba(255,255,255,0.18);
-  border-radius: 50%;
-  padding: 8px;
-  box-shadow: 0 2px 8px rgba(31,38,135,0.10);
-  color: white !important;
-}
-.header-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.header-estado {
-  font-size: 1.18rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.10);
-  color: white;
-}
-.header-fecha {
-  font-size: 1.01rem;
-  font-weight: 500;
-  color: #f1f5f9;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.10);
 }
 
-.info-list {
-  margin-top: 2px;
+.modern-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: #e0e0e0;
 }
-.info-row {
+
+.status-changed {
+  animation: statusChange 0.6s ease-in-out;
+}
+
+@keyframes statusChange {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Header */
+.card-header {
+  padding: 20px 24px 16px 24px;
+  background: #fafafa;
+  border-left: 4px solid;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-  transition: background 0.2s;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.info-row:last-child {
-  border-bottom: none;
-}
-.info-label {
-  font-weight: 700;
-  color: var(--v-on-surface-variant, #64748b);
+
+.status-badge {
   display: flex;
   align-items: center;
-  font-size: 1.05rem;
-  gap: 4px;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
-.info-value {
-  color: var(--v-on-surface, #334155);
-  font-size: 1.05rem;
+
+.date-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 0.875rem;
   font-weight: 500;
 }
-.truncate {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+/* Contenido */
+.card-content {
+  padding: 20px 24px;
 }
 
-.card-actions-float {
+.client-section {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: -32px;
-  margin-bottom: 8px;
-  position: relative;
-  z-index: 2;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
 }
-.v-btn[icon] {
-  transition: background 0.2s, box-shadow 0.2s;
+
+.avatar-placeholder {
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(31,38,135,0.10);
-  background: rgba(255,255,255,0.18);
-  position: relative;
-  overflow: hidden;
-}
-.v-btn[icon]:hover {
-  background: linear-gradient(90deg, #7f9cf5 0%, #5eead4 100%) !important;
-  box-shadow: 0 4px 16px rgba(31,38,135,0.18);
-}
-.v-btn[icon] .v-icon {
-  font-size: 1.5rem;
-  color: #3b3b3b;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
-}
-.v-btn[icon]:hover .v-icon {
-  color: white;
+  background: #e3f2fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.highlight-estado {
-  animation: highlightFade 0.4s cubic-bezier(.23,1.01,.32,1) both;
-  box-shadow: 0 0 0 0.5rem rgba(255,255,255,0.13);
+.client-name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.3;
 }
-@keyframes highlightFade {
-  0% {
-    box-shadow: 0 0 0 0.8rem #fff, 0 0 0 0.5rem rgba(255,255,255,0.13);
-    filter: brightness(1.12);
+
+.client-detail {
+  margin: 4px 0 0 0;
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Grid de información */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.info-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.info-content label {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-content span {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Número de cita */
+.cita-number {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.cita-chip {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Acciones */
+.card-actions {
+  padding: 16px 24px 20px 24px;
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.3px;
+}
+
+.btn-text {
+  margin-left: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
-  60% {
-    box-shadow: 0 0 0 1.2rem #fff, 0 0 0 1.5rem rgba(255,255,255,0.10);
-    filter: brightness(1.18);
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
-  100% {
-    box-shadow: 0 0 0 0.5rem rgba(255,255,255,0.13);
-    filter: brightness(1.0);
+  
+  .client-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+  
+  .info-content span {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  
+  .client-name {
+    font-size: 1rem;
+    line-height: 1.2;
   }
 }
 
-@media (max-width: 600px) {
-  .custom-card {
-    padding: 8px;
+@media (max-width: 480px) {
+  .modern-card {
+    margin: 8px;
+    border-radius: 12px;
+    max-width: calc(100vw - 16px);
   }
-  .info-label, .info-value {
-    font-size: 0.98rem;
+  
+  .card-header,
+  .card-content,
+  .card-actions {
+    padding: 12px;
   }
-  .header-estado {
-    font-size: 1.05rem;
+  
+  .client-name {
+    font-size: 0.95rem;
+    line-height: 1.1;
   }
-  .header-fecha {
-    font-size: 0.92rem;
+  
+  .info-content span {
+    font-size: 0.75rem;
+    line-height: 1.2;
   }
-  .card-header-gradient {
-    padding: 12px 10px 8px 10px;
-    min-height: 54px;
+  
+  .info-content label {
+    font-size: 0.7rem;
   }
-  .card-actions-float {
-    margin-top: -24px;
+  
+  .status-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+  
+  .date-time {
+    font-size: 0.8rem;
   }
 }
 </style>

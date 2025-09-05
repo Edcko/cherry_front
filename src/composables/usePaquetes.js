@@ -11,7 +11,7 @@ export default function usePaquetes() {
 
   const fetchPaquetes = async () => {
     try {
-      paquetes.value = await apiServices.getPerteneceABySpa(idSpa);
+      paquetes.value = await apiServices.getPerteneceAByCurrentSpa();
       console.log("paquetes", paquetes.value);
     } catch (error) {
       console.error("Error obteniendo los paquetes", error);
@@ -40,7 +40,7 @@ export default function usePaquetes() {
   const updatePaquete = async (paquete) => {
     try {
       await apiServices.updatePaquete(paquete);
-      paquetes.value = await apiServices.getPaquetes();
+      paquetes.value = await apiServices.getPerteneceAByCurrentSpa();
     } catch (error) {
       console.error(error);
     }
@@ -58,7 +58,7 @@ export default function usePaquetes() {
     }
 
     try {
-      paquetes.value = await apiServices.getPaquetes();
+      paquetes.value = await apiServices.getPerteneceAByCurrentSpa();
     } catch (error) {
       console.error("Error obteniendo los paquetes", error);
     }

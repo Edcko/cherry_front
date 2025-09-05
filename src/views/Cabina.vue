@@ -225,13 +225,12 @@ export default {
     const searchQuery = ref("");
     const isLoading = ref(true);
     const { cabinas, addCabina, updateCabina, deleteCabina, fetchCabinas } = useCabinas();
-    const { user, loadUser } = useUser();
+    const { user } = useUser();
     const filteredCabinas = ref([]);
 
     onMounted(async () => {
       try {
         await fetchCabinas();
-        await loadUser();
         filteredCabinas.value = cabinas.value;
         isLoading.value = false;
       } catch (error) {
@@ -320,7 +319,6 @@ export default {
       filteredCabinas,
       isLoading,
       user,
-      loadUser,
       searchQuery,
       getStatusColor,
       getStatusClass,

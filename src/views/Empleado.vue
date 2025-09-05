@@ -89,7 +89,7 @@
                     <div class="switch-section">
                       <!-- Switch solo visible para Administradores -->
                       <v-switch
-                        v-if="user.tipo_empleado === 'Desarrollador'"
+                        v-if="user && user.tipo_empleado === 'Desarrollador'"
                         v-model="item.activo"
                         @change="toggleActivo(item)"
                         inset
@@ -162,17 +162,19 @@ export default {
     const searchQuery = ref("");
     const isLoading = ref(true);
     const { empleados, addEmpleado, updateEmpleado, deleteEmpleado, fetchEmpleados } = useEmpleados();
-    const { user, loadUser } = useUser();
+    const { user } = useUser();
     const filteredEmpleados = ref([]);
 
     onMounted(async () => {
       try {
+        console.log('🔍 Empleado.vue: Iniciando carga de empleados');
         await fetchEmpleados();
-        await loadUser();
         filteredEmpleados.value = empleados.value; // Copia inicial
+        console.log('✅ Empleado.vue: Empleados cargados:', empleados.value.length, 'empleados');
+        console.log('📋 Empleado.vue: Lista de empleados:', empleados.value);
         isLoading.value = false;
       } catch (error) {
-        console.error(error);
+        console.error('❌ Empleado.vue: Error:', error);
         isLoading.value = false;
       }
     });
@@ -248,7 +250,6 @@ export default {
       helperServices,
       toggleActivo,
       user,
-      loadUser,
     };
   },
 };

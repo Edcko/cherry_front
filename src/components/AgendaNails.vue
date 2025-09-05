@@ -89,7 +89,7 @@ export default {
     const citaPreseleccionada = ref({
       fecha: '',
     });
-    const { user, loadUser } = useUser();
+    const { user } = useUser();
     const { citas, getSundays, addCita, deleteCita } = useCitas(); // O alguna función similar que necesites
     const startDate = new Date(2024, 0, 1); // Ajusta las fechas según necesites
     const endDate = new Date(2024, 11, 31);
@@ -117,7 +117,6 @@ export default {
     disabledDates.value = getSundays(startDate, endDate);
 
     onMounted(async () => {
-      await loadUser();
       try {
         const formattedStartDate = formatDate(firstDayOfMonth);
         const formattedEndDate = formatDate(lastDayOfMonth);
@@ -176,12 +175,20 @@ export default {
 
       for (let i = 0; i < 12; i++) {
         const horaCandidata = addHours(inicioDia, 8 + i);
-        const horaFormateada = format(horaCandidata, 'HH:mm');
+        
+        // Formatear en formato 12 horas (AM/PM)
+        const hours = horaCandidata.getHours();
+        const minutes = horaCandidata.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const hours12 = hours % 12;
+        const hoursDisplay = hours12 === 0 ? 12 : hours12;
+        const minutesDisplay = minutes.toString().padStart(2, '0');
+        const horaFormateada = `${hoursDisplay}:${minutesDisplay} ${ampm}`;
 
         // Asegúrate de usar numero_cabina para la comprobación
         const esHoraOcupada = citasSeleccionadas.value.some(cita =>
           cita.Cabina.numero_cabina === numeroCabina &&
-          format(new Date(cita.fecha), 'HH:mm') === horaFormateada &&
+          format(new Date(cita.fecha), 'HH:mm') === format(horaCandidata, 'HH:mm') &&
           new Date(cita.fecha).toDateString() === new Date(fechaSeleccionada).toDateString()
         );
 

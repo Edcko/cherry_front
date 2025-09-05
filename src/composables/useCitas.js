@@ -347,6 +347,20 @@ const getHorasLibres = (citasDelDia, numeroCabina) => {
     return [];
   }
 
+  // Función para convertir hora de 24h a 12h con AM/PM
+  const convertirA12Horas = (hora24) => {
+    const [h, m] = hora24.split(':');
+    const hours = parseInt(h);
+    const minutes = parseInt(m);
+    
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hours12 = hours % 12;
+    const hoursDisplay = hours12 === 0 ? 12 : hours12;
+    const minutesDisplay = minutes.toString().padStart(2, '0');
+    
+    return `${hoursDisplay}:${minutesDisplay} ${ampm}`;
+  };
+
   // Cabina 4: 13:00 a 17:00
   let horasTrabajo;
   if (numeroCabina === 4) {
@@ -410,7 +424,13 @@ const getHorasLibres = (citasDelDia, numeroCabina) => {
     })
     .filter(Boolean);
 
-  return horasTrabajo.filter((hora) => !horasOcupadas.includes(hora));
+  // Filtrar horas disponibles y mantener orden cronológico
+  return horasTrabajo
+    .filter((hora) => !horasOcupadas.includes(hora))
+    .map(hora => ({
+      horaOriginal: hora, // Para ordenamiento cronológico
+      horaFormateada: convertirA12Horas(hora) // Para mostrar al usuario
+    }));
 };
 
 // === DEVOLVEMOS LAS PROPIEDADES Y MÉTODOS QUE USARÁN TUS COMPONENTES ===

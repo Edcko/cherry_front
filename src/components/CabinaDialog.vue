@@ -73,7 +73,7 @@ export default {
    // const idSpa = store.getters.idSpa;
 
     onMounted(async () => {
-      empleados.value = await apiService.getEmpleadosActivos();
+      empleados.value = await apiService.getEmpleadosActivosByCurrentSpa();
     });
 
     const empleadoOptions = computed(() => {

@@ -8,8 +8,8 @@
     <!-- Contenedor personalizado para el login -->
     <div class="login-content">
       <v-container class="fill-height" fluid>
-        <v-row align="center" justify="center">
-          <v-col cols="12" sm="8" md="4" lg="3">
+        <v-row align="center" justify="start">
+          <v-col cols="12" sm="8" md="4" lg="3" offset="1">
             <v-card class="pa-8 pb-6 transparent-card" elevation="8" max-width="448" rounded="lg">
               <v-img
                 class="mx-auto my-4"
@@ -161,16 +161,42 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  min-width: 100%;
-  min-height: 100%;
-  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
   z-index: 0;
 }
 
-/* Contenedor del contenido de login para centrarlo */
+/* Alternativa: Si quieres que el video llene toda la pantalla sin cortarse */
+/* Descomenta las siguientes líneas y comenta las de arriba si prefieres esta opción */
+/*
+#bg-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  z-index: 0;
+}
+*/
+
+/* Contenedor del contenido de login para posicionarlo a la izquierda */
 .login-content {
   position: relative;
   z-index: 1;
+  padding-left: 2rem;
+}
+
+/* Asegurar que el login se mantenga a la izquierda en móviles */
+@media (max-width: 600px) {
+  .login-content {
+    padding-left: 1rem;
+  }
 }
 
 /* Asegura que los contenedores de Vuetify sean transparentes */

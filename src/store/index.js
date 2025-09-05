@@ -95,7 +95,8 @@ export default createStore({
         return state.id_empleado; // Nota el cambio aquí    
       },
       idSpa: state => {
-        console.log('Getter idSpa:', state.id_spa);
+        console.log('🔍 Store: Getter idSpa llamado, valor:', state.id_spa);
+        console.log('🔍 Store: Estado completo:', state);
         return state.id_spa; // Nota el cambio aquí    
       },
   },

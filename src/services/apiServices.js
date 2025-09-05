@@ -1,464 +1,352 @@
 // src/services/apiService.js
 import axios from 'axios';
 import authHeader from './authHeader.js';
-import router from '../router/index.js'
-import store from '../store/index.js'
-// eslint-disable-next-line
-import { ref } from 'vue';
-import  useGlobalAlert  from '@/composables/useGlobalAlert.js';
+import router from '../router/index.js';
+import store from '../store/index.js';
+import useGlobalAlert from '@/composables/useGlobalAlert.js';
+import ApiConfig from '@/config/api.js';
 
-const API_URL = 'http://198.199.68.78:3000/cherry/';
+// Imprimir configuración al cargar
+ApiConfig.printConfig();
 
-// Crear una nueva instancia de Axios 
+const api = axios.create({
+  baseURL: ApiConfig.baseURL,
+  timeout: ApiConfig.timeout,
+});
 
-  const api = axios.create({
-    baseURL: API_URL,
-  });
+const { showAlert } = useGlobalAlert();
 
-  const { showAlert } = useGlobalAlert();
-  
-  api.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    (error) => {
-      // Verificamos si error.response existe
-      if (error.response && error.response.status === 401) {
-        console.log('Error 401');
-        store.dispatch('logout');
-        router.push('/login');
-        showAlert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.', 'error');
-      } else if (!error.response) {
-        // Error de red o conexión rechazada
-        console.error("Error de conexión:", error);
-        showAlert('Error de conexión. Por favor, verifique su conexión o intente más tarde.', 'error');
-      }
-      return Promise.reject(error);
+// Interceptor global para manejar 401 y errores de red
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      store.dispatch('logout');
+      router.push('/login');
+      showAlert('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.', 'error');
+    } else if (!error.response) {
+      showAlert('Error de conexión. Por favor, verifique su conexión o intente más tarde.', 'error');
     }
-  );
+    return Promise.reject(error);
+  }
+);
 
-//------------ Get -----------//
+// ------------ GET --------------
 
-const getPerteneceA = async () => {
-  const response = await api.get(API_URL + 'perteneceA',{
-    headers: authHeader()
-  });
-  return response.data;
-};
-
-const getPerteneceABySpa = async (spaId) => {
-  const response = await api.get(API_URL + 'perteneceA/' + spaId, {
-    headers: authHeader()
-  });
-  return response.data;
-};
-
-const getEmpleados = async () => {
-  
-    const response = await api.get(API_URL + 'empleados', {
-      headers: authHeader(),
-    });
-    return response.data;
-};
-
-const getEmpleadosActivos = async () => {
-
-    const response = await api.get(API_URL + 'empleados/activos',{
-      headers: authHeader(),
-    });
-    return response.data;
+export async function getPerteneceA() {
+  const res = await api.get('perteneceA', { headers: authHeader() });
+  return res.data;
 }
 
-const getClientes = async (params) => {
+export async function getPerteneceABySpa(spaId) {
+  const res = await api.get(`perteneceA/${spaId}`, { headers: authHeader() });
+  return res.data;
+}
 
-  const response = await api.get(API_URL + 'clientes', {
-    headers: authHeader(),
-    params
-  });
-  return response.data;
-};
+export async function getPerteneceAByCurrentSpa() {
+  const idSpa = store.getters.idSpa;
+  if (!idSpa) {
+    throw new Error('No se encontró el ID del spa en la store');
+  }
+  const res = await api.get(`perteneceA/${idSpa}`, { headers: authHeader() });
+  return res.data;
+}
 
-const getCitas = async (params) => {
-    const response = await api.get(API_URL + 'citas', {
-        headers: authHeader(),
-        params
-    });
-    return response.data;
-};
+export async function getEmpleados() {
+  const res = await api.get('empleados', { headers: authHeader() });
+  return res.data;
+}
 
-const getCitaById = async (id) => {
-  const response = await api.get(API_URL + 'cita/' + id, {
-    headers: authHeader()
-  });
-  return response.data;
-};
+export async function getEmpleadosByCurrentSpa() {
+  const idSpa = store.getters.idSpa;
+  if (!idSpa) {
+    throw new Error('No se encontró el ID del spa en la store');
+  }
+  console.log('🔍 apiServices: Obteniendo empleados para spa ID:', idSpa);
+  console.log('🌐 apiServices: URL:', `/spa/${idSpa}/empleados`);
+  const res = await api.get(`spa/${idSpa}/empleados`, { headers: authHeader() });
+  console.log('📡 apiServices: Respuesta del servidor:', res.data);
+  console.log('✅ apiServices: Empleados obtenidos:', res.data.length, 'empleados');
+  return res.data;
+}
 
-const getCitasCount = async (params) => {
-  const response = await api.get(API_URL + 'citas/count', {
-    headers: authHeader(),
-    params, // Agregar otras opciones como params
-  });
-  return response.data;
-};
+export async function getEmpleadosActivos() {
+  const res = await api.get('empleados/activos', { headers: authHeader() });
+  return res.data;
+}
 
-const getCompras = async () => {
-  const response = await api.get(API_URL + 'compras', {
-    headers: authHeader()
-  });
-  return response.data;
-};
+export async function getEmpleadosActivosByCurrentSpa() {
+  const idSpa = store.getters.idSpa;
+  if (!idSpa) {
+    throw new Error('No se encontró el ID del spa en la store');
+  }
+  const res = await api.get(`spa/${idSpa}/empleados/activos`, { headers: authHeader() });
+  return res.data;
+}
 
-const getSesiones = async () => {
-  const response = await api.get(API_URL + 'sesiones', {
-    headers: authHeader()
-  });
-  return response.data;
-};
+export async function getClientes(params) {
+  const res = await api.get('clientes', { headers: authHeader(), params });
+  return res.data;
+}
 
-const getCabinas = async (params) => {
-  const response = await api.get(API_URL + 'cabinas', {
-    headers: authHeader(),
-    params
-  });
-  return response.data;
-};
+export async function getCitas(params) {
+  const res = await api.get('citas', { headers: authHeader(), params });
+  return res.data;
+}
 
-const getSpas = async () => {
-    const response = await api.get(API_URL + 'spas', {
-        headers: authHeader()
-    });
-  return response.data;
-};
+export async function getCitaById(id) {
+  const res = await api.get(`cita/${id}`, { headers: authHeader() });
+  return res.data;
+}
 
-const getPaquetes = async () => {
-  const response = await api.get(API_URL + 'paquetes', {
-    headers: authHeader()
-  });
-  return response.data;
-};
+export async function getCitasCount(params) {
+  const res = await api.get('citas/count', { headers: authHeader(), params });
+  return res.data;
+}
 
-const getValoraciones = async (params) => {
-  const response = await api.get(API_URL + 'valoraciones', {
-    headers: authHeader(),
-    params
-  });
-  return response.data;
-};
+export async function getCompras() {
+  const res = await api.get('compras', { headers: authHeader() });
+  return res.data;
+}
 
-const getEstadoAgenda = async (idSpa) => {
-  const response = await api.get(API_URL + "estado-agenda", {
-    headers: authHeader(),
-    params: { idSpa }, // Enviar el idSpa como parámetro
-  });
-  return response.data;
-};
+export async function getSesiones() {
+  const res = await api.get('sesiones', { headers: authHeader() });
+  return res.data;
+}
 
-const getFechaApertura = async (idSpa) => {
-  const response = await api.get(API_URL + "fecha-apertura", {
-    headers: authHeader(),
-    params: { idSpa }, // Enviar el idSpa como parámetro
-  });
-  return response.data;
-};
+export async function getCabinas(params) {
+  const res = await api.get('cabinas', { headers: authHeader(), params });
+  return res.data;
+}
 
-// Obtener bloqueos por spa (usando el parámetro idSpa)
-const getBloqueos = async (params) => {
-  const response = await api.get(API_URL + 'bloqueos', {
-    headers: authHeader(),
-    params, // Por ejemplo, { idSpa: 1 }
-  });
-  return response.data;
-};
+export async function getSpas() {
+  const res = await api.get('spas', { headers: authHeader() });
+  return res.data;
+}
 
-const getBloqueosByDateRange = async (params) => {
-  const response = await api.get(API_URL + 'bloqueos/daterange', {
-    headers: authHeader(),
-    params,
-  });
-  return response.data;
-};
+export async function getPaquetes() {
+  const res = await api.get('paquetes', { headers: authHeader() });
+  return res.data;
+}
 
-// Obtener ventas por rango de fechas
-const getVentasPorRango = async ({ inicio, fin}) => {
-  const response = await api.get(API_URL + 'ventas/rango', {
-    headers: authHeader(),
-    params: { inicio, fin }, // Enviar las fechas de inicio y fin como parámetros
-  });
-  return response.data;
-};
+export async function getValoraciones(params) {
+  const res = await api.get('valoraciones', { headers: authHeader(), params });
+  return res.data;
+}
 
-// Obtiene detalle diario de ventas entre dos fechas.
-const getVentasDetallePorRango = async ({ inicio, fin }) => {
-  const response = await api.get(API_URL + 'ventas/detalle', {
-    headers: authHeader(),
-    params: { inicio, fin }, // Enviar las fechas de inicio y fin como parámetros
-  });
-  return response.data;
-};
+export async function getEstadoAgenda(idSpa) {
+  const res = await api.get('estado-agenda', { headers: authHeader(), params: { idSpa } });
+  return res.data;
+}
 
-const getVentasDetalleCompradores = async ({ inicio, fin }) => {
-  const response = await api.get(API_URL + 'ventas/detalle-compradores', {
-    headers: authHeader(),
-    params: { inicio, fin }
-  });
-  return response.data;
-};
+export async function getFechaApertura(idSpa) {
+  const res = await api.get('fecha-apertura', { headers: authHeader(), params: { idSpa } });
+  return res.data;
+}
 
-// Obtener datos completos de una compra (cliente y paquete incluidos)
-const getCompraCompleta = async (id_compra) => {
-  const response = await api.get(API_URL + 'compra/' + id_compra + '/completa', {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function getBloqueos(params) {
+  const res = await api.get('bloqueos', { headers: authHeader(), params });
+  return res.data;
+}
 
-//------------ Add -----------//
+export async function getBloqueosByDateRange(params) {
+  const res = await api.get('bloqueos/daterange', { headers: authHeader(), params });
+  return res.data;
+}
 
-const addPerteneceA = async (perteneceA) => {
-  const response = await api.post(API_URL + 'perteneceA/', perteneceA, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function getVentasPorRango({ inicio, fin }) {
+  const res = await api.get('ventas/rango', { headers: authHeader(), params: { inicio, fin } });
+  return res.data;
+}
 
-const addCliente = async (cliente) => {
-  const response = await api.post(API_URL + 'cliente/', cliente, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function getVentasDetallePorRango({ inicio, fin }) {
+  const res = await api.get('ventas/detalle', { headers: authHeader(), params: { inicio, fin } });
+  return res.data;
+}
 
-const addCita = async (cita) => {
-  const response = await api.post(API_URL + 'cita/', cita, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function getVentasDetalleCompradores({ inicio, fin }) {
+  const res = await api.get('ventas/detalle-compradores', { headers: authHeader(), params: { inicio, fin } });
+  return res.data;
+}
 
-const addCompra = async (compra) => {
-  const response = await api.post(API_URL + 'compra/', compra, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function getCompraCompleta(id_compra) {
+  const res = await api.get(`compra/${id_compra}/completa`, { headers: authHeader() });
+  return res.data;
+}
 
-const addEmpleado = async (empleado) => {
-  const response = await api.post(API_URL + 'empleado/', empleado, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+// ------------ POST/ADD --------------
 
-const addPaquete = async (paquete) => {
-  const response = await api.post(API_URL + 'paquete/', paquete, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function addPerteneceA(payload) {
+  const res = await api.post('perteneceA', payload, { headers: authHeader() });
+  return res.data;
+}
 
-const addCabina = async (cabina) => {
-  const response = await api.post(API_URL + 'cabina/', cabina, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function addCliente(payload) {
+  const res = await api.post('cliente', payload, { headers: authHeader() });
+  return res.data;
+}
 
-const addValoracion = async (valoracion) => {
-  const response = await api.post(API_URL + 'valoracion/', valoracion, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function addCita(payload) {
+  const res = await api.post('cita', payload, { headers: authHeader() });
+  return res.data;
+}
 
-// ----------- Crear Documento Cliente -------/
-const generateClientDocument = async (clienteId) => {
-  const response = await api.post(`clientes/${clienteId}/document`, {
-    headers: authHeader(),
-  });
-  return response.data; // Retorna la respuesta, que incluye el `filePath`
-};
+export async function addCompra(payload) {
+  const res = await api.post('compra', payload, { headers: authHeader() });
+  return res.data;
+}
 
-// Crear un nuevo bloqueo
-const addBloqueo = async (bloqueo) => {
-  const response = await api.post(API_URL + 'bloqueo', bloqueo, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function addEmpleado(payload) {
+  const res = await api.post('empleado', payload, { headers: authHeader() });
+  return res.data;
+}
 
-//------------ Update -----------//
+export async function addPaquete(payload) {
+  const res = await api.post('paquete', payload, { headers: authHeader() });
+  return res.data;
+}
 
-const updatePerteneceA = async (spaId, paqueteId, perteneceA) => {
-  const response = await api.put(API_URL + 'perteneceA/' + spaId + '/' + paqueteId, perteneceA, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function addCabina(payload) {
+  const res = await api.post('cabina', payload, { headers: authHeader() });
+  return res.data;
+}
 
-const updateCliente = async (cliente) => {
+export async function addValoracion(payload) {
+  const res = await api.post('valoracion', payload, { headers: authHeader() });
+  return res.data;
+}
 
-  const response = await api.put(API_URL + 'cliente/' + cliente.id_cliente, cliente, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function generateClientDocument(clienteId) {
+  const res = await api.post(`clientes/${clienteId}/document`, null, { headers: authHeader() });
+  return res.data;
+}
 
-const updateCita = async (cita) => {
-  const response = await api.put(API_URL + 'cita/' + cita.id_cita, cita, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function addBloqueo(payload) {
+  const res = await api.post('bloqueo', payload, { headers: authHeader() });
+  return res.data;
+}
 
-const updateCompra = async (compra) => {
-  const response = await api.put(API_URL + 'compra/' + compra.id_compra, compra, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+// ------------ PUT/UPDATE --------------
 
-const updateEmpleado = async (empleado) => {
-  const response = await api.put(API_URL + 'empleado/' + empleado.id_empleado, empleado,{
-    headers: authHeader(),
-});
-  return response.data;
-};
+export async function updatePerteneceA(spaId, paqueteId, payload) {
+  const res = await api.put(`perteneceA/${spaId}/${paqueteId}`, payload, { headers: authHeader() });
+  return res.data;
+}
 
-const updatePaquete = async (paquete) => {
-  const response = await api.put(API_URL + 'paquete/' + paquete.id_paquete, paquete, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function updateCliente(cliente) {
+  const res = await api.put(`cliente/${cliente.id_cliente}`, cliente, { headers: authHeader() });
+  return res.data;
+}
 
-const updateCabina = async (cabina) => {
-  const response = await api.put(API_URL + 'cabina/' + cabina.id_cabina, cabina, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function updateCita(cita) {
+  const res = await api.put(`cita/${cita.id_cita}`, cita, { headers: authHeader() });
+  return res.data;
+}
 
-const updateValoracion = async (valoracion) => {
-  const response = await api.put(API_URL + 'valoracion/' + valoracion.id_valoracion, valoracion, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function updateCompra(compra) {
+  const res = await api.put(`compra/${compra.id_compra}`, compra, { headers: authHeader() });
+  return res.data;
+}
 
-const updateEstadoAgenda = async (estado, idSpa) => {
-  const response = await api.put(
-    API_URL + "estado-agenda",
-    { estado }, // Enviar el estado en el cuerpo
-    {
-      headers: authHeader(),
-      params: { idSpa }, // Enviar el idSpa como parámetro en la URL
-    }
-  );
-  return response.data;
-};
+export async function updateEmpleado(empleado) {
+  const res = await api.put(`empleado/${empleado.id_empleado}`, empleado, { headers: authHeader() });
+  return res.data;
+}
 
-const updateFechaApertura = async (fecha_apertura, idSpa) => {
-  const response = await api.put(API_URL +
-    "fecha-apertura",
-    { fecha_apertura },
-    { headers: authHeader(),
-      params: { idSpa }, // 
-     }
-  );
-  return response.data;
-};
+export async function updatePaquete(paquete) {
+  const res = await api.put(`paquete/${paquete.id_paquete}`, paquete, { headers: authHeader() });
+  return res.data;
+}
 
-// Actualizar bloqueo (por id)
-const updateBloqueo = async (bloqueo) => {
-  const response = await api.put(API_URL + 'bloqueo/' + bloqueo.id_bloqueo, bloqueo, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function updateCabina(cabina) {
+  const res = await api.put(`cabina/${cabina.id_cabina}`, cabina, { headers: authHeader() });
+  return res.data;
+}
 
-//------------ Delete -----------//
+export async function updateValoracion(valoracion) {
+  const res = await api.put(`valoracion/${valoracion.id_valoracion}`, valoracion, { headers: authHeader() });
+  return res.data;
+}
 
-const deltePterneceA = async (spaId, paqueteId) => {
-  const response = await api.delete(API_URL + 'perteneceA/' + spaId + '/' + paqueteId, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function updateEstadoAgenda(estado, idSpa) {
+  const res = await api.put('estado-agenda', { estado }, { headers: authHeader(), params: { idSpa } });
+  return res.data;
+}
 
-const deleteCliente = async (id_cliente) => {
-  const response = await api.delete(API_URL + 'cliente/' + id_cliente,{
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function updateFechaApertura(fecha_apertura, idSpa) {
+  const res = await api.put('fecha-apertura', { fecha_apertura }, { headers: authHeader(), params: { idSpa } });
+  return res.data;
+}
 
-const deleteCita = async (id_cita) => {
-  console.log("Delete cita id:", id_cita);
-  const response = await api.delete(API_URL + 'cita/' + id_cita, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function updateBloqueo(bloqueo) {
+  const res = await api.put(`bloqueo/${bloqueo.id_bloqueo}`, bloqueo, { headers: authHeader() });
+  return res.data;
+}
 
-const deleteCompra = async (id_compra) => {
-  const response = await api.delete(API_URL + 'compra/' + id_compra, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+// ------------ DELETE --------------
 
-const deleteEmpleado = async (id_empleado) => {
-  console.log("Delete empleado id:", id_empleado);
-  const response = await api.delete(API_URL + 'empleado/' + id_empleado, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function deletePerteneceA(spaId, paqueteId) {
+  const res = await api.delete(`perteneceA/${spaId}/${paqueteId}`, { headers: authHeader() });
+  return res.data;
+}
 
-const deletePaquete = async (id_paquete) => {
-  const response = await api.delete(API_URL + 'paquete/' + id_paquete, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function deleteCliente(id_cliente) {
+  const res = await api.delete(`cliente/${id_cliente}`, { headers: authHeader() });
+  return res.data;
+}
 
-const deleteCabina = async (id_cabina) => {
-  const response = await api.delete(API_URL + 'cabina/' + id_cabina, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function deleteCita(id_cita) {
+  const res = await api.delete(`cita/${id_cita}`, { headers: authHeader() });
+  return res.data;
+}
 
-const deleteValoracion = async (id_valoracion) => {
-  const response = await api.delete(API_URL + 'valoracion/' + id_valoracion, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function deleteCompra(id_compra) {
+  const res = await api.delete(`compra/${id_compra}`, { headers: authHeader() });
+  return res.data;
+}
 
-// Eliminar bloqueo (por id)
-const deleteBloqueo = async (id_bloqueo) => {
-  const response = await api.delete(API_URL + 'bloqueo/' + id_bloqueo, {
-    headers: authHeader(),
-  });
-  return response.data;
-};
+export async function deleteEmpleado(id_empleado) {
+  const res = await api.delete(`empleado/${id_empleado}`, { headers: authHeader() });
+  return res.data;
+}
+
+export async function deletePaquete(id_paquete) {
+  const res = await api.delete(`paquete/${id_paquete}`, { headers: authHeader() });
+  return res.data;
+}
+
+export async function deleteCabina(id_cabina) {
+  const res = await api.delete(`cabina/${id_cabina}`, { headers: authHeader() });
+  return res.data;
+}
+
+export async function deleteValoracion(id_valoracion) {
+  const res = await api.delete(`valoracion/${id_valoracion}`, { headers: authHeader() });
+  return res.data;
+}
+
+export async function deleteBloqueo(id_bloqueo) {
+  const res = await api.delete(`bloqueo/${id_bloqueo}`, { headers: authHeader() });
+  return res.data;
+}
 
 export default {
-  getClientes,
+  getPerteneceA,
+  getPerteneceABySpa,
+  getPerteneceAByCurrentSpa,
   getEmpleados,
+  getEmpleadosByCurrentSpa,
   getEmpleadosActivos,
+  getEmpleadosActivosByCurrentSpa,
+  getClientes,
   getCitas,
   getCitaById,
   getCitasCount,
   getCompras,
-  getCompraCompleta,
   getSesiones,
   getCabinas,
   getSpas,
   getPaquetes,
-  getPerteneceA,
-  getPerteneceABySpa,
   getValoraciones,
   getEstadoAgenda,
   getFechaApertura,
@@ -467,35 +355,35 @@ export default {
   getVentasPorRango,
   getVentasDetallePorRango,
   getVentasDetalleCompradores,
+  getCompraCompleta,
   addPerteneceA,
   addCliente,
-  addEmpleado,
   addCita,
   addCompra,
-  addCabina,
+  addEmpleado,
   addPaquete,
+  addCabina,
   addValoracion,
-  addBloqueo,
   generateClientDocument,
+  addBloqueo,
   updatePerteneceA,
   updateCliente,
-  updateEmpleado,
   updateCita,
   updateCompra,
+  updateEmpleado,
   updatePaquete,
   updateCabina,
   updateValoracion,
   updateEstadoAgenda,
   updateFechaApertura,
   updateBloqueo,
-  deltePterneceA,
+  deletePerteneceA,
   deleteCliente,
-  deleteEmpleado,
   deleteCita,
   deleteCompra,
+  deleteEmpleado,
   deletePaquete,
   deleteCabina,
   deleteValoracion,
   deleteBloqueo
-  // Exporta las otras solicitudes API aquí
 };

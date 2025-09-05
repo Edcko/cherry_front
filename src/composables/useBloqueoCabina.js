@@ -54,7 +54,7 @@ export default function useBloqueoCabina() {
       
       // Solo actualizar si realmente hay cambios
       if (hasChanges) {
-        bloqueos.value = response;
+      bloqueos.value = response;
       }
     } catch (error) {
       console.error("Error al obtener bloqueos por rango de fecha:", error);

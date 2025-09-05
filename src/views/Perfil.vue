@@ -70,11 +70,12 @@
               </div>
               
               <div class="profile-info">
-                <h1 class="hero-title">
+                <h1 class="hero-title" v-if="user">
                   {{ user.nombre_empleado }} {{ user.apellido_paterno }} {{ user.apellido_materno }}
                 </h1>
                 <div class="role-badge">
                   <v-chip
+                    v-if="user"
                     :color="getRoleColor(user.tipo_empleado)"
                     text-color="white"
                     class="role-chip"
@@ -85,7 +86,7 @@
                     {{ user.tipo_empleado }}
                   </v-chip>
                 </div>
-                <p class="hero-subtitle">
+                <p class="hero-subtitle" v-if="user">
                   <v-icon size="18" class="mr-2">mdi-email</v-icon>
                   {{ user.email }}
                 </p>
@@ -400,7 +401,7 @@ import useGlobalAlert from "@/composables/useGlobalAlert";
 export default {
   name: "Perfil_view",
   setup() {
-    const { user, loadUser } = useUser();
+    const { user } = useUser();
     const { showAlert } = useGlobalAlert();
     
     // Estados de diálogos
@@ -692,7 +693,6 @@ export default {
     
     onMounted(() => {
       console.log('Perfil component mounted');
-      loadUser();
     });
     
     return {

@@ -164,7 +164,7 @@ watch(() => props.citaPreseleccionada, (newValue) => {
         idSpa: idSpa
       });
 //      console.log("Cabinas:", cabinas.value);
-      paquetes.value = await apiService.getPerteneceABySpa(idSpa);
+      paquetes.value = await apiService.getPerteneceAByCurrentSpa();
       console.log("Paquetes:", paquetes.value);
     });
 /*

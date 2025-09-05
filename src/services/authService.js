@@ -1,40 +1,74 @@
+// src/services/authService.js
 import axios from 'axios';
 import authHeader from './authHeader';
+import ApiConfig from '@/config/api.js';
 
-const API_URL = 'http://198.199.68.78:3000/cherry/auth/';
+// Instancia de Axios para autenticación
+const authApi = axios.create({
+  baseURL: `${ApiConfig.baseURL}/auth/`,
+  timeout: ApiConfig.timeout,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+});
 
-// Crear una nueva instancia de Axios
-  const api = axios.create({
-    baseURL: API_URL,
-  });
-
-const login = async (email, password_empleado) => {
-  const response = await axios.post(API_URL + 'login', {
-    email,
-    password_empleado,
-  });
-  if (response.data.token) {
-    console.log('Inicio de sesion exitoso', response.data);
-    localStorage.setItem('user', JSON.stringify(response.data));
+// Opcional: capturar 401 si quieres
+authApi.interceptors.response.use(
+  response => response,
+  error => {
+    // si necesitas manejar expiración de token aquí, lo puedes hacer
+    return Promise.reject(error);
   }
-  return response.data;
+);
+
+/**
+ * Inicia sesión y almacena el token en localStorage
+ * @param {string} email
+ * @param {string} password_empleado
+ */
+export const login = async (email, password_empleado) => {
+  console.log('🔐 authService: Iniciando login');
+  console.log('🌐 authService: URL base:', authApi.defaults.baseURL);
+  console.log('📧 authService: Email:', email);
+  
+  try {
+    // Primero probar conectividad
+    console.log('🔍 authService: Probando conectividad...');
+    const testUrl = `${ApiConfig.baseURL}/auth/login`;
+    console.log('🌐 authService: URL completa:', testUrl);
+    
+    const res = await authApi.post('login', { email, password_empleado });
+    console.log('✅ authService: Login exitoso', res.data);
+    if (res.data.token) {
+      localStorage.setItem('user', JSON.stringify(res.data));
+    }
+    return res.data;
+  } catch (error) {
+    console.error('❌ authService: Error en login:', error);
+    console.error('❌ authService: Status:', error.response?.status);
+    console.error('❌ authService: URL intentada:', error.config?.url);
+    console.error('❌ authService: Response data:', error.response?.data);
+    throw error;
+  }
 };
 
-const getUsuario = async () => {
-  const response = await api.get(API_URL + 'usuario', {
-    headers: authHeader()
+/** Obtiene los datos del usuario autenticado */
+export const getUsuario = async () => {
+  const res = await authApi.get('usuario', {
+    headers: authHeader(),
   });
-  return response.data
-}
+  return res.data;
+};
 
-
-const logout = () => {
+/** Cierra la sesión localmente */
+export const logout = () => {
   localStorage.removeItem('user');
-  console.log('Cierre de sesion exitoso');
+  console.log('Cierre de sesión exitoso');
 };
 
 export default {
   login,
   logout,
   getUsuario,
-};  
+};

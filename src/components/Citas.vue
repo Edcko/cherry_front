@@ -207,7 +207,7 @@ export default {
       newDateFilter
     );
 
-    const { user, loadUser } = useUser();
+    const { user } = useUser();
     const isDeveloper = computed(
       () => user.value && user.value.tipo_empleado === "Desarrollador"
     );
@@ -237,10 +237,21 @@ export default {
       }
     };
 
-    // Formateo de hora
+    // Formateo de hora en formato 12 horas (AM/PM)
     const formatHora = (fechaBloqueo) => {
       const date = new Date(fechaBloqueo);
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      
+      // Convertir a formato 12 horas
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hours12 = hours % 12;
+      const hoursDisplay = hours12 === 0 ? 12 : hours12;
+      
+      // Formatear minutos con dos dígitos
+      const minutesDisplay = minutes.toString().padStart(2, '0');
+      
+      return `${hoursDisplay}:${minutesDisplay} ${ampm}`;
     };
 
     const getCitasByCabina = (numeroCabina) => {
@@ -339,15 +350,15 @@ export default {
         }).filter(Boolean);
         
         const horasLibres = todasHorasLibres
-          .filter(hs => !bloqueadasStr.includes(hs))
+          .filter(hs => !bloqueadasStr.includes(hs.horaOriginal))
           .map(hs => {
-            const [h, m] = hs.split(':');
+            const [h, m] = hs.horaOriginal.split(':');
             const d = new Date(selectedDate.value);
             d.setHours(+h, +m, 0, 0);
             const evento = { 
               tipo: 'libre', 
               hora: d, 
-              horaStr: hs 
+              horaStr: hs.horaFormateada // Usar la hora formateada para mostrar
             };
             return markRaw(evento);
           });
@@ -422,7 +433,6 @@ export default {
           fecthEstadoAgenda(),
           fetchFechaApertura(),
           loadCitasCountByDate(),
-          loadUser(),
           cargarCabinasDisponibles(),
         ]);
         
@@ -463,11 +473,30 @@ export default {
 
     const handleAgendarHoraLibre = (hora) => {
       if (!selectedDate.value) return;
-      const [hrs, mins] = hora.split(":");
+      
+      // La hora viene en formato "6:30 PM", necesitamos extraer hora, minutos y AM/PM
+      // Buscar el patrón completo: (hora):(minutos) (AM/PM)
+      const horaMatch = hora.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+      if (!horaMatch) {
+        console.error('Formato de hora no válido:', hora);
+        return;
+      }
+      
+      const [, hrs, mins, ampm] = horaMatch;
+      let horas24 = parseInt(hrs);
+      
+      // Convertir a formato 24 horas para el setHours
+      if (ampm.toUpperCase() === 'PM' && horas24 !== 12) {
+        horas24 += 12;
+      } else if (ampm.toUpperCase() === 'AM' && horas24 === 12) {
+        horas24 = 0;
+      }
+      
       const dt = new Date(selectedDate.value);
-      dt.setHours(+hrs, +mins, 0);
+      dt.setHours(horas24, parseInt(mins), 0);
       const pad = (n) => n.toString().padStart(2, "0");
-      horaPreseleccionada.value = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${hrs}:${mins}`;
+      // Asegurar que tanto horas como minutos tengan dos dígitos
+      horaPreseleccionada.value = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(horas24)}:${pad(mins)}`;
       showDialog.value = true;
     };
 
@@ -534,9 +563,31 @@ export default {
     };
 
     const handleCerrarCabina = (hora) => {
-      const d = new Date(selectedDate.value);
+      if (!selectedDate.value) return;
+      
+      // La hora viene en formato "6:30 PM", necesitamos extraer hora, minutos y AM/PM
+      // Buscar el patrón completo: (hora):(minutos) (AM/PM)
+      const horaMatch = hora.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+      if (!horaMatch) {
+        console.error('Formato de hora no válido:', hora);
+        return;
+      }
+      
+      const [, hrs, mins, ampm] = horaMatch;
+      let horas24 = parseInt(hrs);
+      
+      // Convertir a formato 24 horas para el setHours
+      if (ampm.toUpperCase() === 'PM' && horas24 !== 12) {
+        horas24 += 12;
+      } else if (ampm.toUpperCase() === 'AM' && horas24 === 12) {
+        horas24 = 0;
+      }
+      
+      const dt = new Date(selectedDate.value);
+      dt.setHours(horas24, parseInt(mins), 0);
       const pad = (n) => n.toString().padStart(2, "0");
-      horaPreseleccionada.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${hora}`;
+      // Asegurar que tanto horas como minutos tengan dos dígitos
+      horaPreseleccionada.value = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(horas24)}:${pad(mins)}`;
       showCerrarCabinaDialog.value = true;
     };
 
@@ -625,8 +676,8 @@ export default {
       const colors = {
         "Por confirmar": "orange",
         "Cita programada": "purple",
-        "Cita realizada": "green",
-        "Cita perdida": "blue",
+        "Cita realizada": "light-blue", // Azul cielo
+        "Cita perdida": "pink", // Rosa mexicano
         "Cita cancelada": "red",
         "Reagendo cita": "yellow darken-2",
         "Adeudo": "red darken-3",
@@ -733,15 +784,14 @@ export default {
 
 @media (max-width: 900px) {
   .v-row {
-    flex-wrap: nowrap !important;
-    overflow-x: auto;
-    gap: 0 18px;
+    flex-wrap: wrap !important;
+    gap: 16px 0;
     padding-bottom: 12px;
   }
   .v-col {
-    min-width: 320px;
-    max-width: 90vw;
-    flex: 0 0 85vw;
+    min-width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
   }
 }
 
@@ -751,9 +801,10 @@ export default {
     padding: 8px 0 6px 0;
   }
   .v-col {
-    min-width: 260px;
-    max-width: 98vw;
-    flex: 0 0 98vw;
+    min-width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+    padding: 0 8px;
   }
 }
 

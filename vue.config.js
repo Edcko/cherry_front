@@ -8,7 +8,7 @@ module.exports = defineConfig({
 		}
   },
 
-    configureWebpack: {
+  configureWebpack: {
     plugins: [
       new webpack.DefinePlugin({
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false),
@@ -16,6 +16,18 @@ module.exports = defineConfig({
         __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
       }),
     ],
+  },
+
+  // Configuración de proxy para evitar problemas de CORS
+  devServer: {
+    proxy: {
+      '/cherry': {
+        target: 'https://gpocherry.com',
+        changeOrigin: true,
+        secure: false,
+        logLevel: 'debug',
+      }
+    }
   },
 
 })
