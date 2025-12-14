@@ -43,7 +43,7 @@
           </div>
           <div class="info-content">
             <label>Duración</label>
-            <span>1 hora estándar</span>
+            <span>30 minutos estándar</span>
           </div>
         </div>
       </div>
